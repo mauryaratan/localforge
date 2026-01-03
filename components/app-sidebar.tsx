@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -51,6 +52,11 @@ export const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-sidebar-border border-t px-4 py-3">
+        <span className="text-sidebar-foreground/50 text-[10px]">
+          Built by <a href="https://x.com/mauryaratan" target="_blank" rel="noopener noreferrer" className="underline">@mauryaratan</a>
+        </span>
+      </SidebarFooter>
     </Sidebar>
   );
 };
