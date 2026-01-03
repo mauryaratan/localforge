@@ -1,6 +1,7 @@
 import {
   Calendar03Icon,
   CodeIcon,
+  CodeSquareIcon,
   Home01Icon,
   Link01Icon,
   PaintBoardIcon,
@@ -41,6 +42,11 @@ export const navItems: NavItem[] = [
     title: "URL Encoder",
     href: "/url-encoder",
     icon: PercentIcon,
+  },
+  {
+    title: "HTML Entities",
+    href: "/html-entities",
+    icon: CodeSquareIcon,
   },
   {
     title: "JSON Formatter",
