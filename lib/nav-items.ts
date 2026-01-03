@@ -8,6 +8,7 @@ import {
   NoteEditIcon,
   PaintBoardIcon,
   PercentIcon,
+  QrCodeIcon,
   SourceCodeIcon,
   TextAlignLeftIcon,
   TextIcon,
@@ -85,6 +86,11 @@ export const navItems: NavItem[] = [
     title: "Markdown Preview",
     href: "/markdown-preview",
     icon: NoteEditIcon,
+  },
+  {
+    title: "QR Code",
+    href: "/qr-code",
+    icon: QrCodeIcon,
   },
 ];
 
