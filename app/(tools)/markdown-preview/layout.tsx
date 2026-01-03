@@ -26,7 +26,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Markdown Preview - DevTools",
-    description: "Write and preview Markdown with live rendering and GFM support",
+    description:
+      "Write and preview Markdown with live rendering and GFM support",
   },
 };
 

@@ -39,9 +39,7 @@ export const getMarkdownStats = (markdown: string): MarkdownStats => {
   const nonEmptyLines = lines.filter((line) => line.trim().length > 0);
 
   // Count words (split by whitespace, filter empty)
-  const words = markdown
-    .split(/\s+/)
-    .filter((word) => word.length > 0).length;
+  const words = markdown.split(/\s+/).filter((word) => word.length > 0).length;
 
   // Count paragraphs (separated by blank lines)
   const paragraphs = markdown
@@ -53,7 +51,9 @@ export const getMarkdownStats = (markdown: string): MarkdownStats => {
 
   // Count fenced code blocks (```)
   const codeBlockMatches = markdown.match(/```/g);
-  const codeBlocks = codeBlockMatches ? Math.floor(codeBlockMatches.length / 2) : 0;
+  const codeBlocks = codeBlockMatches
+    ? Math.floor(codeBlockMatches.length / 2)
+    : 0;
 
   // Count links [text](url) - exclude images
   const linkMatches = markdown.match(/(?<!!)\[([^\]]+)\]\(([^)]+)\)/g);

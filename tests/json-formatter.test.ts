@@ -18,7 +18,7 @@ describe("validateJson", () => {
   });
 
   it("should validate JSON arrays", () => {
-    const result = validateJson('[1, 2, 3]');
+    const result = validateJson("[1, 2, 3]");
     expect(result.isValid).toBe(true);
     expect(result.parsed).toEqual([1, 2, 3]);
   });
@@ -194,7 +194,11 @@ describe("queryJsonPath", () => {
   it("should filter array elements with comparison", () => {
     const result = queryJsonPath(testJson, "$.products[?(@.price<100)]");
     expect(result.success).toBe(true);
-    const filtered = result.result as { id: number; name: string; price: number }[];
+    const filtered = result.result as {
+      id: number;
+      name: string;
+      price: number;
+    }[];
     expect(filtered.length).toBe(2);
     expect(filtered.every((p) => p.price < 100)).toBe(true);
   });
@@ -202,7 +206,11 @@ describe("queryJsonPath", () => {
   it("should filter array elements with equality", () => {
     const result = queryJsonPath(testJson, '$.products[?(@.name=="Laptop")]');
     expect(result.success).toBe(true);
-    const filtered = result.result as { id: number; name: string; price: number }[];
+    const filtered = result.result as {
+      id: number;
+      name: string;
+      price: number;
+    }[];
     expect(filtered.length).toBe(1);
     expect(filtered[0].name).toBe("Laptop");
   });

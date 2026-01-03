@@ -200,9 +200,7 @@ export const toCamelCase = (input: string): string => {
   if (words.length === 0) return "";
 
   return words
-    .map((word, index) =>
-      index === 0 ? word.toLowerCase() : capitalize(word)
-    )
+    .map((word, index) => (index === 0 ? word.toLowerCase() : capitalize(word)))
     .join("");
 };
 
@@ -276,9 +274,7 @@ export const toSentenceCase = (input: string): string => {
   if (words.length === 0) return "";
 
   return words
-    .map((word, index) =>
-      index === 0 ? capitalize(word) : word.toLowerCase()
-    )
+    .map((word, index) => (index === 0 ? capitalize(word) : word.toLowerCase()))
     .join(" ");
 };
 
@@ -484,6 +480,9 @@ export const getCharacterCount = (
  * Gets word count
  */
 export const getWordCount = (input: string): number => {
-  const words = input.trim().split(/\s+/).filter((word) => word.length > 0);
+  const words = input
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
   return words.length;
 };

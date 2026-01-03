@@ -3,6 +3,7 @@ import {
   CodeIcon,
   CodeSquareIcon,
   Home01Icon,
+  Key01Icon,
   Link01Icon,
   NoteEditIcon,
   PaintBoardIcon,
@@ -49,6 +50,11 @@ export const navItems: NavItem[] = [
     title: "URL Encoder",
     href: "/url-encoder",
     icon: PercentIcon,
+  },
+  {
+    title: "Base64",
+    href: "/base64",
+    icon: Key01Icon,
   },
   {
     title: "HTML Entities",

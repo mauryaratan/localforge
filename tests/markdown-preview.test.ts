@@ -172,7 +172,9 @@ describe("hasMarkdownSyntax", () => {
   });
 
   it("should return false for plain text", () => {
-    expect(hasMarkdownSyntax("Just some plain text without any formatting.")).toBe(false);
+    expect(
+      hasMarkdownSyntax("Just some plain text without any formatting.")
+    ).toBe(false);
   });
 
   it("should detect headings", () => {

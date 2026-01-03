@@ -10,61 +10,93 @@ import {
 describe("encodeHTMLEntities", () => {
   describe("named mode", () => {
     it("should encode ampersand as &amp;", () => {
-      const result = encodeHTMLEntities("Tom & Jerry", { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities("Tom & Jerry", {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("Tom &amp; Jerry");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode less than as &lt;", () => {
-      const result = encodeHTMLEntities("1 < 2", { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities("1 < 2", {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("1 &lt; 2");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode greater than as &gt;", () => {
-      const result = encodeHTMLEntities("2 > 1", { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities("2 > 1", {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("2 &gt; 1");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode double quotes as &quot;", () => {
-      const result = encodeHTMLEntities('Say "Hello"', { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities('Say "Hello"', {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("Say &quot;Hello&quot;");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode apostrophe as &apos;", () => {
-      const result = encodeHTMLEntities("It's fine", { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities("It's fine", {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("It&apos;s fine");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode copyright symbol", () => {
-      const result = encodeHTMLEntities("© 2024", { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities("© 2024", {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("&copy; 2024");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode HTML tag characters", () => {
-      const result = encodeHTMLEntities("<script>alert('xss')</script>", { mode: "named", encodeAll: false });
-      expect(result.encoded).toBe("&lt;script&gt;alert(&apos;xss&apos;)&lt;/script&gt;");
+      const result = encodeHTMLEntities("<script>alert('xss')</script>", {
+        mode: "named",
+        encodeAll: false,
+      });
+      expect(result.encoded).toBe(
+        "&lt;script&gt;alert(&apos;xss&apos;)&lt;/script&gt;"
+      );
       expect(result.isValid).toBe(true);
     });
 
     it("should encode accented characters", () => {
-      const result = encodeHTMLEntities("café", { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities("café", {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("caf&eacute;");
       expect(result.isValid).toBe(true);
     });
 
     it("should handle empty string", () => {
-      const result = encodeHTMLEntities("", { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities("", {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("");
       expect(result.isValid).toBe(true);
     });
 
     it("should not encode plain alphanumeric text", () => {
-      const result = encodeHTMLEntities("Hello World 123", { mode: "named", encodeAll: false });
+      const result = encodeHTMLEntities("Hello World 123", {
+        mode: "named",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("Hello World 123");
       expect(result.isValid).toBe(true);
     });
@@ -72,19 +104,28 @@ describe("encodeHTMLEntities", () => {
 
   describe("decimal mode", () => {
     it("should encode ampersand as &#38;", () => {
-      const result = encodeHTMLEntities("Tom & Jerry", { mode: "decimal", encodeAll: false });
+      const result = encodeHTMLEntities("Tom & Jerry", {
+        mode: "decimal",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("Tom &#38; Jerry");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode less than as &#60;", () => {
-      const result = encodeHTMLEntities("<tag>", { mode: "decimal", encodeAll: false });
+      const result = encodeHTMLEntities("<tag>", {
+        mode: "decimal",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("&#60;tag&#62;");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode emoji as decimal code point", () => {
-      const result = encodeHTMLEntities("Hello 👋", { mode: "decimal", encodeAll: false });
+      const result = encodeHTMLEntities("Hello 👋", {
+        mode: "decimal",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("Hello &#128075;");
       expect(result.isValid).toBe(true);
     });
@@ -92,19 +133,28 @@ describe("encodeHTMLEntities", () => {
 
   describe("hexadecimal mode", () => {
     it("should encode ampersand as &#x26;", () => {
-      const result = encodeHTMLEntities("Tom & Jerry", { mode: "hexadecimal", encodeAll: false });
+      const result = encodeHTMLEntities("Tom & Jerry", {
+        mode: "hexadecimal",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("Tom &#x26; Jerry");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode less than as &#x3C;", () => {
-      const result = encodeHTMLEntities("<tag>", { mode: "hexadecimal", encodeAll: false });
+      const result = encodeHTMLEntities("<tag>", {
+        mode: "hexadecimal",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("&#x3C;tag&#x3E;");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode emoji as hex code point", () => {
-      const result = encodeHTMLEntities("Hi 🚀", { mode: "hexadecimal", encodeAll: false });
+      const result = encodeHTMLEntities("Hi 🚀", {
+        mode: "hexadecimal",
+        encodeAll: false,
+      });
       expect(result.encoded).toBe("Hi &#x1F680;");
       expect(result.isValid).toBe(true);
     });
@@ -112,19 +162,28 @@ describe("encodeHTMLEntities", () => {
 
   describe("encodeAll option", () => {
     it("should encode all non-alphanumeric when encodeAll is true", () => {
-      const result = encodeHTMLEntities("a-b", { mode: "decimal", encodeAll: true });
+      const result = encodeHTMLEntities("a-b", {
+        mode: "decimal",
+        encodeAll: true,
+      });
       expect(result.encoded).toBe("a&#45;b");
       expect(result.isValid).toBe(true);
     });
 
     it("should encode spaces when encodeAll is true", () => {
-      const result = encodeHTMLEntities("hello world", { mode: "named", encodeAll: true });
+      const result = encodeHTMLEntities("hello world", {
+        mode: "named",
+        encodeAll: true,
+      });
       expect(result.encoded).toBe("hello&nbsp;world");
       expect(result.isValid).toBe(true);
     });
 
     it("should not encode letters and numbers when encodeAll is true", () => {
-      const result = encodeHTMLEntities("abc123", { mode: "decimal", encodeAll: true });
+      const result = encodeHTMLEntities("abc123", {
+        mode: "decimal",
+        encodeAll: true,
+      });
       expect(result.encoded).toBe("abc123");
       expect(result.isValid).toBe(true);
     });
@@ -288,14 +347,17 @@ describe("roundtrip encoding/decoding", () => {
     "café résumé naïve",
     "→ Next → Step →",
     "a < b && b > c",
-    'Say "Hello" or \'Hi\'',
+    "Say \"Hello\" or 'Hi'",
     "α + β = γ",
     "Hello 👋 World 🌍",
   ];
 
   testCases.forEach((input) => {
     it(`should roundtrip: "${input.slice(0, 30)}${input.length > 30 ? "..." : ""}"`, () => {
-      const encoded = encodeHTMLEntities(input, { mode: "named", encodeAll: false });
+      const encoded = encodeHTMLEntities(input, {
+        mode: "named",
+        encodeAll: false,
+      });
       const decoded = decodeHTMLEntities(encoded.encoded);
       expect(decoded.decoded).toBe(input);
     });
@@ -303,7 +365,10 @@ describe("roundtrip encoding/decoding", () => {
 
   testCases.forEach((input) => {
     it(`should roundtrip decimal: "${input.slice(0, 30)}${input.length > 30 ? "..." : ""}"`, () => {
-      const encoded = encodeHTMLEntities(input, { mode: "decimal", encodeAll: false });
+      const encoded = encodeHTMLEntities(input, {
+        mode: "decimal",
+        encodeAll: false,
+      });
       const decoded = decodeHTMLEntities(encoded.encoded);
       expect(decoded.decoded).toBe(input);
     });
@@ -311,7 +376,10 @@ describe("roundtrip encoding/decoding", () => {
 
   testCases.forEach((input) => {
     it(`should roundtrip hex: "${input.slice(0, 30)}${input.length > 30 ? "..." : ""}"`, () => {
-      const encoded = encodeHTMLEntities(input, { mode: "hexadecimal", encodeAll: false });
+      const encoded = encodeHTMLEntities(input, {
+        mode: "hexadecimal",
+        encodeAll: false,
+      });
       const decoded = decodeHTMLEntities(encoded.encoded);
       expect(decoded.decoded).toBe(input);
     });
@@ -407,7 +475,10 @@ describe("commonEntities", () => {
 
   it("should have valid entity mappings", () => {
     for (const { char, entity } of commonEntities) {
-      const encoded = encodeHTMLEntities(char, { mode: "named", encodeAll: true });
+      const encoded = encodeHTMLEntities(char, {
+        mode: "named",
+        encodeAll: true,
+      });
       expect(encoded.encoded).toBe(entity);
     }
   });
