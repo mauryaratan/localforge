@@ -18,6 +18,7 @@ import {
   Link01Icon,
   PercentIcon,
   Time01Icon,
+  SourceCodeIcon,
 } from "@hugeicons/core-free-icons";
 
 type NavItem = {
@@ -46,6 +47,11 @@ const navItems: NavItem[] = [
     title: "URL Encoder",
     href: "/url-encoder",
     icon: PercentIcon,
+  },
+  {
+    title: "JSON / YAML",
+    href: "/json-to-yaml",
+    icon: SourceCodeIcon,
   },
 ];
 

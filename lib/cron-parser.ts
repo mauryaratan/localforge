@@ -243,7 +243,7 @@ const describeField = (value: string, config: FieldConfig): string => {
     (v, i) => i === 0 || v === values[i - 1] + 1
   );
   if (isConsecutive && values.length > 2) {
-    return `${formatValue(values[0])} through ${formatValue(values.at(-1))}`;
+    return `${formatValue(values[0])} through ${formatValue(values[values.length - 1])}`;
   }
 
   return values.map(formatValue).join(", ");
