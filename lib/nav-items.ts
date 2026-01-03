@@ -4,6 +4,7 @@ import {
   CodeSquareIcon,
   Home01Icon,
   Link01Icon,
+  NoteEditIcon,
   PaintBoardIcon,
   PercentIcon,
   SourceCodeIcon,
@@ -73,6 +74,11 @@ export const navItems: NavItem[] = [
     title: "Unix Time",
     href: "/unix-time-converter",
     icon: Calendar03Icon,
+  },
+  {
+    title: "Markdown Preview",
+    href: "/markdown-preview",
+    icon: NoteEditIcon,
   },
 ];
 
