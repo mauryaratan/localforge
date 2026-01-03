@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
 import { CommandMenu } from "@/components/command-menu";
+import { ModeToggle } from "@/components/mode-toggle";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   SidebarInset,
@@ -48,6 +49,9 @@ export default function RootLayout({
               <header className="flex h-12 items-center gap-2 border-b px-4">
                 <SidebarTrigger />
                 <CommandMenu />
+                <div className="ml-auto">
+                  <ModeToggle />
+                </div>
               </header>
               <main className="flex-1 p-4">{children}</main>
             </SidebarInset>
