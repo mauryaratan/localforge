@@ -2,6 +2,7 @@
 
 import {
   Calendar03Icon,
+  CodeIcon,
   Home01Icon,
   Link01Icon,
   PaintBoardIcon,
@@ -49,6 +50,11 @@ const navItems: NavItem[] = [
     title: "URL Encoder",
     href: "/url-encoder",
     icon: PercentIcon,
+  },
+  {
+    title: "JSON Formatter",
+    href: "/json-formatter",
+    icon: CodeIcon,
   },
   {
     title: "JSON / YAML",
