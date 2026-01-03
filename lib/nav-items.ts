@@ -2,7 +2,6 @@ import {
   Calendar03Icon,
   CodeIcon,
   CodeSquareIcon,
-  Home01Icon,
   Key01Icon,
   Link01Icon,
   NoteEditIcon,
@@ -18,15 +17,10 @@ import {
 export interface NavItem {
   title: string;
   href: string;
-  icon: typeof Home01Icon;
+  icon: typeof CodeSquareIcon;
 }
 
 export const navItems: NavItem[] = [
-  {
-    title: "Home",
-    href: "/",
-    icon: Home01Icon,
-  },
   {
     title: "Cron Parser",
     href: "/cron-parser",

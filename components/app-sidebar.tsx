@@ -21,7 +21,11 @@ export const AppSidebar = () => {
   return (
     <Sidebar>
       <SidebarHeader className="border-sidebar-border border-b px-4 py-3">
-        <span className="font-medium text-sm">DevTools</span>
+        <span className="font-medium text-sm">
+          <Link href="/">
+            DevTools
+          </Link>
+        </span>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
