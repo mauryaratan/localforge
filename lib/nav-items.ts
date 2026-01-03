@@ -4,6 +4,7 @@ import {
   CodeIcon,
   CodeSquareIcon,
   FingerPrintIcon,
+  GridTableIcon,
   Key01Icon,
   Link01Icon,
   NoteEditIcon,
@@ -72,6 +73,11 @@ export const navItems: NavItem[] = [
     title: "JSON / YAML",
     href: "/json-to-yaml",
     icon: SourceCodeIcon,
+  },
+  {
+    title: "JSON / CSV",
+    href: "/json-csv",
+    icon: GridTableIcon,
   },
   {
     title: "Color Converter",
