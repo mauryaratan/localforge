@@ -19,6 +19,7 @@ import {
   PercentIcon,
   Time01Icon,
   SourceCodeIcon,
+  PaintBoardIcon,
 } from "@hugeicons/core-free-icons";
 
 type NavItem = {
@@ -52,6 +53,11 @@ const navItems: NavItem[] = [
     title: "JSON / YAML",
     href: "/json-to-yaml",
     icon: SourceCodeIcon,
+  },
+  {
+    title: "Color Converter",
+    href: "/color-converter",
+    icon: PaintBoardIcon,
   },
 ];
 

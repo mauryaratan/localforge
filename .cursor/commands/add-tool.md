@@ -15,3 +15,4 @@ When asked to add a tool:
 - Ensure actionable buttons have `cursor-pointer` class added
 - Extract any reusable components into `/lib` directory and re-use
 - Utilize page space well, keep important sections first. Any example inputs should probably be in another section/sidebar on the right and adapt well on smaller devices.
+- If adding a secondary section on right for example or anything else, make sure its sticky and the main section width remain consistent across all tools.
