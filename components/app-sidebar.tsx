@@ -15,11 +15,8 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Home01Icon,
-  Settings01Icon,
-  CommandIcon,
-  CodeIcon,
-  PaintBrush01Icon,
-  File01Icon,
+  Link01Icon,
+  PercentIcon,
 } from "@hugeicons/core-free-icons";
 
 type NavItem = {
@@ -35,29 +32,14 @@ const navItems: NavItem[] = [
     icon: Home01Icon,
   },
   {
-    title: "Components",
-    href: "/components",
-    icon: CommandIcon,
+    title: "URL Parser",
+    href: "/tools/url-parser",
+    icon: Link01Icon,
   },
   {
-    title: "Code",
-    href: "/code",
-    icon: CodeIcon,
-  },
-  {
-    title: "Design",
-    href: "/design",
-    icon: PaintBrush01Icon,
-  },
-  {
-    title: "Docs",
-    href: "/docs",
-    icon: File01Icon,
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings01Icon,
+    title: "URL Encoder",
+    href: "/tools/url-encoder",
+    icon: PercentIcon,
   },
 ];
 
@@ -74,19 +56,14 @@ export const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/" && pathname.startsWith(item.href));
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      render={
-                        <Link
-                          href={item.href}
-                          aria-label={item.title}
-                          tabIndex={0}
-                        />
-                      }
+                      render={<Link href={item.href} aria-label={item.title} />}
                       isActive={isActive}
-                      tooltip={item.title}
                     >
                       <HugeiconsIcon icon={item.icon} size={16} />
                       <span>{item.title}</span>
