@@ -1,4 +1,5 @@
 import {
+  AnalysisTextLinkIcon,
   BrowserIcon,
   Calendar03Icon,
   CodeIcon,
@@ -109,6 +110,11 @@ export const navItems: NavItem[] = [
     title: "HTML Preview",
     href: "/html-preview",
     icon: BrowserIcon,
+  },
+  {
+    title: "Word Counter",
+    href: "/word-counter",
+    icon: AnalysisTextLinkIcon,
   },
 ];
 
