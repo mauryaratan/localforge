@@ -6,6 +6,7 @@ import {
   PaintBoardIcon,
   PercentIcon,
   SourceCodeIcon,
+  TextIcon,
   Time01Icon,
 } from "@hugeicons/core-free-icons";
 
@@ -25,6 +26,11 @@ export const navItems: NavItem[] = [
     title: "Cron Parser",
     href: "/cron-parser",
     icon: Time01Icon,
+  },
+  {
+    title: "Regex Tester",
+    href: "/regex-tester",
+    icon: TextIcon,
   },
   {
     title: "URL Parser",

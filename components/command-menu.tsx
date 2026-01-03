@@ -65,7 +65,7 @@ export const CommandMenu = () => {
                 value={item.title}
                 onSelect={() => handleSelect(item.href)}
               >
-                <HugeiconsIcon icon={item.icon} className="size-4" />
+                <HugeiconsIcon icon={item.icon} size={16} />
                 <span>{item.title}</span>
               </CommandItem>
             ))}
