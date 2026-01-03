@@ -17,6 +17,7 @@ import {
   Home01Icon,
   Link01Icon,
   PercentIcon,
+  Time01Icon,
 } from "@hugeicons/core-free-icons";
 
 type NavItem = {
@@ -30,6 +31,11 @@ const navItems: NavItem[] = [
     title: "Home",
     href: "/",
     icon: Home01Icon,
+  },
+  {
+    title: "Cron Parser",
+    href: "/cron-parser",
+    icon: Time01Icon,
   },
   {
     title: "URL Parser",

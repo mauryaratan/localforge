@@ -12,3 +12,6 @@ When asked to add a tool:
 - Write tests file in a central location using Vitest (already installed)
 - Make sure each tool has proper SEO markups
 - Use localStorage to save main input value so switching routes keeps the existing values
+- Ensure actionable buttons have `cursor-pointer` class added
+- Extract any reusable components into `/lib` directory and re-use
+- Utilize page space well, keep important sections first. Any example inputs should probably be in another section/sidebar on the right and adapt well on smaller devices.
