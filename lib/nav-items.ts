@@ -14,6 +14,7 @@ import {
   PercentIcon,
   QrCodeIcon,
   SourceCodeIcon,
+  StarIcon,
   TextAlignLeftIcon,
   TextIcon,
   Time01Icon,
@@ -67,9 +68,14 @@ export const navItems: NavItem[] = [
     icon: FingerPrintIcon,
   },
   {
-    title: "HTML Entities",
+    title: "HTML Entities Encode/Decode",
     href: "/html-entities",
     icon: CodeSquareIcon,
+  },
+  {
+    title: "HTML Symbols",
+    href: "/html-symbols",
+    icon: StarIcon,
   },
   {
     title: "JSON Formatter",
