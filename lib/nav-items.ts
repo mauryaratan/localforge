@@ -1,4 +1,5 @@
 import {
+  BrowserIcon,
   Calendar03Icon,
   CodeIcon,
   CodeSquareIcon,
@@ -91,6 +92,11 @@ export const navItems: NavItem[] = [
     title: "QR Code",
     href: "/qr-code",
     icon: QrCodeIcon,
+  },
+  {
+    title: "HTML Preview",
+    href: "/html-preview",
+    icon: BrowserIcon,
   },
 ];
 
