@@ -468,7 +468,9 @@ const UuidGeneratorPage = () => {
                         <span className="text-muted-foreground uppercase tracking-wider text-[10px]">
                           Unix (ms)
                         </span>
-                        <span className="font-mono">{parsedResult.timestamp}</span>
+                        <span className="font-mono">
+                          {parsedResult.timestamp}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -538,7 +540,9 @@ const UuidGeneratorPage = () => {
             </CardHeader>
             <CardContent className="flex flex-col gap-2 pt-4">
               <div className="rounded-md border bg-muted/30 px-3 py-2">
-                <span className="font-medium text-xs">Database Primary Keys</span>
+                <span className="font-medium text-xs">
+                  Database Primary Keys
+                </span>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
                   UUID v7 or ULID for time-ordered queries
                 </p>

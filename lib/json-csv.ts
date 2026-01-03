@@ -83,7 +83,10 @@ const flattenObject = (
     const newKey = prefix ? `${prefix}.${key}` : key;
 
     if (value !== null && typeof value === "object" && !Array.isArray(value)) {
-      Object.assign(result, flattenObject(value as Record<string, unknown>, newKey));
+      Object.assign(
+        result,
+        flattenObject(value as Record<string, unknown>, newKey)
+      );
     } else if (Array.isArray(value)) {
       // Convert arrays to JSON string
       result[newKey] = JSON.stringify(value);
@@ -103,9 +106,8 @@ const escapeCsvValue = (value: unknown, delimiter: string): string => {
     return "";
   }
 
-  const stringValue = typeof value === "object" 
-    ? JSON.stringify(value) 
-    : String(value);
+  const stringValue =
+    typeof value === "object" ? JSON.stringify(value) : String(value);
 
   // Check if value needs quoting
   const needsQuoting =
@@ -237,7 +239,9 @@ export const jsonToCsv = (
     // Add header row if requested
     if (opts.includeHeader) {
       rows.push(
-        headers.map((h) => escapeCsvValue(h, opts.delimiter)).join(opts.delimiter)
+        headers
+          .map((h) => escapeCsvValue(h, opts.delimiter))
+          .join(opts.delimiter)
       );
     }
 
@@ -378,7 +382,8 @@ export const detectDelimiter = (csvString: string): string => {
   let detected = ",";
 
   for (const delimiter of delimiters) {
-    const count = (firstLine.match(new RegExp(`\\${delimiter}`, "g")) || []).length;
+    const count = (firstLine.match(new RegExp(`\\${delimiter}`, "g")) || [])
+      .length;
     if (count > maxCount) {
       maxCount = count;
       detected = delimiter;

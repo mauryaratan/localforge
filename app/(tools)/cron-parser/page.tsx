@@ -237,9 +237,7 @@ const CronParserPage = () => {
                     <Button
                       aria-label="Copy ISO timestamp"
                       className="cursor-pointer"
-                      onClick={() =>
-                        handleCopy(run.toISOString(), "Timestamp")
-                      }
+                      onClick={() => handleCopy(run.toISOString(), "Timestamp")}
                       size="icon-xs"
                       tabIndex={0}
                       variant="ghost"

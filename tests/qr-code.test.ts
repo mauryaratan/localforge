@@ -93,7 +93,9 @@ describe("formatQRContent", () => {
   });
 
   it("should format phone numbers with tel: prefix", () => {
-    expect(formatQRContent("+1-555-123-4567", "phone")).toBe("tel:+15551234567");
+    expect(formatQRContent("+1-555-123-4567", "phone")).toBe(
+      "tel:+15551234567"
+    );
     expect(formatQRContent("(555) 123-4567", "phone")).toBe("tel:5551234567");
   });
 
@@ -149,7 +151,9 @@ describe("parseWiFiData", () => {
   });
 
   it("should parse complete WiFi data", () => {
-    const result = parseWiFiData("WIFI:T:WPA;S:MyNetwork;P:secret123;H:false;;");
+    const result = parseWiFiData(
+      "WIFI:T:WPA;S:MyNetwork;P:secret123;H:false;;"
+    );
     expect(result).toEqual({
       ssid: "MyNetwork",
       password: "secret123",

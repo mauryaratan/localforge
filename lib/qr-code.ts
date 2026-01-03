@@ -16,13 +16,7 @@ export const ERROR_CORRECTION_LABELS: Record<ErrorCorrectionLevel, string> = {
 };
 
 // Content type presets for common QR code formats
-export type QRContentType =
-  | "text"
-  | "url"
-  | "wifi"
-  | "email"
-  | "phone"
-  | "sms";
+export type QRContentType = "text" | "url" | "wifi" | "email" | "phone" | "sms";
 
 export const CONTENT_TYPE_LABELS: Record<QRContentType, string> = {
   text: "Plain Text",
@@ -128,8 +122,12 @@ export const formatQRContent = (
 
     case "email":
       // mailto: format
-      const subject = metadata?.subject ? `?subject=${encodeURIComponent(metadata.subject)}` : "";
-      const body = metadata?.body ? `${subject ? "&" : "?"}body=${encodeURIComponent(metadata.body)}` : "";
+      const subject = metadata?.subject
+        ? `?subject=${encodeURIComponent(metadata.subject)}`
+        : "";
+      const body = metadata?.body
+        ? `${subject ? "&" : "?"}body=${encodeURIComponent(metadata.body)}`
+        : "";
       return `mailto:${content}${subject}${body}`;
 
     case "phone":
@@ -139,7 +137,9 @@ export const formatQRContent = (
 
     case "sms":
       // sms: format
-      const smsBody = metadata?.body ? `?body=${encodeURIComponent(metadata.body)}` : "";
+      const smsBody = metadata?.body
+        ? `?body=${encodeURIComponent(metadata.body)}`
+        : "";
       return `sms:${content.replace(/[^\d+]/g, "")}${smsBody}`;
 
     case "text":
@@ -231,7 +231,8 @@ export const generateQRCodeToElement = async (
     } catch (error) {
       resolve({
         success: false,
-        error: error instanceof Error ? error.message : "Failed to generate QR code",
+        error:
+          error instanceof Error ? error.message : "Failed to generate QR code",
       });
     }
   });
@@ -283,7 +284,12 @@ export const detectContentType = (data: string): QRContentType => {
  */
 export const parseWiFiData = (
   data: string
-): { ssid: string; password: string; encryption: string; hidden: boolean } | null => {
+): {
+  ssid: string;
+  password: string;
+  encryption: string;
+  hidden: boolean;
+} | null => {
   if (!data.toLowerCase().startsWith("wifi:")) return null;
 
   const params: Record<string, string> = {};
@@ -383,12 +389,60 @@ export const COLOR_PRESETS: {
   positionOuterColor: string;
   positionInnerColor: string;
 }[] = [
-  { name: "Classic", foreground: "#000000", background: "#ffffff", positionOuterColor: "#000000", positionInnerColor: "#000000" },
-  { name: "Ocean", foreground: "#0066cc", background: "#e6f3ff", positionOuterColor: "#004499", positionInnerColor: "#003366" },
-  { name: "Forest", foreground: "#228b22", background: "#f0fff0", positionOuterColor: "#006400", positionInnerColor: "#004d00" },
-  { name: "Sunset", foreground: "#ff6b35", background: "#fff5f0", positionOuterColor: "#cc4400", positionInnerColor: "#993300" },
-  { name: "Purple", foreground: "#7c3aed", background: "#f5f3ff", positionOuterColor: "#5b21b6", positionInnerColor: "#4c1d95" },
-  { name: "Dark", foreground: "#ffffff", background: "#1a1a2e", positionOuterColor: "#e94560", positionInnerColor: "#e94560" },
-  { name: "Neon", foreground: "#39ff14", background: "#0d0d0d", positionOuterColor: "#00ffff", positionInnerColor: "#ff00ff" },
-  { name: "Rose", foreground: "#e11d48", background: "#fff1f2", positionOuterColor: "#be123c", positionInnerColor: "#9f1239" },
+  {
+    name: "Classic",
+    foreground: "#000000",
+    background: "#ffffff",
+    positionOuterColor: "#000000",
+    positionInnerColor: "#000000",
+  },
+  {
+    name: "Ocean",
+    foreground: "#0066cc",
+    background: "#e6f3ff",
+    positionOuterColor: "#004499",
+    positionInnerColor: "#003366",
+  },
+  {
+    name: "Forest",
+    foreground: "#228b22",
+    background: "#f0fff0",
+    positionOuterColor: "#006400",
+    positionInnerColor: "#004d00",
+  },
+  {
+    name: "Sunset",
+    foreground: "#ff6b35",
+    background: "#fff5f0",
+    positionOuterColor: "#cc4400",
+    positionInnerColor: "#993300",
+  },
+  {
+    name: "Purple",
+    foreground: "#7c3aed",
+    background: "#f5f3ff",
+    positionOuterColor: "#5b21b6",
+    positionInnerColor: "#4c1d95",
+  },
+  {
+    name: "Dark",
+    foreground: "#ffffff",
+    background: "#1a1a2e",
+    positionOuterColor: "#e94560",
+    positionInnerColor: "#e94560",
+  },
+  {
+    name: "Neon",
+    foreground: "#39ff14",
+    background: "#0d0d0d",
+    positionOuterColor: "#00ffff",
+    positionInnerColor: "#ff00ff",
+  },
+  {
+    name: "Rose",
+    foreground: "#e11d48",
+    background: "#fff1f2",
+    positionOuterColor: "#be123c",
+    positionInnerColor: "#9f1239",
+  },
 ];

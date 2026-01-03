@@ -75,7 +75,9 @@ const QRCodePage = () => {
 
   // WiFi-specific fields
   const [wifiPassword, setWifiPassword] = useState("");
-  const [wifiEncryption, setWifiEncryption] = useState<"WPA" | "WEP" | "nopass">("WPA");
+  const [wifiEncryption, setWifiEncryption] = useState<
+    "WPA" | "WEP" | "nopass"
+  >("WPA");
   const [wifiHidden, setWifiHidden] = useState(false);
 
   // Logo state
@@ -153,12 +155,23 @@ const QRCodePage = () => {
 
     const debounce = setTimeout(generateQR, 250);
     return () => clearTimeout(debounce);
-  }, [content, contentType, options, wifiPassword, wifiEncryption, wifiHidden, isHydrated]);
+  }, [
+    content,
+    contentType,
+    options,
+    wifiPassword,
+    wifiEncryption,
+    wifiHidden,
+    isHydrated,
+  ]);
 
   const handleDownload = useCallback(async () => {
     if (!qrContainerRef.current) return;
 
-    const success = await downloadQRCodeFromElement(qrContainerRef.current, "qrcode");
+    const success = await downloadQRCodeFromElement(
+      qrContainerRef.current,
+      "qrcode"
+    );
     if (success) {
       toast.success("QR code downloaded");
     } else {
@@ -244,29 +257,33 @@ const QRCodePage = () => {
     [handleFileSelect]
   );
 
-  const handleLogoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleLogoUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+      }
 
-    try {
-      const dataUrl = await fileToDataUrl(file);
-      setLogoPreview(dataUrl);
-      setOptions((prev) => ({
-        ...prev,
-        logoUrl: dataUrl,
-        // Auto-switch to high error correction when adding logo
-        errorCorrectionLevel: prev.errorCorrectionLevel === "L" ? "H" : prev.errorCorrectionLevel,
-      }));
-      toast.success("Logo added");
-    } catch {
-      toast.error("Failed to load logo");
-    }
-  }, []);
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        setLogoPreview(dataUrl);
+        setOptions((prev) => ({
+          ...prev,
+          logoUrl: dataUrl,
+          // Auto-switch to high error correction when adding logo
+          errorCorrectionLevel:
+            prev.errorCorrectionLevel === "L" ? "H" : prev.errorCorrectionLevel,
+        }));
+        toast.success("Logo added");
+      } catch {
+        toast.error("Failed to load logo");
+      }
+    },
+    []
+  );
 
   const handleRemoveLogo = useCallback(() => {
     setLogoPreview(null);
@@ -276,19 +293,25 @@ const QRCodePage = () => {
     }
   }, []);
 
-  const handleExampleClick = useCallback((value: string, type: QRContentType) => {
-    setContent(value);
-    setContentType(type);
-  }, []);
+  const handleExampleClick = useCallback(
+    (value: string, type: QRContentType) => {
+      setContent(value);
+      setContentType(type);
+    },
+    []
+  );
 
   const updateOption = useCallback(
-    <K extends keyof QRGenerateOptions>(key: K, value: QRGenerateOptions[K]) => {
+    <K extends keyof QRGenerateOptions>(
+      key: K,
+      value: QRGenerateOptions[K]
+    ) => {
       setOptions((prev) => ({ ...prev, [key]: value }));
     },
     []
   );
 
-  const applyColorPreset = useCallback((preset: typeof COLOR_PRESETS[0]) => {
+  const applyColorPreset = useCallback((preset: (typeof COLOR_PRESETS)[0]) => {
     setOptions((prev) => ({
       ...prev,
       foreground: preset.foreground,
@@ -298,7 +321,10 @@ const QRCodePage = () => {
     }));
   }, []);
 
-  const wifiData = decodedType === "wifi" && decodedContent ? parseWiFiData(decodedContent) : null;
+  const wifiData =
+    decodedType === "wifi" && decodedContent
+      ? parseWiFiData(decodedContent)
+      : null;
 
   return (
     <div className="flex max-w-7xl flex-col gap-6 xl:flex-row xl:items-start">
@@ -307,7 +333,8 @@ const QRCodePage = () => {
         <div className="flex flex-col gap-1">
           <h1 className="font-medium text-lg">QR Code Generator & Reader</h1>
           <p className="text-muted-foreground text-xs">
-            Generate customizable QR codes with logos and styles, or decode existing QR codes.
+            Generate customizable QR codes with logos and styles, or decode
+            existing QR codes.
           </p>
         </div>
 
@@ -350,7 +377,11 @@ const QRCodePage = () => {
                           tabIndex={0}
                           variant="ghost"
                         >
-                          <HugeiconsIcon data-icon="inline-start" icon={Delete02Icon} size={14} />
+                          <HugeiconsIcon
+                            data-icon="inline-start"
+                            icon={Delete02Icon}
+                            size={14}
+                          />
                           Clear
                         </Button>
                       )}
@@ -364,17 +395,25 @@ const QRCodePage = () => {
                       </Label>
                       <Select
                         value={contentType}
-                        onValueChange={(v) => setContentType(v as QRContentType)}
+                        onValueChange={(v) =>
+                          setContentType(v as QRContentType)
+                        }
                       >
                         <SelectTrigger className="cursor-pointer">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.entries(CONTENT_TYPE_LABELS).map(([key, label]) => (
-                            <SelectItem key={key} value={key} className="cursor-pointer">
-                              {label}
-                            </SelectItem>
-                          ))}
+                          {Object.entries(CONTENT_TYPE_LABELS).map(
+                            ([key, label]) => (
+                              <SelectItem
+                                key={key}
+                                value={key}
+                                className="cursor-pointer"
+                              >
+                                {label}
+                              </SelectItem>
+                            )
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -385,7 +424,9 @@ const QRCodePage = () => {
                         htmlFor="content-input"
                         className="text-muted-foreground text-xs uppercase tracking-wider"
                       >
-                        {contentType === "wifi" ? "Network Name (SSID)" : "Content"}
+                        {contentType === "wifi"
+                          ? "Network Name (SSID)"
+                          : "Content"}
                       </Label>
                       {contentType === "text" ? (
                         <Textarea
@@ -445,19 +486,30 @@ const QRCodePage = () => {
                             </Label>
                             <Select
                               value={wifiEncryption}
-                              onValueChange={(v) => setWifiEncryption(v as typeof wifiEncryption)}
+                              onValueChange={(v) =>
+                                setWifiEncryption(v as typeof wifiEncryption)
+                              }
                             >
                               <SelectTrigger className="cursor-pointer">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="WPA" className="cursor-pointer">
+                                <SelectItem
+                                  value="WPA"
+                                  className="cursor-pointer"
+                                >
                                   WPA/WPA2
                                 </SelectItem>
-                                <SelectItem value="WEP" className="cursor-pointer">
+                                <SelectItem
+                                  value="WEP"
+                                  className="cursor-pointer"
+                                >
                                   WEP
                                 </SelectItem>
-                                <SelectItem value="nopass" className="cursor-pointer">
+                                <SelectItem
+                                  value="nopass"
+                                  className="cursor-pointer"
+                                >
                                   None (Open)
                                 </SelectItem>
                               </SelectContent>
@@ -491,7 +543,9 @@ const QRCodePage = () => {
                   <CardContent className="flex flex-col gap-4 pt-4">
                     {/* Color Presets */}
                     <div className="flex flex-col gap-2">
-                      <Label className="text-[10px] text-muted-foreground">Color Presets</Label>
+                      <Label className="text-[10px] text-muted-foreground">
+                        Color Presets
+                      </Label>
                       <div className="flex flex-wrap gap-2">
                         {COLOR_PRESETS.map((preset) => (
                           <button
@@ -515,7 +569,10 @@ const QRCodePage = () => {
                     {/* Basic Colors */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <Label htmlFor="fg-color" className="text-[10px] text-muted-foreground">
+                        <Label
+                          htmlFor="fg-color"
+                          className="text-[10px] text-muted-foreground"
+                        >
                           Foreground
                         </Label>
                         <div className="flex gap-2">
@@ -523,7 +580,9 @@ const QRCodePage = () => {
                             type="color"
                             id="fg-color"
                             value={options.foreground}
-                            onChange={(e) => updateOption("foreground", e.target.value)}
+                            onChange={(e) =>
+                              updateOption("foreground", e.target.value)
+                            }
                             className="h-8 w-8 cursor-pointer rounded border"
                             aria-label="Foreground color"
                           />
@@ -541,7 +600,10 @@ const QRCodePage = () => {
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Label htmlFor="bg-color" className="text-[10px] text-muted-foreground">
+                        <Label
+                          htmlFor="bg-color"
+                          className="text-[10px] text-muted-foreground"
+                        >
                           Background
                         </Label>
                         <div className="flex gap-2">
@@ -549,7 +611,9 @@ const QRCodePage = () => {
                             type="color"
                             id="bg-color"
                             value={options.background}
-                            onChange={(e) => updateOption("background", e.target.value)}
+                            onChange={(e) =>
+                              updateOption("background", e.target.value)
+                            }
                             className="h-8 w-8 cursor-pointer rounded border"
                             aria-label="Background color"
                           />
@@ -570,11 +634,17 @@ const QRCodePage = () => {
 
                     {/* Dot Style */}
                     <div className="flex flex-col gap-2">
-                      <Label className="text-[10px] text-muted-foreground">Dot Style</Label>
+                      <Label className="text-[10px] text-muted-foreground">
+                        Dot Style
+                      </Label>
                       <Select
                         value={String(options.dotScale)}
                         onValueChange={(v) => {
-                          if (v) updateOption("dotScale", Number.parseFloat(v) as DotScale);
+                          if (v)
+                            updateOption(
+                              "dotScale",
+                              Number.parseFloat(v) as DotScale
+                            );
                         }}
                       >
                         <SelectTrigger className="cursor-pointer">
@@ -582,7 +652,11 @@ const QRCodePage = () => {
                         </SelectTrigger>
                         <SelectContent>
                           {DOT_SCALE_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={String(opt.value)} className="cursor-pointer">
+                            <SelectItem
+                              key={opt.value}
+                              value={String(opt.value)}
+                              className="cursor-pointer"
+                            >
                               {opt.label}
                             </SelectItem>
                           ))}
@@ -594,7 +668,9 @@ const QRCodePage = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between">
-                          <Label className="text-[10px] text-muted-foreground">Size</Label>
+                          <Label className="text-[10px] text-muted-foreground">
+                            Size
+                          </Label>
                           <span className="font-mono text-[10px] text-muted-foreground">
                             {options.width}px
                           </span>
@@ -602,7 +678,9 @@ const QRCodePage = () => {
                         <Slider
                           value={[options.width]}
                           onValueChange={(values) => {
-                            const newValue = Array.isArray(values) ? values[0] : values;
+                            const newValue = Array.isArray(values)
+                              ? values[0]
+                              : values;
                             updateOption("width", newValue);
                           }}
                           min={128}
@@ -613,22 +691,33 @@ const QRCodePage = () => {
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Label className="text-[10px] text-muted-foreground">Error Correction</Label>
+                        <Label className="text-[10px] text-muted-foreground">
+                          Error Correction
+                        </Label>
                         <Select
                           value={options.errorCorrectionLevel}
                           onValueChange={(v) =>
-                            updateOption("errorCorrectionLevel", v as ErrorCorrectionLevel)
+                            updateOption(
+                              "errorCorrectionLevel",
+                              v as ErrorCorrectionLevel
+                            )
                           }
                         >
                           <SelectTrigger className="cursor-pointer">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.entries(ERROR_CORRECTION_LABELS).map(([key, label]) => (
-                              <SelectItem key={key} value={key} className="cursor-pointer">
-                                {label}
-                              </SelectItem>
-                            ))}
+                            {Object.entries(ERROR_CORRECTION_LABELS).map(
+                              ([key, label]) => (
+                                <SelectItem
+                                  key={key}
+                                  value={key}
+                                  className="cursor-pointer"
+                                >
+                                  {label}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -636,7 +725,9 @@ const QRCodePage = () => {
 
                     {/* Logo Upload */}
                     <div className="flex flex-col gap-2 border-t pt-4">
-                      <Label className="text-[10px] text-muted-foreground">Logo / Icon</Label>
+                      <Label className="text-[10px] text-muted-foreground">
+                        Logo / Icon
+                      </Label>
                       <input
                         ref={logoInputRef}
                         type="file"
@@ -663,7 +754,9 @@ const QRCodePage = () => {
                             <Slider
                               value={[options.logoWidth]}
                               onValueChange={(values) => {
-                                const newValue = Array.isArray(values) ? values[0] : values;
+                                const newValue = Array.isArray(values)
+                                  ? values[0]
+                                  : values;
                                 updateOption("logoWidth", newValue);
                                 updateOption("logoHeight", newValue);
                               }}
@@ -691,13 +784,18 @@ const QRCodePage = () => {
                           onClick={() => logoInputRef.current?.click()}
                           className="cursor-pointer"
                         >
-                          <HugeiconsIcon data-icon="inline-start" icon={Image01Icon} size={14} />
+                          <HugeiconsIcon
+                            data-icon="inline-start"
+                            icon={Image01Icon}
+                            size={14}
+                          />
                           Add Logo
                         </Button>
                       )}
                       {logoPreview && (
                         <p className="text-[10px] text-muted-foreground">
-                          Tip: Use High error correction (H) for best results with logos
+                          Tip: Use High error correction (H) for best results
+                          with logos
                         </p>
                       )}
                     </div>
@@ -728,8 +826,16 @@ const QRCodePage = () => {
                             <div className="flex gap-2">
                               <input
                                 type="color"
-                                value={options.positionOuterColor || options.foreground}
-                                onChange={(e) => updateOption("positionOuterColor", e.target.value)}
+                                value={
+                                  options.positionOuterColor ||
+                                  options.foreground
+                                }
+                                onChange={(e) =>
+                                  updateOption(
+                                    "positionOuterColor",
+                                    e.target.value
+                                  )
+                                }
                                 className="h-8 w-8 cursor-pointer rounded border"
                                 aria-label="Corner outer color"
                               />
@@ -737,7 +843,11 @@ const QRCodePage = () => {
                                 value={options.positionOuterColor || ""}
                                 onChange={(e) => {
                                   const val = e.target.value;
-                                  if (isValidHexColor(val) || val.length < 7 || val === "") {
+                                  if (
+                                    isValidHexColor(val) ||
+                                    val.length < 7 ||
+                                    val === ""
+                                  ) {
                                     updateOption("positionOuterColor", val);
                                   }
                                 }}
@@ -754,8 +864,16 @@ const QRCodePage = () => {
                             <div className="flex gap-2">
                               <input
                                 type="color"
-                                value={options.positionInnerColor || options.foreground}
-                                onChange={(e) => updateOption("positionInnerColor", e.target.value)}
+                                value={
+                                  options.positionInnerColor ||
+                                  options.foreground
+                                }
+                                onChange={(e) =>
+                                  updateOption(
+                                    "positionInnerColor",
+                                    e.target.value
+                                  )
+                                }
                                 className="h-8 w-8 cursor-pointer rounded border"
                                 aria-label="Corner inner color"
                               />
@@ -763,7 +881,11 @@ const QRCodePage = () => {
                                 value={options.positionInnerColor || ""}
                                 onChange={(e) => {
                                   const val = e.target.value;
-                                  if (isValidHexColor(val) || val.length < 7 || val === "") {
+                                  if (
+                                    isValidHexColor(val) ||
+                                    val.length < 7 ||
+                                    val === ""
+                                  ) {
                                     updateOption("positionInnerColor", val);
                                   }
                                 }}
@@ -788,7 +910,9 @@ const QRCodePage = () => {
                           <Slider
                             value={[options.quietZone]}
                             onValueChange={(values) => {
-                              const newValue = Array.isArray(values) ? values[0] : values;
+                              const newValue = Array.isArray(values)
+                                ? values[0]
+                                : values;
                               updateOption("quietZone", newValue);
                             }}
                             min={0}
@@ -818,7 +942,11 @@ const QRCodePage = () => {
                         tabIndex={0}
                         variant="outline"
                       >
-                        <HugeiconsIcon data-icon="inline-start" icon={Download01Icon} size={14} />
+                        <HugeiconsIcon
+                          data-icon="inline-start"
+                          icon={Download01Icon}
+                          size={14}
+                        />
                         Download
                       </Button>
                     )}
@@ -830,13 +958,23 @@ const QRCodePage = () => {
                     style={{ backgroundColor: options.background }}
                   >
                     {isGenerating ? (
-                      <div className="text-muted-foreground text-xs">Generating...</div>
+                      <div className="text-muted-foreground text-xs">
+                        Generating...
+                      </div>
                     ) : error ? (
-                      <div className="text-center text-destructive text-xs">{error}</div>
+                      <div className="text-center text-destructive text-xs">
+                        {error}
+                      </div>
                     ) : !content ? (
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <HugeiconsIcon icon={QrCodeIcon} size={48} strokeWidth={1} />
-                        <span className="text-xs">Enter content to generate</span>
+                        <HugeiconsIcon
+                          icon={QrCodeIcon}
+                          size={48}
+                          strokeWidth={1}
+                        />
+                        <span className="text-xs">
+                          Enter content to generate
+                        </span>
                       </div>
                     ) : null}
                     {/* QR Code renders here */}
@@ -847,16 +985,25 @@ const QRCodePage = () => {
                   </div>
                   {content && !error && (
                     <div className="flex w-full flex-wrap items-center justify-center gap-2">
-                      <Badge variant="secondary" className="font-mono text-[10px]">
+                      <Badge
+                        variant="secondary"
+                        className="font-mono text-[10px]"
+                      >
                         {CONTENT_TYPE_LABELS[contentType]}
                       </Badge>
                       {options.dotScale < 1 && (
-                        <Badge variant="outline" className="font-mono text-[10px]">
+                        <Badge
+                          variant="outline"
+                          className="font-mono text-[10px]"
+                        >
                           {Math.round(options.dotScale * 100)}% dots
                         </Badge>
                       )}
                       {logoPreview && (
-                        <Badge variant="outline" className="font-mono text-[10px]">
+                        <Badge
+                          variant="outline"
+                          className="font-mono text-[10px]"
+                        >
                           +logo
                         </Badge>
                       )}
@@ -953,9 +1100,14 @@ const QRCodePage = () => {
                             />
                           }
                         >
-                          <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
+                          <HugeiconsIcon
+                            icon={copied ? Tick01Icon : Copy01Icon}
+                            size={14}
+                          />
                         </TooltipTrigger>
-                        <TooltipContent>{copied ? "Copied!" : "Copy"}</TooltipContent>
+                        <TooltipContent>
+                          {copied ? "Copied!" : "Copy"}
+                        </TooltipContent>
                       </Tooltip>
                     )}
                   </div>
@@ -963,8 +1115,13 @@ const QRCodePage = () => {
                 <CardContent className="pt-4">
                   {decodedContent ? (
                     <div className="flex flex-col gap-3">
-                      <Badge variant="secondary" className="w-fit font-mono text-[10px]">
-                        {decodedType ? CONTENT_TYPE_LABELS[decodedType] : "Unknown"}
+                      <Badge
+                        variant="secondary"
+                        className="w-fit font-mono text-[10px]"
+                      >
+                        {decodedType
+                          ? CONTENT_TYPE_LABELS[decodedType]
+                          : "Unknown"}
                       </Badge>
 
                       {/* WiFi parsed data */}
@@ -974,7 +1131,9 @@ const QRCodePage = () => {
                             <span className="text-[10px] text-muted-foreground uppercase">
                               Network
                             </span>
-                            <span className="font-mono text-xs">{wifiData.ssid}</span>
+                            <span className="font-mono text-xs">
+                              {wifiData.ssid}
+                            </span>
                           </div>
                           <div className="flex flex-col gap-0.5">
                             <span className="text-[10px] text-muted-foreground uppercase">
@@ -989,7 +1148,9 @@ const QRCodePage = () => {
                               Security
                             </span>
                             <span className="font-mono text-xs">
-                              {wifiData.encryption === "nopass" ? "Open" : wifiData.encryption}
+                              {wifiData.encryption === "nopass"
+                                ? "Open"
+                                : wifiData.encryption}
                             </span>
                           </div>
                         </div>
@@ -1012,7 +1173,11 @@ const QRCodePage = () => {
                       )}
                       {decodedType === "email" && (
                         <a
-                          href={decodedContent.startsWith("mailto:") ? decodedContent : `mailto:${decodedContent}`}
+                          href={
+                            decodedContent.startsWith("mailto:")
+                              ? decodedContent
+                              : `mailto:${decodedContent}`
+                          }
                           className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-primary-foreground text-xs transition-colors hover:bg-primary/90"
                         >
                           Send Email
@@ -1020,7 +1185,11 @@ const QRCodePage = () => {
                       )}
                       {decodedType === "phone" && (
                         <a
-                          href={decodedContent.startsWith("tel:") ? decodedContent : `tel:${decodedContent}`}
+                          href={
+                            decodedContent.startsWith("tel:")
+                              ? decodedContent
+                              : `tel:${decodedContent}`
+                          }
                           className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-primary-foreground text-xs transition-colors hover:bg-primary/90"
                         >
                           Call Number
@@ -1029,7 +1198,11 @@ const QRCodePage = () => {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-2 py-8 text-center text-muted-foreground">
-                      <HugeiconsIcon icon={ScanIcon} size={32} strokeWidth={1} />
+                      <HugeiconsIcon
+                        icon={ScanIcon}
+                        size={32}
+                        strokeWidth={1}
+                      />
                       <span className="text-xs">Upload an image to decode</span>
                     </div>
                   )}
@@ -1073,20 +1246,20 @@ const QRCodePage = () => {
           <CardContent className="pt-4">
             <div className="flex flex-col gap-2 text-[10px] text-muted-foreground">
               <p>
-                <strong className="text-foreground">Logo</strong> - Use High error correction for
-                best results with logos
+                <strong className="text-foreground">Logo</strong> - Use High
+                error correction for best results with logos
               </p>
               <p>
-                <strong className="text-foreground">Colors</strong> - Ensure good contrast between
-                foreground and background
+                <strong className="text-foreground">Colors</strong> - Ensure
+                good contrast between foreground and background
               </p>
               <p>
-                <strong className="text-foreground">Size</strong> - Larger QR codes are easier to
-                scan from distance
+                <strong className="text-foreground">Size</strong> - Larger QR
+                codes are easier to scan from distance
               </p>
               <p>
-                <strong className="text-foreground">Test</strong> - Always test your QR code before
-                printing
+                <strong className="text-foreground">Test</strong> - Always test
+                your QR code before printing
               </p>
             </div>
           </CardContent>

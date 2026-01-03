@@ -452,7 +452,9 @@ const JsonFormatterPage = () => {
                       aria-label="Copy formatted"
                       className="cursor-pointer"
                       disabled={!formattedOutput}
-                      onClick={() => handleCopy(formattedOutput, "Formatted JSON")}
+                      onClick={() =>
+                        handleCopy(formattedOutput, "Formatted JSON")
+                      }
                       size="icon-xs"
                       tabIndex={0}
                       variant="ghost"
@@ -475,10 +477,7 @@ const JsonFormatterPage = () => {
                 <TabsContent value="tree">
                   <ScrollArea className="h-[400px] rounded-sm bg-muted/30 p-3">
                     {treeNodes.length > 0 ? (
-                      <TreeView
-                        nodes={treeNodes}
-                        onCopy={handleCopy}
-                      />
+                      <TreeView nodes={treeNodes} onCopy={handleCopy} />
                     ) : (
                       <p className="text-muted-foreground text-xs">
                         No data to display
@@ -714,11 +713,7 @@ const TreeNodeItem = ({ node, depth, onCopy }: TreeNodeItemProps) => {
         </button>
       </div>
       {hasChildren && isExpanded && node.children && (
-        <TreeView
-          depth={depth + 1}
-          nodes={node.children}
-          onCopy={onCopy}
-        />
+        <TreeView depth={depth + 1} nodes={node.children} onCopy={onCopy} />
       )}
     </div>
   );

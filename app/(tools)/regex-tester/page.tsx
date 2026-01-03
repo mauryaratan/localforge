@@ -32,7 +32,6 @@ import {
   testRegex,
 } from "@/lib/regex-tester";
 
-
 const STORAGE_KEY_PATTERN = "devtools:regex-tester:pattern";
 const STORAGE_KEY_TEST = "devtools:regex-tester:test";
 const STORAGE_KEY_FLAGS = "devtools:regex-tester:flags";
@@ -172,7 +171,9 @@ const RegexTesterPage = () => {
                             onCheckedChange={() => handleToggleFlag(flag.key)}
                             aria-label={`Toggle ${flag.label} flag`}
                           />
-                          <span className="font-medium text-xs">{flag.label}</span>
+                          <span className="font-medium text-xs">
+                            {flag.label}
+                          </span>
                         </label>
                       }
                     />

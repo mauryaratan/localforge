@@ -23,9 +23,7 @@ export const AppSidebar = () => {
     <Sidebar>
       <SidebarHeader className="border-sidebar-border border-b px-4 py-3">
         <span className="font-medium text-sm">
-          <Link href="/">
-            DevTools
-          </Link>
+          <Link href="/">DevTools</Link>
         </span>
       </SidebarHeader>
       <SidebarContent>
@@ -54,7 +52,15 @@ export const AppSidebar = () => {
       </SidebarContent>
       <SidebarFooter className="border-sidebar-border border-t px-4 py-3">
         <span className="text-sidebar-foreground/50 text-[10px]">
-          Built by <a href="https://x.com/mauryaratan" target="_blank" rel="noopener noreferrer" className="underline">@mauryaratan</a>
+          Built by{" "}
+          <a
+            href="https://x.com/mauryaratan"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            @mauryaratan
+          </a>
         </span>
       </SidebarFooter>
     </Sidebar>

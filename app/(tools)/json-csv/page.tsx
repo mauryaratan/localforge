@@ -268,10 +268,16 @@ const JsonCsvPage = () => {
           <CardContent className="pt-4">
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2">
-                <Label htmlFor="delimiter" className="text-xs whitespace-nowrap">
+                <Label
+                  htmlFor="delimiter"
+                  className="text-xs whitespace-nowrap"
+                >
                   Delimiter
                 </Label>
-                <Select value={delimiter} onValueChange={(v) => v && setDelimiter(v)}>
+                <Select
+                  value={delimiter}
+                  onValueChange={(v) => v && setDelimiter(v)}
+                >
                   <SelectTrigger
                     id="delimiter"
                     className="h-8 w-[130px] cursor-pointer"
@@ -301,7 +307,10 @@ const JsonCsvPage = () => {
                       onCheckedChange={setIncludeHeader}
                       className="cursor-pointer"
                     />
-                    <Label htmlFor="include-header" className="cursor-pointer text-xs">
+                    <Label
+                      htmlFor="include-header"
+                      className="cursor-pointer text-xs"
+                    >
                       Include header row
                     </Label>
                   </div>
@@ -312,7 +321,10 @@ const JsonCsvPage = () => {
                       onCheckedChange={setFlattenNested}
                       className="cursor-pointer"
                     />
-                    <Label htmlFor="flatten-nested" className="cursor-pointer text-xs">
+                    <Label
+                      htmlFor="flatten-nested"
+                      className="cursor-pointer text-xs"
+                    >
                       Flatten nested objects
                     </Label>
                   </div>
@@ -325,7 +337,10 @@ const JsonCsvPage = () => {
                     onCheckedChange={setHasHeader}
                     className="cursor-pointer"
                   />
-                  <Label htmlFor="has-header" className="cursor-pointer text-xs">
+                  <Label
+                    htmlFor="has-header"
+                    className="cursor-pointer text-xs"
+                  >
                     First row is header
                   </Label>
                 </div>
@@ -505,8 +520,12 @@ const JsonCsvPage = () => {
               <div className="flex flex-col gap-2 text-muted-foreground text-xs">
                 {isJsonMode ? (
                   <>
-                    <p>• Input must be a JSON array of objects or a single object</p>
-                    <p>• Nested objects can be flattened with dot notation keys</p>
+                    <p>
+                      • Input must be a JSON array of objects or a single object
+                    </p>
+                    <p>
+                      • Nested objects can be flattened with dot notation keys
+                    </p>
                     <p>• Arrays within objects are converted to JSON strings</p>
                     <p>• All unique keys across objects become CSV columns</p>
                   </>

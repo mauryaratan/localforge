@@ -3,6 +3,7 @@ import {
   Calendar03Icon,
   CodeIcon,
   CodeSquareIcon,
+  CommandIcon,
   FingerPrintIcon,
   GridTableIcon,
   Key01Icon,
@@ -28,6 +29,11 @@ export const navItems: NavItem[] = [
     title: "Cron Parser",
     href: "/cron-parser",
     icon: Time01Icon,
+  },
+  {
+    title: "Keycode",
+    href: "/keycode",
+    icon: CommandIcon,
   },
   {
     title: "Regex Tester",

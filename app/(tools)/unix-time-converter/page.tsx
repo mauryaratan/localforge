@@ -268,10 +268,7 @@ const UnixTimeConverterPage = () => {
                   label={opt.label}
                   onCopy={() => {
                     if (currentTime) {
-                      handleCopy(
-                        currentTime[opt.value].toString(),
-                        opt.label
-                      );
+                      handleCopy(currentTime[opt.value].toString(), opt.label);
                     }
                   }}
                   value={currentTime?.[opt.value] ?? null}
@@ -438,7 +435,6 @@ const UnixTimeConverterPage = () => {
                 {/* Main formats */}
                 <div className="grid gap-2">
                   <DateOutputRow
-                    
                     label="Full Date"
                     onCopy={() =>
                       handleCopy(
@@ -469,13 +465,11 @@ const UnixTimeConverterPage = () => {
                     })}
                   />
                   <DateOutputRow
-                    
                     label="ISO 8601"
                     onCopy={() => handleCopy(date.toISOString(), "out-iso")}
                     value={date.toISOString()}
                   />
                   <DateOutputRow
-                    
                     label="Unix Time"
                     onCopy={() => handleCopy(String(timestamp), "out-unix")}
                     value={String(timestamp)}
@@ -497,7 +491,10 @@ const UnixTimeConverterPage = () => {
                         className="cursor-pointer"
                         disabled={!detailedRelative.formatted}
                         onClick={() =>
-                          handleCopy(detailedRelative.formatted, "Relative time")
+                          handleCopy(
+                            detailedRelative.formatted,
+                            "Relative time"
+                          )
                         }
                         size="icon-xs"
                         tabIndex={0}
@@ -516,7 +513,6 @@ const UnixTimeConverterPage = () => {
                   </Label>
                   <div className="grid gap-1.5">
                     <FormatRow
-                      
                       label="US Date"
                       onCopy={() => {
                         const m =
@@ -553,7 +549,6 @@ const UnixTimeConverterPage = () => {
                       })()}
                     />
                     <FormatRow
-                      
                       label="ISO Date"
                       onCopy={() => {
                         const y =
@@ -590,7 +585,6 @@ const UnixTimeConverterPage = () => {
                       })()}
                     />
                     <FormatRow
-                      
                       label="Date Time"
                       onCopy={() => {
                         const m =
@@ -643,7 +637,6 @@ const UnixTimeConverterPage = () => {
                       })()}
                     />
                     <FormatRow
-                      
                       label="Short"
                       onCopy={() => {
                         const shortMonths = [
@@ -720,7 +713,6 @@ const UnixTimeConverterPage = () => {
                       })()}
                     />
                     <FormatRow
-                      
                       label="Month Year"
                       onCopy={() => {
                         const months = [
@@ -848,10 +840,7 @@ const UnixTimeConverterPage = () => {
                             className="cursor-pointer"
                             disabled={!result.formatted}
                             onClick={() =>
-                              handleCopy(
-                                result.formatted,
-                                result.timezone
-                              )
+                              handleCopy(result.formatted, result.timezone)
                             }
                             size="icon-xs"
                             tabIndex={0}
@@ -1028,11 +1017,7 @@ interface CurrentTimeCardProps {
   onCopy: () => void;
 }
 
-const CurrentTimeCard = ({
-  label,
-  value,
-  onCopy,
-}: CurrentTimeCardProps) => {
+const CurrentTimeCard = ({ label, value, onCopy }: CurrentTimeCardProps) => {
   return (
     <button
       aria-label={`Copy ${label} timestamp`}
@@ -1065,11 +1050,7 @@ interface DateOutputRowProps {
   onCopy: () => void;
 }
 
-const DateOutputRow = ({
-  label,
-  value,
-  onCopy,
-}: DateOutputRowProps) => {
+const DateOutputRow = ({ label, value, onCopy }: DateOutputRowProps) => {
   return (
     <div className="flex items-center gap-2">
       <span className="w-20 shrink-0 text-muted-foreground text-xs">

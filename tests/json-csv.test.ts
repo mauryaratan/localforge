@@ -202,7 +202,7 @@ describe("jsonToCsv", () => {
   });
 
   it("should return error for array of non-objects", () => {
-    const result = jsonToCsv('[1, 2, 3]');
+    const result = jsonToCsv("[1, 2, 3]");
 
     expect(result.success).toBe(false);
     expect(result.error).toBe("All items must be objects");
@@ -434,29 +434,30 @@ describe("getJsonArrayStats", () => {
 
 describe("roundtrip conversion", () => {
   it("should preserve data when converting JSON -> CSV -> JSON", () => {
-    const originalJson = '[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]';
-    
+    const originalJson =
+      '[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]';
+
     const csvResult = jsonToCsv(originalJson);
     expect(csvResult.success).toBe(true);
-    
+
     const jsonResult = csvToJson(csvResult.output);
     expect(jsonResult.success).toBe(true);
-    
+
     const original = JSON.parse(originalJson);
     const roundtrip = JSON.parse(jsonResult.output);
-    
+
     expect(roundtrip).toEqual(original);
   });
 
   it("should preserve data when converting CSV -> JSON -> CSV", () => {
     const originalCsv = "name,age\nJohn,30\nJane,25";
-    
+
     const jsonResult = csvToJson(originalCsv);
     expect(jsonResult.success).toBe(true);
-    
+
     const csvResult = jsonToCsv(jsonResult.output);
     expect(csvResult.success).toBe(true);
-    
+
     // Normalize line endings for comparison
     expect(csvResult.output).toBe(originalCsv);
   });

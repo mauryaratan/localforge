@@ -325,7 +325,9 @@ const HtmlPreviewPage = () => {
               className="overflow-hidden rounded-md border bg-white shadow-lg transition-all duration-300"
               style={{
                 width:
-                  viewport === "desktop" ? "100%" : `${currentViewport.width}px`,
+                  viewport === "desktop"
+                    ? "100%"
+                    : `${currentViewport.width}px`,
                 maxWidth: "100%",
                 height:
                   viewport === "desktop"
@@ -390,7 +392,11 @@ const HtmlPreviewPage = () => {
                   tabIndex={0}
                   variant="outline"
                 >
-                  <HugeiconsIcon className="mr-1.5" icon={FileEditIcon} size={14} />
+                  <HugeiconsIcon
+                    className="mr-1.5"
+                    icon={FileEditIcon}
+                    size={14}
+                  />
                   Examples
                 </Button>
               }
