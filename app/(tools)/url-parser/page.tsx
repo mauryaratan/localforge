@@ -1,25 +1,25 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Copy01Icon,
-  Tick01Icon,
-  Delete02Icon,
   Add01Icon,
   ArrowDown01Icon,
   ArrowUp01Icon,
+  Copy01Icon,
+  Delete02Icon,
+  Tick01Icon,
 } from "@hugeicons/core-free-icons";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { parseURL, buildURL, type ParsedURL } from "@/lib/url-parser";
+import { buildURL, type ParsedURL, parseURL } from "@/lib/url-parser";
 
 type CopiedState = Record<string, boolean>;
 
@@ -131,9 +131,9 @@ const URLParserPage = () => {
     : [];
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl">
+    <div className="flex max-w-4xl flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-lg font-medium">URL Parser</h1>
+        <h1 className="font-medium text-lg">URL Parser</h1>
         <p className="text-muted-foreground text-xs">
           Parse, analyze, and modify URL components
         </p>
@@ -148,42 +148,42 @@ const URLParserPage = () => {
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Input
-                type="url"
-                placeholder="https://example.com/path?key=value#section"
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
                 aria-label="URL input"
                 className="pr-8"
+                onChange={(e) => setUrlInput(e.target.value)}
+                placeholder="https://example.com/path?key=value#section"
+                type="url"
+                value={urlInput}
               />
               {urlInput && (
                 <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  className="absolute right-1 top-1/2 -translate-y-1/2"
-                  onClick={handleClearInput}
                   aria-label="Clear input"
+                  className="absolute top-1/2 right-1 -translate-y-1/2"
+                  onClick={handleClearInput}
+                  size="icon-xs"
                   tabIndex={0}
+                  variant="ghost"
                 >
                   <HugeiconsIcon icon={Delete02Icon} size={14} />
                 </Button>
               )}
             </div>
             <CopyButton
-              text={urlInput}
               copied={copied.url}
-              onCopy={() => handleCopy(urlInput, "url")}
               label="Copy URL"
+              onCopy={() => handleCopy(urlInput, "url")}
+              text={urlInput}
             />
           </div>
 
           {parsed && !parsed.isValid && parsed.error && (
-            <Badge variant="destructive" className="mt-3">
+            <Badge className="mt-3" variant="destructive">
               {parsed.error}
             </Badge>
           )}
 
           {parsed?.isValid && (
-            <Badge variant="default" className="mt-3">
+            <Badge className="mt-3" variant="default">
               Valid URL
             </Badge>
           )}
@@ -197,18 +197,18 @@ const URLParserPage = () => {
             <CardTitle>URL Components</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {urlComponents.map(({ label, value, key }) => (
                 <div
+                  className="flex items-center justify-between gap-2 rounded-sm bg-muted/50 p-2"
                   key={key}
-                  className="flex items-center justify-between gap-2 p-2 bg-muted/50 rounded-sm"
                 >
-                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                    <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
+                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                       {label}
                     </span>
                     <span
-                      className="text-xs truncate font-mono"
+                      className="truncate font-mono text-xs"
                       title={value || "(empty)"}
                     >
                       {value || "(empty)"}
@@ -216,11 +216,11 @@ const URLParserPage = () => {
                   </div>
                   {value && value !== "(default)" && (
                     <CopyButton
-                      text={value}
                       copied={copied[key]}
-                      onCopy={() => handleCopy(value, key)}
                       label={`Copy ${label}`}
+                      onCopy={() => handleCopy(value, key)}
                       size="icon-xs"
+                      text={value}
                     />
                   )}
                 </div>
@@ -239,11 +239,11 @@ const URLParserPage = () => {
                 Query Parameters ({parsed.searchParams.length})
               </CardTitle>
               <Button
-                variant="ghost"
-                size="icon-xs"
-                onClick={() => setShowParams(!showParams)}
                 aria-label={showParams ? "Collapse" : "Expand"}
+                onClick={() => setShowParams(!showParams)}
+                size="icon-xs"
                 tabIndex={0}
+                variant="ghost"
               >
                 <HugeiconsIcon
                   icon={showParams ? ArrowUp01Icon : ArrowDown01Icon}
@@ -258,46 +258,46 @@ const URLParserPage = () => {
                 <div className="flex flex-col gap-2">
                   {parsed.searchParams.map((param, index) => (
                     <div
+                      className="flex items-center gap-2 rounded-sm bg-muted/50 p-2"
                       key={index}
-                      className="flex items-center gap-2 p-2 bg-muted/50 rounded-sm"
                     >
                       <Input
-                        value={param.key}
+                        aria-label={`Parameter ${index + 1} key`}
+                        className="flex-1"
                         onChange={(e) =>
                           handleUpdateParam(index, "key", e.target.value)
                         }
                         placeholder="Key"
-                        aria-label={`Parameter ${index + 1} key`}
-                        className="flex-1"
+                        value={param.key}
                       />
                       <span className="text-muted-foreground">=</span>
                       <Input
-                        value={param.value}
+                        aria-label={`Parameter ${index + 1} value`}
+                        className="flex-1"
                         onChange={(e) =>
                           handleUpdateParam(index, "value", e.target.value)
                         }
                         placeholder="Value"
-                        aria-label={`Parameter ${index + 1} value`}
-                        className="flex-1"
+                        value={param.value}
                       />
                       <CopyButton
-                        text={`${param.key}=${param.value}`}
                         copied={copied[`param-${index}`]}
+                        label="Copy parameter"
                         onCopy={() =>
                           handleCopy(
                             `${param.key}=${param.value}`,
                             `param-${index}`
                           )
                         }
-                        label="Copy parameter"
                         size="icon-xs"
+                        text={`${param.key}=${param.value}`}
                       />
                       <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        onClick={() => handleRemoveParam(index)}
                         aria-label="Remove parameter"
+                        onClick={() => handleRemoveParam(index)}
+                        size="icon-xs"
                         tabIndex={0}
+                        variant="ghost"
                       >
                         <HugeiconsIcon icon={Delete02Icon} size={14} />
                       </Button>
@@ -310,14 +310,18 @@ const URLParserPage = () => {
                 </p>
               )}
               <Button
-                variant="outline"
-                size="sm"
+                aria-label="Add parameter"
                 className="mt-3"
                 onClick={handleAddParam}
-                aria-label="Add parameter"
+                size="sm"
                 tabIndex={0}
+                variant="outline"
               >
-                <HugeiconsIcon icon={Add01Icon} size={14} data-icon="inline-start" />
+                <HugeiconsIcon
+                  data-icon="inline-start"
+                  icon={Add01Icon}
+                  size={14}
+                />
                 Add Parameter
               </Button>
             </CardContent>
@@ -348,12 +352,12 @@ const CopyButton = ({
       <TooltipTrigger
         render={
           <Button
-            variant="ghost"
-            size={size}
-            onClick={onCopy}
-            disabled={!text}
             aria-label={label}
+            disabled={!text}
+            onClick={onCopy}
+            size={size}
             tabIndex={0}
+            variant="ghost"
           />
         }
       >

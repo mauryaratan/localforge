@@ -370,7 +370,7 @@ export const parseColor = (input: string): ParsedColor => {
 export const getLuminance = (rgb: RGB): number => {
   const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((c) => {
     const sRGB = c / 255;
-    return sRGB <= 0.03928 ? sRGB / 12.92 : ((sRGB + 0.055) / 1.055) ** 2.4;
+    return sRGB <= 0.039_28 ? sRGB / 12.92 : ((sRGB + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };

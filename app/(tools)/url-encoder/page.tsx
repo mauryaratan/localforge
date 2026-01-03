@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Copy01Icon,
-  Tick01Icon,
-  Delete02Icon,
-  ArrowRight01Icon,
   ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Copy01Icon,
+  Delete02Icon,
+  Tick01Icon,
 } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,10 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  encodeURLComponent,
-  decodeURLComponent,
-} from "@/lib/url-parser";
+import { decodeURLComponent, encodeURLComponent } from "@/lib/url-parser";
 
 type CopiedState = Record<string, boolean>;
 
@@ -30,7 +27,9 @@ const URLEncoderPage = () => {
   const [decodedText, setDecodedText] = useState("");
   const [encodedText, setEncodedText] = useState("");
   const [copied, setCopied] = useState<CopiedState>({});
-  const [lastEdited, setLastEdited] = useState<"decoded" | "encoded">("decoded");
+  const [lastEdited, setLastEdited] = useState<"decoded" | "encoded">(
+    "decoded"
+  );
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage on mount
@@ -86,9 +85,9 @@ const URLEncoderPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl">
+    <div className="flex max-w-5xl flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-lg font-medium">URL Encoder / Decoder</h1>
+        <h1 className="font-medium text-lg">URL Encoder / Decoder</h1>
         <p className="text-muted-foreground text-xs">
           Encode or decode URL components in real-time
         </p>
@@ -100,51 +99,55 @@ const URLEncoderPage = () => {
             <CardTitle>Transform</CardTitle>
             {(decodedText || encodedText) && (
               <Button
-                variant="ghost"
-                size="xs"
-                onClick={handleClear}
                 aria-label="Clear all"
+                onClick={handleClear}
+                size="xs"
                 tabIndex={0}
+                variant="ghost"
               >
-                <HugeiconsIcon icon={Delete02Icon} size={14} data-icon="inline-start" />
+                <HugeiconsIcon
+                  data-icon="inline-start"
+                  icon={Delete02Icon}
+                  size={14}
+                />
                 Clear
               </Button>
             )}
           </div>
         </CardHeader>
         <CardContent className="pt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-start">
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_auto_1fr]">
             {/* Decoded (Plain Text) */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <label
+                  className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
                   htmlFor="decoded-input"
-                  className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
                 >
                   Decoded (Plain Text)
                 </label>
                 <CopyButton
-                  text={decodedText}
                   copied={copied.decoded}
-                  onCopy={() => handleCopy(decodedText, "decoded")}
                   label="Copy decoded text"
+                  onCopy={() => handleCopy(decodedText, "decoded")}
+                  text={decodedText}
                 />
               </div>
               <Textarea
+                aria-label="Decoded text input"
+                className="min-h-[200px] resize-none font-mono text-xs"
                 id="decoded-input"
-                value={decodedText}
                 onChange={(e) => handleDecodedChange(e.target.value)}
                 placeholder="hello world & special=chars"
-                aria-label="Decoded text input"
-                className="min-h-[200px] font-mono text-xs resize-none"
+                value={decodedText}
               />
               <CharCount text={decodedText} />
             </div>
 
             {/* Direction Indicator */}
-            <div className="hidden lg:flex flex-col items-center justify-center gap-2 pt-8">
+            <div className="hidden flex-col items-center justify-center gap-2 pt-8 lg:flex">
               <div
-                className={`p-2 rounded-sm transition-colors ${
+                className={`rounded-sm p-2 transition-colors ${
                   lastEdited === "decoded"
                     ? "bg-primary/10 text-primary"
                     : "bg-muted text-muted-foreground"
@@ -156,7 +159,7 @@ const URLEncoderPage = () => {
                 Auto
               </span>
               <div
-                className={`p-2 rounded-sm transition-colors ${
+                className={`rounded-sm p-2 transition-colors ${
                   lastEdited === "encoded"
                     ? "bg-primary/10 text-primary"
                     : "bg-muted text-muted-foreground"
@@ -170,33 +173,33 @@ const URLEncoderPage = () => {
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <label
+                  className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
                   htmlFor="encoded-input"
-                  className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
                 >
                   Encoded (URL Safe)
                 </label>
                 <CopyButton
-                  text={encodedText}
                   copied={copied.encoded}
-                  onCopy={() => handleCopy(encodedText, "encoded")}
                   label="Copy encoded text"
+                  onCopy={() => handleCopy(encodedText, "encoded")}
+                  text={encodedText}
                 />
               </div>
               <Textarea
+                aria-label="Encoded text input"
+                className="min-h-[200px] resize-none font-mono text-xs"
                 id="encoded-input"
-                value={encodedText}
                 onChange={(e) => handleEncodedChange(e.target.value)}
                 placeholder="hello%20world%20%26%20special%3Dchars"
-                aria-label="Encoded text input"
-                className="min-h-[200px] font-mono text-xs resize-none"
+                value={encodedText}
               />
               <CharCount text={encodedText} />
             </div>
           </div>
 
           {/* Quick Reference */}
-          <div className="mt-6 pt-4 border-t">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
+          <div className="mt-6 border-t pt-4">
+            <p className="mb-2 text-[10px] text-muted-foreground uppercase tracking-wider">
               Common Encodings
             </p>
             <div className="flex flex-wrap gap-2">
@@ -211,15 +214,17 @@ const URLEncoderPage = () => {
                 { char: "@", encoded: "%40" },
               ].map(({ char, encoded }) => (
                 <button
-                  key={encoded}
-                  type="button"
-                  onClick={() => handleDecodedChange(decodedText + char)}
-                  className="px-2 py-1 bg-muted/50 hover:bg-muted text-xs font-mono rounded-sm transition-colors"
                   aria-label={`Insert ${char}`}
+                  className="rounded-sm bg-muted/50 px-2 py-1 font-mono text-xs transition-colors hover:bg-muted"
+                  key={encoded}
+                  onClick={() => handleDecodedChange(decodedText + char)}
                   tabIndex={0}
+                  type="button"
                 >
-                  <span className="text-foreground">{char === " " ? "␣" : char}</span>
-                  <span className="text-muted-foreground mx-1">→</span>
+                  <span className="text-foreground">
+                    {char === " " ? "␣" : char}
+                  </span>
+                  <span className="mx-1 text-muted-foreground">→</span>
                   <span className="text-primary">{encoded}</span>
                 </button>
               ))}
@@ -244,12 +249,12 @@ const CopyButton = ({ text, copied, onCopy, label }: CopyButtonProps) => {
       <TooltipTrigger
         render={
           <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={onCopy}
-            disabled={!text}
             aria-label={label}
+            disabled={!text}
+            onClick={onCopy}
+            size="icon-xs"
             tabIndex={0}
+            variant="ghost"
           />
         }
       >
@@ -262,7 +267,7 @@ const CopyButton = ({ text, copied, onCopy, label }: CopyButtonProps) => {
 
 const CharCount = ({ text }: { text: string }) => {
   return (
-    <p className="text-[10px] text-muted-foreground text-right">
+    <p className="text-right text-[10px] text-muted-foreground">
       {text.length} characters
     </p>
   );

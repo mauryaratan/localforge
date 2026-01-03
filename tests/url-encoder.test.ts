@@ -1,8 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  encodeURLComponent,
-  decodeURLComponent,
-} from "@/lib/url-parser";
+import { describe, expect, it } from "vitest";
+import { decodeURLComponent, encodeURLComponent } from "@/lib/url-parser";
 
 describe("encodeURLComponent", () => {
   it("should encode space as %20", () => {

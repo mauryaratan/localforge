@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  Calendar03Icon,
+  Home01Icon,
+  Link01Icon,
+  PaintBoardIcon,
+  PercentIcon,
+  SourceCodeIcon,
+  Time01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,21 +22,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Home01Icon,
-  Link01Icon,
-  PercentIcon,
-  Time01Icon,
-  SourceCodeIcon,
-  PaintBoardIcon,
-} from "@hugeicons/core-free-icons";
 
-type NavItem = {
+interface NavItem {
   title: string;
   href: string;
   icon: typeof Home01Icon;
-};
+}
 
 const navItems: NavItem[] = [
   {
@@ -59,6 +60,11 @@ const navItems: NavItem[] = [
     href: "/color-converter",
     icon: PaintBoardIcon,
   },
+  {
+    title: "Unix Time",
+    href: "/unix-time-converter",
+    icon: Calendar03Icon,
+  },
 ];
 
 export const AppSidebar = () => {
@@ -66,8 +72,8 @@ export const AppSidebar = () => {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
-        <span className="text-sm font-medium">DevTools</span>
+      <SidebarHeader className="border-sidebar-border border-b px-4 py-3">
+        <span className="font-medium text-sm">DevTools</span>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -80,8 +86,8 @@ export const AppSidebar = () => {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      render={<Link href={item.href} aria-label={item.title} />}
                       isActive={isActive}
+                      render={<Link aria-label={item.title} href={item.href} />}
                     >
                       <HugeiconsIcon icon={item.icon} size={16} />
                       <span>{item.title}</span>

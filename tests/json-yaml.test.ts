@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  formatJson,
   jsonToYaml,
-  yamlToJson,
+  minifyJson,
   validateJson,
   validateYaml,
-  formatJson,
-  minifyJson,
+  yamlToJson,
 } from "@/lib/json-yaml";
 
 describe("validateJson", () => {
@@ -17,7 +17,7 @@ describe("validateJson", () => {
   });
 
   it("should validate a JSON array", () => {
-    const result = validateJson('[1, 2, 3]');
+    const result = validateJson("[1, 2, 3]");
 
     expect(result.isValid).toBe(true);
     expect(result.parsed).toEqual([1, 2, 3]);
@@ -161,7 +161,9 @@ describe("jsonToYaml", () => {
   });
 
   it("should handle strings with special characters", () => {
-    const result = jsonToYaml('{"url": "https://example.com/path?query=value"}');
+    const result = jsonToYaml(
+      '{"url": "https://example.com/path?query=value"}'
+    );
 
     expect(result.success).toBe(true);
     expect(result.output).toContain("url:");

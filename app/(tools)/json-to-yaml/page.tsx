@@ -1,33 +1,33 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Copy01Icon,
-  Tick01Icon,
   Delete02Icon,
-  TextWrapIcon,
-  MinusSignIcon,
   FileEditIcon,
+  MinusSignIcon,
+  TextWrapIcon,
+  Tick01Icon,
 } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  jsonToYaml,
-  yamlToJson,
+  exampleJson,
+  exampleYaml,
   formatJson,
+  jsonToYaml,
   minifyJson,
   validateJson,
   validateYaml,
-  exampleJson,
-  exampleYaml,
+  yamlToJson,
 } from "@/lib/json-yaml";
 
 type CopiedState = Record<string, boolean>;
@@ -156,36 +156,36 @@ const JsonYamlPage = () => {
   const outputLabel = isJsonMode ? "YAML" : "JSON";
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-col gap-6 lg:flex-row">
       {/* Main content */}
-      <div className="flex flex-col gap-6 flex-1 max-w-4xl">
+      <div className="flex max-w-4xl flex-1 flex-col gap-6">
         <div className="flex flex-col gap-3">
-          <h1 className="text-lg font-medium">JSON / YAML Converter</h1>
+          <h1 className="font-medium text-lg">JSON / YAML Converter</h1>
           <div className="flex items-center gap-2">
             <div className="inline-flex rounded-md border border-input bg-muted/30 p-0.5">
               <button
-                type="button"
-                onClick={() => handleModeChange("json-to-yaml")}
-                className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer ${
+                aria-pressed={isJsonMode}
+                className={`cursor-pointer rounded-sm px-3 py-1.5 font-medium text-xs transition-colors ${
                   isJsonMode
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
-                aria-pressed={isJsonMode}
+                onClick={() => handleModeChange("json-to-yaml")}
                 tabIndex={0}
+                type="button"
               >
                 JSON → YAML
               </button>
               <button
-                type="button"
-                onClick={() => handleModeChange("yaml-to-json")}
-                className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer ${
-                  !isJsonMode
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
                 aria-pressed={!isJsonMode}
+                className={`cursor-pointer rounded-sm px-3 py-1.5 font-medium text-xs transition-colors ${
+                  isJsonMode
+                    ? "text-muted-foreground hover:text-foreground"
+                    : "bg-background text-foreground shadow-sm"
+                }`}
+                onClick={() => handleModeChange("yaml-to-json")}
                 tabIndex={0}
+                type="button"
               >
                 YAML → JSON
               </button>
@@ -205,13 +205,13 @@ const JsonYamlPage = () => {
                       <TooltipTrigger
                         render={
                           <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={handleFormatJson}
-                            disabled={!isValidInput}
                             aria-label="Format JSON"
-                            tabIndex={0}
                             className="cursor-pointer"
+                            disabled={!isValidInput}
+                            onClick={handleFormatJson}
+                            size="icon-xs"
+                            tabIndex={0}
+                            variant="ghost"
                           />
                         }
                       >
@@ -223,13 +223,13 @@ const JsonYamlPage = () => {
                       <TooltipTrigger
                         render={
                           <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={handleMinifyJson}
-                            disabled={!isValidInput}
                             aria-label="Minify JSON"
-                            tabIndex={0}
                             className="cursor-pointer"
+                            disabled={!isValidInput}
+                            onClick={handleMinifyJson}
+                            size="icon-xs"
+                            tabIndex={0}
+                            variant="ghost"
                           />
                         }
                       >
@@ -243,13 +243,13 @@ const JsonYamlPage = () => {
                   <TooltipTrigger
                     render={
                       <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        onClick={handleClearInput}
-                        disabled={!input}
                         aria-label="Clear input"
-                        tabIndex={0}
                         className="cursor-pointer"
+                        disabled={!input}
+                        onClick={handleClearInput}
+                        size="icon-xs"
+                        tabIndex={0}
+                        variant="ghost"
                       />
                     }
                   >
@@ -262,12 +262,12 @@ const JsonYamlPage = () => {
           </CardHeader>
           <CardContent className="pt-4">
             <Textarea
-              placeholder={isJsonMode ? '{"key": "value"}' : "key: value"}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
               aria-label={`${inputLabel} input`}
-              className="font-mono text-sm min-h-[200px] resize-y"
+              className="min-h-[200px] resize-y font-mono text-sm"
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={isJsonMode ? '{"key": "value"}' : "key: value"}
               spellCheck={false}
+              value={input}
             />
             <div className="mt-3 flex items-center gap-2">
               {isValidInput === true && (
@@ -286,28 +286,28 @@ const JsonYamlPage = () => {
             <div className="flex items-center justify-between">
               <CardTitle>{outputLabel} Output</CardTitle>
               <CopyButton
-                text={output}
                 copied={copied.output}
-                onCopy={() => handleCopy(output, "output")}
                 label={`Copy ${outputLabel}`}
+                onCopy={() => handleCopy(output, "output")}
+                text={output}
               />
             </div>
           </CardHeader>
           <CardContent className="pt-4">
             <Textarea
-              value={output}
-              readOnly
               aria-label={`${outputLabel} output`}
-              className="font-mono text-sm min-h-[200px] resize-y bg-muted/30"
+              className="min-h-[200px] resize-y bg-muted/30 font-mono text-sm"
               placeholder={`${outputLabel} output will appear here...`}
+              readOnly
               spellCheck={false}
+              value={output}
             />
           </CardContent>
         </Card>
       </div>
 
       {/* Examples sidebar */}
-      <div className="lg:w-72 shrink-0">
+      <div className="shrink-0 lg:w-72">
         <Card>
           <CardHeader className="border-b">
             <CardTitle className="flex items-center gap-2">
@@ -361,13 +361,13 @@ const CopyButton = ({
       <TooltipTrigger
         render={
           <Button
-            variant="ghost"
-            size={size}
-            onClick={onCopy}
-            disabled={!text}
             aria-label={label}
-            tabIndex={0}
             className="cursor-pointer"
+            disabled={!text}
+            onClick={onCopy}
+            size={size}
+            tabIndex={0}
+            variant="ghost"
           />
         }
       >
@@ -386,12 +386,12 @@ type ExampleButtonProps = {
 const ExampleButton = ({ label, onClick }: ExampleButtonProps) => {
   return (
     <Button
-      variant="outline"
-      size="sm"
-      onClick={onClick}
-      className="justify-start cursor-pointer"
       aria-label={`Load ${label} example`}
+      className="cursor-pointer justify-start"
+      onClick={onClick}
+      size="sm"
       tabIndex={0}
+      variant="outline"
     >
       {label}
     </Button>

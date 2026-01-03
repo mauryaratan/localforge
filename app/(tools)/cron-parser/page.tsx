@@ -96,7 +96,7 @@ const CronParserPage = () => {
   return (
     <div className="flex gap-6">
       {/* Main Content */}
-      <div className="flex max-w-4xl min-w-0 flex-1 flex-col gap-6">
+      <div className="flex min-w-0 max-w-4xl flex-1 flex-col gap-6">
         <div className="flex flex-col gap-1">
           <h1 className="font-medium text-lg">Cron Parser</h1>
           <p className="text-muted-foreground text-xs">

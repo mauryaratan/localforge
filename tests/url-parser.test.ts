@@ -1,9 +1,11 @@
-import { describe, it, expect } from "vitest";
-import { parseURL, buildURL } from "@/lib/url-parser";
+import { describe, expect, it } from "vitest";
+import { buildURL, parseURL } from "@/lib/url-parser";
 
 describe("parseURL", () => {
   it("should parse a complete URL correctly", () => {
-    const result = parseURL("https://example.com:8080/path/to/page?foo=bar&baz=qux#section");
+    const result = parseURL(
+      "https://example.com:8080/path/to/page?foo=bar&baz=qux#section"
+    );
 
     expect(result.isValid).toBe(true);
     expect(result.protocol).toBe("https:");
@@ -101,7 +103,10 @@ describe("parseURL", () => {
     const result = parseURL("https://example.com?text=hello%20world");
 
     expect(result.isValid).toBe(true);
-    expect(result.searchParams[0]).toEqual({ key: "text", value: "hello world" });
+    expect(result.searchParams[0]).toEqual({
+      key: "text",
+      value: "hello world",
+    });
   });
 
   it("should handle duplicate query parameter keys", () => {

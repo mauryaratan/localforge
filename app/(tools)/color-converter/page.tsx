@@ -1,36 +1,40 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import {
+  Copy01Icon,
+  Delete02Icon,
+  Tick01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Copy01Icon, Tick01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  parseColor,
-  formatRgb,
-  formatRgba,
+  exampleColors,
+  formatCmyk,
   formatHsl,
   formatHsla,
   formatHsv,
-  formatCmyk,
-  hslToRgb,
-  rgbToHex,
-  getContrastRatio,
-  getWcagLevel,
-  getComplementary,
-  getTriadic,
+  formatRgb,
+  formatRgba,
   getAnalogous,
+  getComplementary,
+  getContrastRatio,
   getSplitComplementary,
-  exampleColors,
-  type ParsedColor,
+  getTriadic,
+  getWcagLevel,
   type HSL,
+  hslToRgb,
+  type ParsedColor,
+  parseColor,
+  rgbToHex,
 } from "@/lib/color-converter";
 
 type CopiedState = Record<string, boolean>;
@@ -139,11 +143,11 @@ const ColorConverterPage = () => {
     : null;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-col gap-6 lg:flex-row">
       {/* Main content */}
-      <div className="flex flex-col gap-6 flex-1 max-w-4xl">
+      <div className="flex max-w-4xl flex-1 flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-medium">Color Converter</h1>
+          <h1 className="font-medium text-lg">Color Converter</h1>
           <p className="text-muted-foreground text-xs">
             Convert colors between HEX, RGB, HSL, HSV, and CMYK formats
           </p>
@@ -157,29 +161,29 @@ const ColorConverterPage = () => {
           <CardContent className="pt-4">
             <div className="flex gap-2">
               <input
+                aria-label="Color picker"
+                className="h-9 w-12 cursor-pointer rounded border border-input bg-transparent p-0.5"
+                onChange={handleColorPickerChange}
                 type="color"
                 value={formats?.hex || "#000000"}
-                onChange={handleColorPickerChange}
-                className="h-9 w-12 cursor-pointer rounded border border-input bg-transparent p-0.5"
-                aria-label="Color picker"
               />
               <div className="relative flex-1">
                 <Input
-                  type="text"
-                  placeholder="#ff5500, rgb(255, 85, 0), hsl(20, 100%, 50%)"
-                  value={colorInput}
-                  onChange={(e) => setColorInput(e.target.value)}
                   aria-label="Color input"
                   className="pr-8"
+                  onChange={(e) => setColorInput(e.target.value)}
+                  placeholder="#ff5500, rgb(255, 85, 0), hsl(20, 100%, 50%)"
+                  type="text"
+                  value={colorInput}
                 />
                 {colorInput && (
                   <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 cursor-pointer"
-                    onClick={handleClearInput}
                     aria-label="Clear input"
+                    className="absolute top-1/2 right-1 -translate-y-1/2 cursor-pointer"
+                    onClick={handleClearInput}
+                    size="icon-xs"
                     tabIndex={0}
+                    variant="ghost"
                   >
                     <HugeiconsIcon icon={Delete02Icon} size={14} />
                   </Button>
@@ -188,17 +192,17 @@ const ColorConverterPage = () => {
             </div>
 
             {parsed && !parsed.isValid && parsed.error && (
-              <Badge variant="destructive" className="mt-3">
+              <Badge className="mt-3" variant="destructive">
                 {parsed.error}
               </Badge>
             )}
 
             {parsed?.isValid && formats && (
-              <div className="flex items-center gap-3 mt-3">
+              <div className="mt-3 flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded border border-border shadow-sm"
-                  style={{ backgroundColor: formats.hex }}
                   aria-label={`Color preview: ${formats.hex}`}
+                  className="h-10 w-10 rounded border border-border shadow-sm"
+                  style={{ backgroundColor: formats.hex }}
                 />
                 <Badge variant="default">Valid Color</Badge>
               </div>
@@ -213,29 +217,29 @@ const ColorConverterPage = () => {
               <CardTitle>Color Formats</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {formatsList.map(({ label, value, key }) => (
                   <div
+                    className="flex items-center justify-between gap-2 rounded-sm bg-muted/50 p-2"
                     key={key}
-                    className="flex items-center justify-between gap-2 p-2 bg-muted/50 rounded-sm"
                   >
-                    <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                      <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
+                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                         {label}
                       </span>
                       <span
-                        className="text-xs truncate font-mono"
+                        className="truncate font-mono text-xs"
                         title={value}
                       >
                         {value}
                       </span>
                     </div>
                     <CopyButton
-                      text={value}
                       copied={copied[key]}
-                      onCopy={() => handleCopy(value, key)}
                       label={`Copy ${label}`}
+                      onCopy={() => handleCopy(value, key)}
                       size="icon-xs"
+                      text={value}
                     />
                   </div>
                 ))}
@@ -251,14 +255,14 @@ const ColorConverterPage = () => {
               <CardTitle>Contrast Checker (WCAG)</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* With White */}
                 <div className="flex flex-col gap-2">
                   <div
-                    className="p-4 rounded border"
+                    className="rounded border p-4"
                     style={{ backgroundColor: formats.hex }}
                   >
-                    <span className="text-white font-medium text-sm">
+                    <span className="font-medium text-sm text-white">
                       Text on Color
                     </span>
                   </div>
@@ -277,10 +281,10 @@ const ColorConverterPage = () => {
                 {/* With Black */}
                 <div className="flex flex-col gap-2">
                   <div
-                    className="p-4 rounded border"
+                    className="rounded border p-4"
                     style={{ backgroundColor: formats.hex }}
                   >
-                    <span className="text-black font-medium text-sm">
+                    <span className="font-medium text-black text-sm">
                       Text on Color
                     </span>
                   </div>
@@ -307,25 +311,29 @@ const ColorConverterPage = () => {
               <CardTitle>Color Harmonies</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <HarmonyPalette
-                  name="Complementary"
                   colors={[formats.hsl, harmonies.complementary]}
+                  name="Complementary"
                   onColorClick={handleExampleClick}
                 />
                 <HarmonyPalette
-                  name="Triadic"
                   colors={[formats.hsl, ...harmonies.triadic]}
+                  name="Triadic"
                   onColorClick={handleExampleClick}
                 />
                 <HarmonyPalette
+                  colors={[
+                    harmonies.analogous[1],
+                    formats.hsl,
+                    harmonies.analogous[0],
+                  ]}
                   name="Analogous"
-                  colors={[harmonies.analogous[1], formats.hsl, harmonies.analogous[0]]}
                   onColorClick={handleExampleClick}
                 />
                 <HarmonyPalette
-                  name="Split Complementary"
                   colors={[formats.hsl, ...harmonies.splitComplementary]}
+                  name="Split Complementary"
                   onColorClick={handleExampleClick}
                 />
               </div>
@@ -335,24 +343,24 @@ const ColorConverterPage = () => {
       </div>
 
       {/* Sidebar with examples */}
-      <div className="lg:w-64 shrink-0 lg:sticky lg:top-4 lg:self-start">
+      <div className="shrink-0 lg:sticky lg:top-4 lg:w-64 lg:self-start">
         <Card>
           <CardHeader className="border-b">
             <CardTitle>Example Colors</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="grid grid-cols-4 lg:grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2 lg:grid-cols-3">
               {exampleColors.map((color) => (
                 <Tooltip key={color.name}>
                   <TooltipTrigger
                     render={
                       <button
-                        type="button"
-                        onClick={() => handleExampleClick(color.value)}
-                        className="w-full aspect-square rounded border border-border cursor-pointer hover:ring-2 hover:ring-ring hover:ring-offset-1 transition-all"
-                        style={{ backgroundColor: color.value }}
                         aria-label={`Use ${color.name} (${color.value})`}
+                        className="aspect-square w-full cursor-pointer rounded border border-border transition-all hover:ring-2 hover:ring-ring hover:ring-offset-1"
+                        onClick={() => handleExampleClick(color.value)}
+                        style={{ backgroundColor: color.value }}
                         tabIndex={0}
+                        type="button"
                       />
                     }
                   />
@@ -391,13 +399,13 @@ const CopyButton = ({
       <TooltipTrigger
         render={
           <Button
-            variant="ghost"
-            size={size}
-            onClick={onCopy}
-            disabled={!text}
             aria-label={label}
-            tabIndex={0}
             className="cursor-pointer"
+            disabled={!text}
+            onClick={onCopy}
+            size={size}
+            tabIndex={0}
+            variant="ghost"
           />
         }
       >
@@ -414,7 +422,7 @@ type WcagBadgeProps = {
 };
 
 const WcagBadge = ({ label, passed }: WcagBadgeProps) => (
-  <Badge variant={passed ? "default" : "secondary"} className="text-[10px]">
+  <Badge className="text-[10px]" variant={passed ? "default" : "secondary"}>
     {label}: {passed ? "Pass" : "Fail"}
   </Badge>
 );
@@ -425,10 +433,14 @@ type HarmonyPaletteProps = {
   onColorClick: (hex: string) => void;
 };
 
-const HarmonyPalette = ({ name, colors, onColorClick }: HarmonyPaletteProps) => {
+const HarmonyPalette = ({
+  name,
+  colors,
+  onColorClick,
+}: HarmonyPaletteProps) => {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs text-muted-foreground">{name}</span>
+      <span className="text-muted-foreground text-xs">{name}</span>
       <div className="flex gap-1">
         {colors.map((hsl, index) => {
           const hex = rgbToHex(hslToRgb(hsl));
@@ -437,12 +449,12 @@ const HarmonyPalette = ({ name, colors, onColorClick }: HarmonyPaletteProps) => 
               <TooltipTrigger
                 render={
                   <button
-                    type="button"
-                    onClick={() => onColorClick(hex)}
-                    className="flex-1 h-10 rounded border border-border cursor-pointer hover:ring-2 hover:ring-ring hover:ring-offset-1 transition-all"
-                    style={{ backgroundColor: hex }}
                     aria-label={`Use color ${hex}`}
+                    className="h-10 flex-1 cursor-pointer rounded border border-border transition-all hover:ring-2 hover:ring-ring hover:ring-offset-1"
+                    onClick={() => onColorClick(hex)}
+                    style={{ backgroundColor: hex }}
                     tabIndex={0}
+                    type="button"
                   />
                 }
               />
