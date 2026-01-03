@@ -2,6 +2,7 @@ import {
   Calendar03Icon,
   CodeIcon,
   CodeSquareIcon,
+  FingerPrintIcon,
   Key01Icon,
   Link01Icon,
   NoteEditIcon,
@@ -50,6 +51,11 @@ export const navItems: NavItem[] = [
     title: "Base64",
     href: "/base64",
     icon: Key01Icon,
+  },
+  {
+    title: "UUID / ULID",
+    href: "/uuid-generator",
+    icon: FingerPrintIcon,
   },
   {
     title: "HTML Entities",
