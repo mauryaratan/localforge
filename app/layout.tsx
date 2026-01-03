@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
+import { CommandMenu } from "@/components/command-menu";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   SidebarInset,
@@ -45,6 +46,7 @@ export default function RootLayout({
             <SidebarInset>
               <header className="flex h-12 items-center gap-2 border-b px-4">
                 <SidebarTrigger />
+                <CommandMenu />
               </header>
               <main className="flex-1 p-4">{children}</main>
             </SidebarInset>
