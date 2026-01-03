@@ -33,12 +33,12 @@ const navItems: NavItem[] = [
   },
   {
     title: "URL Parser",
-    href: "/tools/url-parser",
+    href: "/url-parser",
     icon: Link01Icon,
   },
   {
     title: "URL Encoder",
-    href: "/tools/url-encoder",
+    href: "/url-encoder",
     icon: PercentIcon,
   },
 ];
