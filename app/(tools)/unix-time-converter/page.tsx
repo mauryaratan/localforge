@@ -9,15 +9,16 @@ import {
   Delete02Icon,
   FileImportIcon,
   RefreshIcon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Tooltip,
   TooltipContent,
@@ -37,8 +38,6 @@ import {
   type TimezoneResult,
   toMilliseconds,
 } from "@/lib/unix-time";
-
-type CopiedState = Record<string, boolean>;
 
 const STORAGE_KEY_INPUT = "devtools:unix-time:input";
 const STORAGE_KEY_FORMAT = "devtools:unix-time:format";
@@ -78,7 +77,6 @@ const UnixTimeConverterPage = () => {
   const [timezone, setTimezone] = useState<TimezoneMode>("local");
   const [extraTimezones, setExtraTimezones] = useState<string[]>([]);
   const [selectedTz, setSelectedTz] = useState<string>("");
-  const [copied, setCopied] = useState<CopiedState>({});
   const [isHydrated, setIsHydrated] = useState(false);
   const [allTimezones, setAllTimezones] = useState<string[]>([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -155,19 +153,16 @@ const UnixTimeConverterPage = () => {
     };
   }, []);
 
-  const handleCopy = useCallback(async (text: string, key: string) => {
+  const handleCopy = useCallback(async (text: string, label?: string) => {
     if (!text) {
       return;
     }
 
     try {
       await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
+      toast.success(label ? `${label} copied` : "Copied");
     } catch {
-      // Clipboard API failed
+      toast.error("Failed to copy");
     }
   }, []);
 
@@ -269,14 +264,13 @@ const UnixTimeConverterPage = () => {
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {UNIT_OPTIONS.map((opt) => (
                 <CurrentTimeCard
-                  copied={copied[`current-${opt.value}`]}
                   key={opt.value}
                   label={opt.label}
                   onCopy={() => {
                     if (currentTime) {
                       handleCopy(
                         currentTime[opt.value].toString(),
-                        `current-${opt.value}`
+                        opt.label
                       );
                     }
                   }}
@@ -381,55 +375,43 @@ const UnixTimeConverterPage = () => {
               <div className="flex flex-wrap items-center gap-4 text-xs">
                 <div className="flex items-center gap-2">
                   <Label className="text-muted-foreground">Output unit:</Label>
-                  <div className="inline-flex rounded-md border border-input bg-muted/30 p-0.5">
+                  <ToggleGroup variant="outline" size="sm">
                     {UNIT_OPTIONS.map((opt) => (
-                      <button
-                        aria-pressed={unit === opt.value}
-                        className={`cursor-pointer rounded-sm px-2 py-1 font-medium transition-colors ${
-                          unit === opt.value
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
+                      <ToggleGroupItem
                         key={opt.value}
+                        value={opt.value}
+                        aria-pressed={unit === opt.value}
+                        pressed={unit === opt.value}
                         onClick={() => setUnit(opt.value)}
-                        tabIndex={0}
-                        type="button"
+                        className="cursor-pointer px-2"
                       >
                         {opt.label.slice(0, 2)}
-                      </button>
+                      </ToggleGroupItem>
                     ))}
-                  </div>
+                  </ToggleGroup>
                 </div>
                 <div className="flex items-center gap-2">
                   <Label className="text-muted-foreground">Timezone:</Label>
-                  <div className="inline-flex rounded-md border border-input bg-muted/30 p-0.5">
-                    <button
+                  <ToggleGroup variant="outline" size="sm">
+                    <ToggleGroupItem
+                      value="local"
                       aria-pressed={timezone === "local"}
-                      className={`cursor-pointer rounded-sm px-2.5 py-1 font-medium transition-colors ${
-                        timezone === "local"
-                          ? "bg-background text-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
+                      pressed={timezone === "local"}
                       onClick={() => setTimezone("local")}
-                      tabIndex={0}
-                      type="button"
+                      className="cursor-pointer px-2.5"
                     >
                       Local
-                    </button>
-                    <button
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value="utc"
                       aria-pressed={timezone === "utc"}
-                      className={`cursor-pointer rounded-sm px-2.5 py-1 font-medium transition-colors ${
-                        timezone === "utc"
-                          ? "bg-background text-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
+                      pressed={timezone === "utc"}
                       onClick={() => setTimezone("utc")}
-                      tabIndex={0}
-                      type="button"
+                      className="cursor-pointer px-2.5"
                     >
                       UTC
-                    </button>
-                  </div>
+                    </ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
               </div>
 
@@ -456,7 +438,7 @@ const UnixTimeConverterPage = () => {
                 {/* Main formats */}
                 <div className="grid gap-2">
                   <DateOutputRow
-                    copied={copied["out-full"]}
+                    
                     label="Full Date"
                     onCopy={() =>
                       handleCopy(
@@ -487,13 +469,13 @@ const UnixTimeConverterPage = () => {
                     })}
                   />
                   <DateOutputRow
-                    copied={copied["out-iso"]}
+                    
                     label="ISO 8601"
                     onCopy={() => handleCopy(date.toISOString(), "out-iso")}
                     value={date.toISOString()}
                   />
                   <DateOutputRow
-                    copied={copied["out-unix"]}
+                    
                     label="Unix Time"
                     onCopy={() => handleCopy(String(timestamp), "out-unix")}
                     value={String(timestamp)}
@@ -510,14 +492,19 @@ const UnixTimeConverterPage = () => {
                       <code className="flex-1 rounded bg-muted/50 px-3 py-2 font-mono text-sm">
                         {detailedRelative.formatted}
                       </code>
-                      <CopyButton
-                        copied={copied["out-relative"]}
-                        label="Copy relative time"
-                        onCopy={() =>
-                          handleCopy(detailedRelative.formatted, "out-relative")
+                      <Button
+                        aria-label="Copy relative time"
+                        className="cursor-pointer"
+                        disabled={!detailedRelative.formatted}
+                        onClick={() =>
+                          handleCopy(detailedRelative.formatted, "Relative time")
                         }
-                        text={detailedRelative.formatted}
-                      />
+                        size="icon-xs"
+                        tabIndex={0}
+                        variant="ghost"
+                      >
+                        <HugeiconsIcon icon={Copy01Icon} size={14} />
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -529,7 +516,7 @@ const UnixTimeConverterPage = () => {
                   </Label>
                   <div className="grid gap-1.5">
                     <FormatRow
-                      copied={copied["fmt-us"]}
+                      
                       label="US Date"
                       onCopy={() => {
                         const m =
@@ -566,7 +553,7 @@ const UnixTimeConverterPage = () => {
                       })()}
                     />
                     <FormatRow
-                      copied={copied["fmt-iso-date"]}
+                      
                       label="ISO Date"
                       onCopy={() => {
                         const y =
@@ -603,7 +590,7 @@ const UnixTimeConverterPage = () => {
                       })()}
                     />
                     <FormatRow
-                      copied={copied["fmt-datetime"]}
+                      
                       label="Date Time"
                       onCopy={() => {
                         const m =
@@ -656,7 +643,7 @@ const UnixTimeConverterPage = () => {
                       })()}
                     />
                     <FormatRow
-                      copied={copied["fmt-short"]}
+                      
                       label="Short"
                       onCopy={() => {
                         const shortMonths = [
@@ -733,7 +720,7 @@ const UnixTimeConverterPage = () => {
                       })()}
                     />
                     <FormatRow
-                      copied={copied["fmt-month-year"]}
+                      
                       label="Month Year"
                       onCopy={() => {
                         const months = [
@@ -856,18 +843,22 @@ const UnixTimeConverterPage = () => {
                               {result.formatted}
                             </div>
                           </div>
-                          <CopyButton
-                            copied={copied[`tz-${result.timezone}`]}
-                            label={`Copy ${result.timezone} time`}
-                            onCopy={() =>
+                          <Button
+                            aria-label={`Copy ${result.timezone} time`}
+                            className="cursor-pointer"
+                            disabled={!result.formatted}
+                            onClick={() =>
                               handleCopy(
                                 result.formatted,
-                                `tz-${result.timezone}`
+                                result.timezone
                               )
                             }
                             size="icon-xs"
-                            text={result.formatted}
-                          />
+                            tabIndex={0}
+                            variant="ghost"
+                          >
+                            <HugeiconsIcon icon={Copy01Icon} size={14} />
+                          </Button>
                           <Button
                             aria-label={`Remove ${result.timezone}`}
                             className="cursor-pointer"
@@ -1034,14 +1025,12 @@ const UnixTimeConverterPage = () => {
 interface CurrentTimeCardProps {
   label: string;
   value: number | null;
-  copied: boolean;
   onCopy: () => void;
 }
 
 const CurrentTimeCard = ({
   label,
   value,
-  copied,
   onCopy,
 }: CurrentTimeCardProps) => {
   return (
@@ -1061,8 +1050,8 @@ const CurrentTimeCard = ({
       </span>
       <span className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
         <HugeiconsIcon
-          className={copied ? "text-primary" : "text-muted-foreground"}
-          icon={copied ? Tick01Icon : Copy01Icon}
+          className="text-muted-foreground"
+          icon={Copy01Icon}
           size={12}
         />
       </span>
@@ -1073,14 +1062,12 @@ const CurrentTimeCard = ({
 interface DateOutputRowProps {
   label: string;
   value: string;
-  copied: boolean;
   onCopy: () => void;
 }
 
 const DateOutputRow = ({
   label,
   value,
-  copied,
   onCopy,
 }: DateOutputRowProps) => {
   return (
@@ -1091,13 +1078,17 @@ const DateOutputRow = ({
       <code className="flex-1 truncate rounded bg-muted/50 px-2 py-1.5 font-mono text-xs">
         {value}
       </code>
-      <CopyButton
-        copied={copied}
-        label={`Copy ${label}`}
-        onCopy={onCopy}
+      <Button
+        aria-label={`Copy ${label}`}
+        className="cursor-pointer"
+        disabled={!value}
+        onClick={onCopy}
         size="icon-xs"
-        text={value}
-      />
+        tabIndex={0}
+        variant="ghost"
+      >
+        <HugeiconsIcon icon={Copy01Icon} size={14} />
+      </Button>
     </div>
   );
 };
@@ -1105,62 +1096,28 @@ const DateOutputRow = ({
 interface FormatRowProps {
   label: string;
   value: string;
-  copied: boolean;
   onCopy: () => void;
 }
 
-const FormatRow = ({ label, value, copied, onCopy }: FormatRowProps) => {
+const FormatRow = ({ label, value, onCopy }: FormatRowProps) => {
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="w-24 shrink-0 text-muted-foreground">{label}</span>
       <code className="flex-1 truncate rounded bg-muted/30 px-2 py-1 font-mono">
         {value}
       </code>
-      <CopyButton
-        copied={copied}
-        label={`Copy ${label}`}
-        onCopy={onCopy}
+      <Button
+        aria-label={`Copy ${label}`}
+        className="cursor-pointer"
+        disabled={!value}
+        onClick={onCopy}
         size="icon-xs"
-        text={value}
-      />
-    </div>
-  );
-};
-
-interface CopyButtonProps {
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-  label: string;
-  size?: "icon-xs" | "icon-sm" | "icon";
-}
-
-const CopyButton = ({
-  text,
-  copied,
-  onCopy,
-  label,
-  size = "icon-sm",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={!text}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
+        tabIndex={0}
+        variant="ghost"
       >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
+        <HugeiconsIcon icon={Copy01Icon} size={14} />
+      </Button>
+    </div>
   );
 };
 

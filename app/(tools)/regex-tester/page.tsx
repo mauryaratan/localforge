@@ -4,14 +4,16 @@ import {
   Copy01Icon,
   Delete02Icon,
   InformationCircleIcon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -30,9 +32,6 @@ import {
   testRegex,
 } from "@/lib/regex-tester";
 
-interface CopiedState {
-  [key: string]: boolean;
-}
 
 const STORAGE_KEY_PATTERN = "devtools:regex-tester:pattern";
 const STORAGE_KEY_TEST = "devtools:regex-tester:test";
@@ -44,7 +43,6 @@ const RegexTesterPage = () => {
   const [flags, setFlags] = useState("g");
   const [replacement, setReplacement] = useState("");
   const [mode, setMode] = useState<"match" | "replace">("match");
-  const [copied, setCopied] = useState<CopiedState>({});
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage on mount
@@ -110,19 +108,16 @@ const RegexTesterPage = () => {
     return substituteRegex(pattern, testString, replacement, flags);
   }, [pattern, testString, replacement, flags, mode]);
 
-  const handleCopy = useCallback(async (text: string, key: string) => {
+  const handleCopy = useCallback(async (text: string, label: string) => {
     if (!text) {
       return;
     }
 
     try {
       await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
+      toast.success(`${label} copied`);
     } catch {
-      // Clipboard API failed
+      toast.error("Failed to copy");
     }
   }, []);
 
@@ -165,26 +160,22 @@ const RegexTesterPage = () => {
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
               <CardTitle>Pattern</CardTitle>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-3">
                 {REGEX_FLAGS.map((flag) => (
                   <Tooltip key={flag.key}>
                     <TooltipTrigger
                       render={
-                        <Button
-                          aria-label={`Toggle ${flag.label} flag`}
-                          aria-pressed={flags.includes(flag.key)}
-                          className="cursor-pointer"
-                          onClick={() => handleToggleFlag(flag.key)}
-                          size="icon-xs"
-                          tabIndex={0}
-                          variant={
-                            flags.includes(flag.key) ? "default" : "outline"
-                          }
-                        />
+                        <label className="flex cursor-pointer items-center gap-1.5">
+                          <Switch
+                            size="sm"
+                            checked={flags.includes(flag.key)}
+                            onCheckedChange={() => handleToggleFlag(flag.key)}
+                            aria-label={`Toggle ${flag.label} flag`}
+                          />
+                          <span className="font-medium text-xs">{flag.label}</span>
+                        </label>
                       }
-                    >
-                      {flag.label}
-                    </TooltipTrigger>
+                    />
                     <TooltipContent>{flag.description}</TooltipContent>
                   </Tooltip>
                 ))}
@@ -217,12 +208,17 @@ const RegexTesterPage = () => {
                 )}
               </div>
               <span className="text-muted-foreground">/{flags}</span>
-              <CopyButton
-                copied={copied.pattern}
-                label="Copy pattern"
-                onCopy={() => handleCopy(`/${pattern}/${flags}`, "pattern")}
-                text={pattern}
-              />
+              <Button
+                aria-label="Copy pattern"
+                className="cursor-pointer"
+                disabled={!pattern}
+                onClick={() => handleCopy(`/${pattern}/${flags}`, "Pattern")}
+                size="icon-xs"
+                tabIndex={0}
+                variant="ghost"
+              >
+                <HugeiconsIcon icon={Copy01Icon} size={14} />
+              </Button>
             </div>
 
             {!result.isValid && result.error && (
@@ -271,12 +267,17 @@ const RegexTesterPage = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle>Test String</CardTitle>
                   <div className="flex items-center gap-1">
-                    <CopyButton
-                      copied={copied.test}
-                      label="Copy test string"
-                      onCopy={() => handleCopy(testString, "test")}
-                      text={testString}
-                    />
+                    <Button
+                      aria-label="Copy test string"
+                      className="cursor-pointer"
+                      disabled={!testString}
+                      onClick={() => handleCopy(testString, "Test string")}
+                      size="icon-xs"
+                      tabIndex={0}
+                      variant="ghost"
+                    >
+                      <HugeiconsIcon icon={Copy01Icon} size={14} />
+                    </Button>
                     <Button
                       aria-label="Clear all"
                       className="cursor-pointer"
@@ -323,7 +324,6 @@ const RegexTesterPage = () => {
                   <div className="flex flex-col gap-3">
                     {result.matches.map((match, idx) => (
                       <MatchDetail
-                        copied={copied}
                         index={idx}
                         key={`match-${match.index}-${match.endIndex}`}
                         match={match}
@@ -402,14 +402,19 @@ const RegexTesterPage = () => {
                           {substitutionResult.replacementCount !== 1 ? "s" : ""}
                         </Badge>
                       )}
-                      <CopyButton
-                        copied={copied.result}
-                        label="Copy result"
-                        onCopy={() =>
-                          handleCopy(substitutionResult.result, "result")
+                      <Button
+                        aria-label="Copy result"
+                        className="cursor-pointer"
+                        disabled={!substitutionResult.result}
+                        onClick={() =>
+                          handleCopy(substitutionResult.result, "Result")
                         }
-                        text={substitutionResult.result}
-                      />
+                        size="icon-xs"
+                        tabIndex={0}
+                        variant="ghost"
+                      >
+                        <HugeiconsIcon icon={Copy01Icon} size={14} />
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -437,24 +442,26 @@ const RegexTesterPage = () => {
           <CardHeader className="border-b">
             <CardTitle>Examples</CardTitle>
           </CardHeader>
-          <CardContent className="max-h-64 overflow-y-auto pt-3">
-            <div className="flex flex-col gap-1">
-              {EXAMPLE_PATTERNS.map((example) => (
-                <button
-                  aria-label={`Load ${example.name} example`}
-                  className="group cursor-pointer rounded-sm px-2 py-1.5 text-left transition-colors hover:bg-muted"
-                  key={example.name}
-                  onClick={() => handleLoadExample(example)}
-                  tabIndex={0}
-                  type="button"
-                >
-                  <div className="font-medium text-xs">{example.name}</div>
-                  <div className="text-[10px] text-muted-foreground">
-                    {example.description}
-                  </div>
-                </button>
-              ))}
-            </div>
+          <CardContent className="pt-3">
+            <ScrollArea className="h-64">
+              <div className="flex flex-col gap-1 pr-3">
+                {EXAMPLE_PATTERNS.map((example) => (
+                  <button
+                    aria-label={`Load ${example.name} example`}
+                    className="group cursor-pointer rounded-sm px-2 py-1.5 text-left transition-colors hover:bg-muted"
+                    key={example.name}
+                    onClick={() => handleLoadExample(example)}
+                    tabIndex={0}
+                    type="button"
+                  >
+                    <div className="font-medium text-xs">{example.name}</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {example.description}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
 
@@ -463,31 +470,33 @@ const RegexTesterPage = () => {
           <CardHeader className="border-b">
             <CardTitle>Quick Reference</CardTitle>
           </CardHeader>
-          <CardContent className="max-h-80 overflow-y-auto pt-3">
-            <div className="flex flex-col gap-3">
-              {QUICK_REFERENCE.map((category) => (
-                <div key={category.name}>
-                  <div className="mb-1.5 text-[10px] text-muted-foreground uppercase tracking-wider">
-                    {category.name}
+          <CardContent className="pt-3">
+            <ScrollArea className="h-80">
+              <div className="flex flex-col gap-3 pr-3">
+                {QUICK_REFERENCE.map((category) => (
+                  <div key={category.name}>
+                    <div className="mb-1.5 text-[10px] text-muted-foreground uppercase tracking-wider">
+                      {category.name}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      {category.items.map((item) => (
+                        <div
+                          className="flex items-center gap-2 text-xs"
+                          key={item.token}
+                        >
+                          <code className="min-w-12 rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px]">
+                            {item.token}
+                          </code>
+                          <span className="text-muted-foreground">
+                            {item.description}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-0.5">
-                    {category.items.map((item) => (
-                      <div
-                        className="flex items-center gap-2 text-xs"
-                        key={item.token}
-                      >
-                        <code className="min-w-12 rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px]">
-                          {item.token}
-                        </code>
-                        <span className="text-muted-foreground">
-                          {item.description}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
       </aside>
@@ -560,11 +569,10 @@ const HighlightedText = ({ text, matches }: HighlightedTextProps) => {
 interface MatchDetailProps {
   match: RegexMatch;
   index: number;
-  copied: CopiedState;
-  onCopy: (text: string, key: string) => void;
+  onCopy: (text: string, label: string) => void;
 }
 
-const MatchDetail = ({ match, index, copied, onCopy }: MatchDetailProps) => {
+const MatchDetail = ({ match, index, onCopy }: MatchDetailProps) => {
   const hasGroups = match.groups.length > 0;
   const hasNamedGroups = Object.keys(match.namedGroups).length > 0;
 
@@ -580,13 +588,17 @@ const MatchDetail = ({ match, index, copied, onCopy }: MatchDetailProps) => {
           </div>
           <code className="font-mono text-xs">{match.fullMatch}</code>
         </div>
-        <CopyButton
-          copied={copied[`match-${index}`]}
-          label="Copy match"
-          onCopy={() => onCopy(match.fullMatch, `match-${index}`)}
+        <Button
+          aria-label="Copy match"
+          className="cursor-pointer"
+          disabled={!match.fullMatch}
+          onClick={() => onCopy(match.fullMatch, `Match ${index + 1}`)}
           size="icon-xs"
-          text={match.fullMatch}
-        />
+          tabIndex={0}
+          variant="ghost"
+        >
+          <HugeiconsIcon icon={Copy01Icon} size={14} />
+        </Button>
       </div>
 
       {hasGroups && (
@@ -619,44 +631,6 @@ const MatchDetail = ({ match, index, copied, onCopy }: MatchDetailProps) => {
         </div>
       )}
     </div>
-  );
-};
-
-// Copy Button Component
-interface CopyButtonProps {
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-  label: string;
-  size?: "icon-xs" | "icon-sm" | "icon";
-}
-
-const CopyButton = ({
-  text,
-  copied,
-  onCopy,
-  label,
-  size = "icon-sm",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={!text}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 

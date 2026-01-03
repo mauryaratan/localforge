@@ -5,16 +5,22 @@ import {
   Delete02Icon,
   Download04Icon,
   FileEditIcon,
-  Tick01Icon,
   ViewIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -30,13 +36,10 @@ import {
   type TocItem,
 } from "@/lib/markdown-preview";
 
-type CopiedState = Record<string, boolean>;
-
 const STORAGE_KEY_INPUT = "devtools:markdown-preview:input";
 
 const MarkdownPreviewPage = () => {
   const [input, setInput] = useState("");
-  const [copied, setCopied] = useState<CopiedState>({});
   const [isHydrated, setIsHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("split");
 
@@ -72,19 +75,16 @@ const MarkdownPreviewPage = () => {
     return extractTableOfContents(input);
   }, [input]);
 
-  const handleCopy = useCallback(async (text: string, key: string) => {
+  const handleCopy = useCallback(async (text: string) => {
     if (!text) {
       return;
     }
 
     try {
       await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
+      toast.success("Markdown copied to clipboard");
     } catch {
-      // Clipboard API failed
+      toast.error("Failed to copy");
     }
   }, []);
 
@@ -191,12 +191,17 @@ const MarkdownPreviewPage = () => {
                     </TooltipTrigger>
                     <TooltipContent>Clear</TooltipContent>
                   </Tooltip>
-                  <CopyButton
-                    copied={copied.input}
-                    label="Copy markdown"
-                    onCopy={() => handleCopy(input, "input")}
-                    text={input}
-                  />
+                  <Button
+                    aria-label="Copy markdown"
+                    className="cursor-pointer"
+                    disabled={!input}
+                    onClick={() => handleCopy(input)}
+                    size="icon-xs"
+                    tabIndex={0}
+                    variant="ghost"
+                  >
+                    <HugeiconsIcon icon={Copy01Icon} size={14} />
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -228,25 +233,35 @@ const MarkdownPreviewPage = () => {
 
               {/* Split View */}
               <TabsContent className="overflow-hidden" value="split">
-                <div className="grid h-[500px] gap-4 lg:grid-cols-2">
-                  <Textarea
-                    aria-label="Markdown input"
-                    className="h-full resize-none !field-sizing-fixed font-mono text-xs leading-relaxed"
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="# Start typing your markdown here..."
-                    spellCheck={false}
-                    value={input}
-                  />
-                  <div className="prose-preview h-full overflow-auto rounded-md border bg-card p-4">
-                    {input.trim() ? (
-                      <MarkdownRenderer content={input} />
-                    ) : (
-                      <p className="text-muted-foreground text-sm italic">
-                        Preview will appear here...
-                      </p>
-                    )}
-                  </div>
-                </div>
+                <ResizablePanelGroup
+                  orientation="horizontal"
+                  className="h-[500px] rounded-md"
+                >
+                  <ResizablePanel defaultSize={50} minSize={25}>
+                    <Textarea
+                      aria-label="Markdown input"
+                      className="h-full resize-none rounded-none border-0 !field-sizing-fixed font-mono text-xs leading-relaxed focus-visible:ring-0"
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="# Start typing your markdown here..."
+                      spellCheck={false}
+                      value={input}
+                    />
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                  <ResizablePanel defaultSize={50} minSize={25}>
+                    <ScrollArea className="h-full">
+                      <div className="prose-preview h-full rounded-md border-0 bg-card p-4">
+                        {input.trim() ? (
+                          <MarkdownRenderer content={input} />
+                        ) : (
+                          <p className="text-muted-foreground text-sm italic">
+                            Preview will appear here...
+                          </p>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
               </TabsContent>
 
               {/* Stats */}
@@ -615,44 +630,6 @@ const slugify = (text: string): string => {
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-};
-
-// Reusable Components
-interface CopyButtonProps {
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-  label: string;
-  size?: "icon-xs" | "icon-sm" | "icon";
-}
-
-const CopyButton = ({
-  text,
-  copied,
-  onCopy,
-  label,
-  size = "icon-xs",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={!text}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
-  );
 };
 
 interface ExampleButtonProps {

@@ -1,12 +1,9 @@
 "use client";
 
-import {
-  Copy01Icon,
-  Delete02Icon,
-  Tick01Icon,
-} from "@hugeicons/core-free-icons";
+import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,14 +34,11 @@ import {
   rgbToHex,
 } from "@/lib/color-converter";
 
-type CopiedState = Record<string, boolean>;
-
 const STORAGE_KEY = "devtools:color-converter:input";
 
 const ColorConverterPage = () => {
   const [colorInput, setColorInput] = useState("");
   const [parsed, setParsed] = useState<ParsedColor | null>(null);
-  const [copied, setCopied] = useState<CopiedState>({});
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage on mount
@@ -77,17 +71,14 @@ const ColorConverterPage = () => {
     }
   }, [colorInput]);
 
-  const handleCopy = useCallback(async (text: string, key: string) => {
+  const handleCopy = useCallback(async (text: string, label: string) => {
     if (!text) return;
 
     try {
       await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
+      toast.success(`${label} copied`);
     } catch {
-      // Clipboard API failed
+      toast.error("Failed to copy");
     }
   }, []);
 
@@ -234,13 +225,17 @@ const ColorConverterPage = () => {
                         {value}
                       </span>
                     </div>
-                    <CopyButton
-                      copied={copied[key]}
-                      label={`Copy ${label}`}
-                      onCopy={() => handleCopy(value, key)}
+                    <Button
+                      aria-label={`Copy ${label}`}
+                      className="cursor-pointer"
+                      disabled={!value}
+                      onClick={() => handleCopy(value, label)}
                       size="icon-xs"
-                      text={value}
-                    />
+                      tabIndex={0}
+                      variant="ghost"
+                    >
+                      <HugeiconsIcon icon={Copy01Icon} size={14} />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -376,43 +371,6 @@ const ColorConverterPage = () => {
         </Card>
       </div>
     </div>
-  );
-};
-
-type CopyButtonProps = {
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-  label: string;
-  size?: "icon-xs" | "icon-sm" | "icon";
-};
-
-const CopyButton = ({
-  text,
-  copied,
-  onCopy,
-  label,
-  size = "icon-sm",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={!text}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 

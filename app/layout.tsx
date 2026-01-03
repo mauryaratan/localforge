@@ -9,6 +9,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 const berkeleyMono = localFont({
   src: "./BerkeleyMono-Regular.woff2",
@@ -51,6 +52,7 @@ export default function RootLayout({
               <main className="flex-1 p-4">{children}</main>
             </SidebarInset>
           </SidebarProvider>
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>

@@ -10,16 +10,18 @@ import {
   Search01Icon,
   SortByDown02Icon,
   TextWrapIcon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Tooltip,
   TooltipContent,
@@ -39,8 +41,6 @@ import {
   validateJson,
 } from "@/lib/json-formatter";
 
-type CopiedState = Record<string, boolean>;
-
 const STORAGE_KEY_INPUT = "devtools:json-formatter:input";
 const STORAGE_KEY_PATH = "devtools:json-formatter:path";
 
@@ -49,7 +49,6 @@ const JsonFormatterPage = () => {
   const [pathQuery, setPathQuery] = useState("");
   const [pathResult, setPathResult] = useState<string>("");
   const [pathError, setPathError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<CopiedState>({});
   const [isHydrated, setIsHydrated] = useState(false);
   const [indentSize, setIndentSize] = useState(2);
   const [activeTab, setActiveTab] = useState<string>("formatted");
@@ -152,19 +151,16 @@ const JsonFormatterPage = () => {
     }
   }, [pathQuery, input, validation.isValid]);
 
-  const handleCopy = useCallback(async (text: string, key: string) => {
+  const handleCopy = useCallback(async (text: string, label: string) => {
     if (!text) {
       return;
     }
 
     try {
       await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
+      toast.success(`${label} copied`);
     } catch {
-      // Clipboard API failed
+      toast.error("Failed to copy");
     }
   }, []);
 
@@ -293,12 +289,17 @@ const JsonFormatterPage = () => {
                   </TooltipTrigger>
                   <TooltipContent>Clear</TooltipContent>
                 </Tooltip>
-                <CopyButton
-                  copied={copied.input}
-                  label="Copy JSON"
-                  onCopy={() => handleCopy(input, "input")}
-                  text={input}
-                />
+                <Button
+                  aria-label="Copy JSON"
+                  className="cursor-pointer"
+                  disabled={!input}
+                  onClick={() => handleCopy(input, "JSON")}
+                  size="icon-xs"
+                  tabIndex={0}
+                  variant="ghost"
+                >
+                  <HugeiconsIcon icon={Copy01Icon} size={14} />
+                </Button>
               </div>
             </div>
           </CardHeader>
@@ -344,12 +345,17 @@ const JsonFormatterPage = () => {
                 JSONPath Filter
               </CardTitle>
               {pathQuery && pathResult && !pathError && (
-                <CopyButton
-                  copied={copied.pathResult}
-                  label="Copy result"
-                  onCopy={() => handleCopy(pathResult, "pathResult")}
-                  text={pathResult}
-                />
+                <Button
+                  aria-label="Copy result"
+                  className="cursor-pointer"
+                  disabled={!pathResult}
+                  onClick={() => handleCopy(pathResult, "Path result")}
+                  size="icon-xs"
+                  tabIndex={0}
+                  variant="ghost"
+                >
+                  <HugeiconsIcon icon={Copy01Icon} size={14} />
+                </Button>
               )}
             </div>
           </CardHeader>
@@ -421,35 +427,38 @@ const JsonFormatterPage = () => {
                   </TabsList>
                   <div className="flex items-center gap-2">
                     {activeTab === "formatted" && (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2">
                         <span className="text-muted-foreground text-xs">
                           Indent:
                         </span>
-                        {[2, 4].map((size) => (
-                          <button
-                            aria-label={`${size} spaces`}
-                            aria-pressed={indentSize === size}
-                            className={`cursor-pointer rounded-sm px-1.5 py-0.5 text-xs transition-colors ${
-                              indentSize === size
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:text-foreground"
-                            }`}
-                            key={size}
-                            onClick={() => setIndentSize(size)}
-                            tabIndex={0}
-                            type="button"
-                          >
-                            {size}
-                          </button>
-                        ))}
+                        <ToggleGroup variant="outline" size="sm">
+                          {[2, 4].map((size) => (
+                            <ToggleGroupItem
+                              key={size}
+                              value={size.toString()}
+                              aria-label={`${size} spaces`}
+                              aria-pressed={indentSize === size}
+                              pressed={indentSize === size}
+                              onClick={() => setIndentSize(size)}
+                              className="cursor-pointer px-2"
+                            >
+                              {size}
+                            </ToggleGroupItem>
+                          ))}
+                        </ToggleGroup>
                       </div>
                     )}
-                    <CopyButton
-                      copied={copied.output}
-                      label="Copy formatted"
-                      onCopy={() => handleCopy(formattedOutput, "output")}
-                      text={formattedOutput}
-                    />
+                    <Button
+                      aria-label="Copy formatted"
+                      className="cursor-pointer"
+                      disabled={!formattedOutput}
+                      onClick={() => handleCopy(formattedOutput, "Formatted JSON")}
+                      size="icon-xs"
+                      tabIndex={0}
+                      variant="ghost"
+                    >
+                      <HugeiconsIcon icon={Copy01Icon} size={14} />
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -464,10 +473,9 @@ const JsonFormatterPage = () => {
                   />
                 </TabsContent>
                 <TabsContent value="tree">
-                  <div className="max-h-[400px] overflow-auto rounded-sm bg-muted/30 p-3">
+                  <ScrollArea className="h-[400px] rounded-sm bg-muted/30 p-3">
                     {treeNodes.length > 0 ? (
                       <TreeView
-                        copied={copied}
                         nodes={treeNodes}
                         onCopy={handleCopy}
                       />
@@ -476,7 +484,7 @@ const JsonFormatterPage = () => {
                         No data to display
                       </p>
                     )}
-                  </div>
+                  </ScrollArea>
                 </TabsContent>
               </CardContent>
             </Tabs>
@@ -558,21 +566,23 @@ const JsonFormatterPage = () => {
             {validation.isValid && availablePaths.length > 1 && (
               <div className="mt-6 border-t pt-4">
                 <h4 className="mb-2 font-medium text-xs">Available Paths</h4>
-                <div className="max-h-[200px] overflow-auto">
-                  {availablePaths.slice(1, 15).map((path) => (
-                    <button
-                      aria-label={`Use path: ${path}`}
-                      className="block w-full cursor-pointer rounded-sm px-1.5 py-1 text-left font-mono text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground"
-                      key={path}
-                      onClick={() => handleLoadPath(path)}
-                      tabIndex={0}
-                      title={path}
-                      type="button"
-                    >
-                      {path}
-                    </button>
-                  ))}
-                </div>
+                <ScrollArea className="h-[200px]">
+                  <div className="pr-3">
+                    {availablePaths.slice(1, 15).map((path) => (
+                      <button
+                        aria-label={`Use path: ${path}`}
+                        className="block w-full cursor-pointer rounded-sm px-1.5 py-1 text-left font-mono text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground"
+                        key={path}
+                        onClick={() => handleLoadPath(path)}
+                        tabIndex={0}
+                        title={path}
+                        type="button"
+                      >
+                        {path}
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
             )}
           </CardContent>
@@ -586,16 +596,14 @@ const JsonFormatterPage = () => {
 interface TreeViewProps {
   nodes: TreeNode[];
   depth?: number;
-  onCopy: (text: string, key: string) => void;
-  copied: CopiedState;
+  onCopy: (text: string, label: string) => void;
 }
 
-const TreeView = ({ nodes, depth = 0, onCopy, copied }: TreeViewProps) => {
+const TreeView = ({ nodes, depth = 0, onCopy }: TreeViewProps) => {
   return (
     <div className="flex flex-col">
       {nodes.map((node, index) => (
         <TreeNodeItem
-          copied={copied}
           depth={depth}
           key={`${node.path}-${index}`}
           node={node}
@@ -609,11 +617,10 @@ const TreeView = ({ nodes, depth = 0, onCopy, copied }: TreeViewProps) => {
 interface TreeNodeItemProps {
   node: TreeNode;
   depth: number;
-  onCopy: (text: string, key: string) => void;
-  copied: CopiedState;
+  onCopy: (text: string, label: string) => void;
 }
 
-const TreeNodeItem = ({ node, depth, onCopy, copied }: TreeNodeItemProps) => {
+const TreeNodeItem = ({ node, depth, onCopy }: TreeNodeItemProps) => {
   const [isExpanded, setIsExpanded] = useState(depth < 2);
   const hasChildren = node.children && node.children.length > 0;
 
@@ -624,7 +631,7 @@ const TreeNodeItem = ({ node, depth, onCopy, copied }: TreeNodeItemProps) => {
   }, [hasChildren]);
 
   const handleCopyPath = useCallback(() => {
-    onCopy(node.path, `path-${node.path}`);
+    onCopy(node.path, "Path");
   }, [node.path, onCopy]);
 
   const getValueDisplay = () => {
@@ -696,75 +703,24 @@ const TreeNodeItem = ({ node, depth, onCopy, copied }: TreeNodeItemProps) => {
         )}
         <span className="font-medium text-xs">{node.key}:</span>
         <span className="text-xs">{getValueDisplay()}</span>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <button
-                aria-label="Copy path"
-                className="ml-auto cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={handleCopyPath}
-                tabIndex={0}
-                type="button"
-              />
-            }
-          >
-            <HugeiconsIcon
-              icon={copied[`path-${node.path}`] ? Tick01Icon : Copy01Icon}
-              size={12}
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            {copied[`path-${node.path}`] ? "Copied!" : node.path}
-          </TooltipContent>
-        </Tooltip>
+        <button
+          aria-label="Copy path"
+          className="ml-auto cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
+          onClick={handleCopyPath}
+          tabIndex={0}
+          type="button"
+        >
+          <HugeiconsIcon icon={Copy01Icon} size={12} />
+        </button>
       </div>
       {hasChildren && isExpanded && node.children && (
         <TreeView
-          copied={copied}
           depth={depth + 1}
           nodes={node.children}
           onCopy={onCopy}
         />
       )}
     </div>
-  );
-};
-
-// Reusable Components
-interface CopyButtonProps {
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-  label: string;
-  size?: "icon-xs" | "icon-sm" | "icon";
-}
-
-const CopyButton = ({
-  text,
-  copied,
-  onCopy,
-  label,
-  size = "icon-xs",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={!text}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 

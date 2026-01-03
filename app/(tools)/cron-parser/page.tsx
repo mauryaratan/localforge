@@ -5,19 +5,15 @@ import {
   Copy01Icon,
   Delete02Icon,
   InformationCircleIcon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   CRON_EXAMPLES,
   type CronExample,
@@ -26,14 +22,11 @@ import {
   parseCron,
 } from "@/lib/cron-parser";
 
-type CopiedState = Record<string, boolean>;
-
 const STORAGE_KEY = "devtools:cron-parser:input";
 
 const CronParserPage = () => {
   const [cronInput, setCronInput] = useState("");
   const [parsed, setParsed] = useState<ParsedCron | null>(null);
-  const [copied, setCopied] = useState<CopiedState>({});
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage on mount
@@ -68,19 +61,16 @@ const CronParserPage = () => {
     }
   }, [cronInput]);
 
-  const handleCopy = useCallback(async (text: string, key: string) => {
+  const handleCopy = useCallback(async (text: string, label?: string) => {
     if (!text) {
       return;
     }
 
     try {
       await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
+      toast.success(label ? `${label} copied` : "Copied");
     } catch {
-      // Clipboard API failed
+      toast.error("Failed to copy");
     }
   }, []);
 
@@ -134,12 +124,17 @@ const CronParserPage = () => {
                   </Button>
                 )}
               </div>
-              <CopyButton
-                copied={copied.expression}
-                label="Copy expression"
-                onCopy={() => handleCopy(cronInput, "expression")}
-                text={cronInput}
-              />
+              <Button
+                aria-label="Copy expression"
+                className="cursor-pointer"
+                disabled={!cronInput}
+                onClick={() => handleCopy(cronInput, "Expression")}
+                size="icon-xs"
+                tabIndex={0}
+                variant="ghost"
+              >
+                <HugeiconsIcon icon={Copy01Icon} size={14} />
+              </Button>
             </div>
 
             {parsed && !parsed.isValid && parsed.error && (
@@ -239,15 +234,18 @@ const CronParserPage = () => {
                         {formatNextRun(run)}
                       </span>
                     </div>
-                    <CopyButton
-                      copied={copied[`run-${index}`]}
-                      label="Copy ISO timestamp"
-                      onCopy={() =>
-                        handleCopy(run.toISOString(), `run-${index}`)
+                    <Button
+                      aria-label="Copy ISO timestamp"
+                      className="cursor-pointer"
+                      onClick={() =>
+                        handleCopy(run.toISOString(), "Timestamp")
                       }
                       size="icon-xs"
-                      text={run.toISOString()}
-                    />
+                      tabIndex={0}
+                      variant="ghost"
+                    >
+                      <HugeiconsIcon icon={Copy01Icon} size={14} />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -410,43 +408,6 @@ const CronParserPage = () => {
         </div>
       </aside>
     </div>
-  );
-};
-
-interface CopyButtonProps {
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-  label: string;
-  size?: "icon-xs" | "icon-sm" | "icon";
-}
-
-const CopyButton = ({
-  text,
-  copied,
-  onCopy,
-  label,
-  size = "icon-sm",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={!text}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 

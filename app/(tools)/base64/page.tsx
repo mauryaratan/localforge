@@ -5,29 +5,21 @@ import {
   ArrowRight01Icon,
   Copy01Icon,
   Delete02Icon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   type Base64Mode,
   calculateSizeInfo,
   decodeBase64,
   encodeBase64,
 } from "@/lib/base64";
-
-interface CopiedState {
-  [key: string]: boolean;
-}
 
 const STORAGE_KEY = "devtools:base64:input";
 
@@ -42,7 +34,6 @@ const EXAMPLE_STRINGS = [
 const Base64Page = () => {
   const [plainText, setPlainText] = useState("");
   const [encodedText, setEncodedText] = useState("");
-  const [copied, setCopied] = useState<CopiedState>({});
   const [lastEdited, setLastEdited] = useState<"plain" | "encoded">("plain");
   const [mode, setMode] = useState<Base64Mode>("standard");
   const [error, setError] = useState<string | null>(null);
@@ -125,19 +116,16 @@ const Base64Page = () => {
     }
   };
 
-  const handleCopy = async (text: string, key: string) => {
+  const handleCopy = async (text: string, label: string) => {
     if (!text) {
       return;
     }
 
     try {
       await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
+      toast.success(`${label} copied to clipboard`);
     } catch {
-      // Clipboard API failed
+      toast.error("Failed to copy to clipboard");
     }
   };
 
@@ -169,34 +157,28 @@ const Base64Page = () => {
           <Label className="text-muted-foreground text-xs uppercase tracking-wider">
             Mode
           </Label>
-          <div className="inline-flex rounded-md border bg-muted/30 p-0.5">
-            <button
+          <ToggleGroup variant="outline" size="sm">
+            <ToggleGroupItem
+              value="standard"
               aria-label="Standard Base64 mode"
-              className={`cursor-pointer rounded px-3 py-1.5 text-xs transition-all ${
-                mode === "standard"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              aria-pressed={mode === "standard"}
+              pressed={mode === "standard"}
               onClick={() => setMode("standard")}
-              tabIndex={0}
-              type="button"
+              className="cursor-pointer px-3"
             >
               Standard
-            </button>
-            <button
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="url-safe"
               aria-label="URL-safe Base64 mode"
-              className={`cursor-pointer rounded px-3 py-1.5 text-xs transition-all ${
-                mode === "url-safe"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              aria-pressed={mode === "url-safe"}
+              pressed={mode === "url-safe"}
               onClick={() => setMode("url-safe")}
-              tabIndex={0}
-              type="button"
+              className="cursor-pointer px-3"
             >
               URL-Safe
-            </button>
-          </div>
+            </ToggleGroupItem>
+          </ToggleGroup>
           <span className="text-[10px] text-muted-foreground">
             {mode === "url-safe" && "(RFC 4648 / Base64URL)"}
           </span>
@@ -241,12 +223,17 @@ const Base64Page = () => {
                   >
                     Plain Text
                   </label>
-                  <CopyButton
-                    copied={copied.plain}
-                    label="Copy plain text"
-                    onCopy={() => handleCopy(plainText, "plain")}
-                    text={plainText}
-                  />
+                  <Button
+                    aria-label="Copy plain text"
+                    className="cursor-pointer"
+                    disabled={!plainText}
+                    onClick={() => handleCopy(plainText, "Plain text")}
+                    size="icon-xs"
+                    tabIndex={0}
+                    variant="ghost"
+                  >
+                    <HugeiconsIcon icon={Copy01Icon} size={14} />
+                  </Button>
                 </div>
                 <Textarea
                   aria-label="Plain text input"
@@ -300,12 +287,17 @@ const Base64Page = () => {
                   >
                     Base64 Encoded
                   </label>
-                  <CopyButton
-                    copied={copied.encoded}
-                    label="Copy encoded text"
-                    onCopy={() => handleCopy(encodedText, "encoded")}
-                    text={encodedText}
-                  />
+                  <Button
+                    aria-label="Copy encoded text"
+                    className="cursor-pointer"
+                    disabled={!encodedText}
+                    onClick={() => handleCopy(encodedText, "Base64")}
+                    size="icon-xs"
+                    tabIndex={0}
+                    variant="ghost"
+                  >
+                    <HugeiconsIcon icon={Copy01Icon} size={14} />
+                  </Button>
                 </div>
                 <Textarea
                   aria-label="Base64 encoded input"
@@ -405,36 +397,6 @@ const Base64Page = () => {
         </Card>
       </div>
     </div>
-  );
-};
-
-interface CopyButtonProps {
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-  label: string;
-}
-
-const CopyButton = ({ text, copied, onCopy, label }: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={!text}
-            onClick={onCopy}
-            size="icon-xs"
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 
