@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Hedvig_Letters_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const hedvigSans = Hedvig_Letters_Sans({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-hedvig-sans",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const berkeleyMono = localFont({
+  src: "./BerkeleyMono-Regular.woff2",
 });
 
 export const metadata: Metadata = {
@@ -34,11 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${hedvigSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${berkeleyMono.className}`}>{children}</body>
     </html>
   );
 }
