@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "JavaScript Keycode Finder - DevTools",
+  title: "JavaScript Keycode Finder",
   description:
     "Find JavaScript keyboard event properties instantly. Press any key to get keyCode, event.key, event.code, location, and modifier states. Essential for building keyboard shortcuts and handling keyboard events.",
   keywords: [
@@ -14,18 +14,18 @@ export const metadata: Metadata = {
     "key code finder",
     "keyboard shortcut",
     "javascript keyboard",
-    "devtools",
+    "localforge",
     "developer tools",
   ],
   openGraph: {
-    title: "JavaScript Keycode Finder - DevTools",
+    title: "JavaScript Keycode Finder - LocalForge",
     description:
       "Press any key to get JavaScript keyboard event properties. keyCode, event.key, event.code and more.",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "JavaScript Keycode Finder - DevTools",
+    title: "JavaScript Keycode Finder - LocalForge",
     description:
       "Find JavaScript keyboard event properties instantly by pressing any key",
   },

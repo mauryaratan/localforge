@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "HTML Preview - DevTools",
+  title: "HTML Preview",
   description:
     "Live HTML preview tool with responsive viewport testing. Render HTML, CSS, and JavaScript instantly with mobile, tablet, and desktop views. Secure sandboxed environment with light/dark mode support.",
   keywords: [
@@ -16,18 +16,18 @@ export const metadata: Metadata = {
     "web preview",
     "css preview",
     "javascript preview",
-    "devtools",
+    "localforge",
     "developer tools",
   ],
   openGraph: {
-    title: "HTML Preview - DevTools",
+    title: "HTML Preview - LocalForge",
     description:
       "Live HTML preview with responsive viewport testing. Render HTML, CSS, and JavaScript instantly in a secure sandbox.",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "HTML Preview - DevTools",
+    title: "HTML Preview - LocalForge",
     description:
       "Live HTML preview with responsive viewport testing and secure sandbox",
   },

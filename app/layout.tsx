@@ -16,13 +16,68 @@ const berkeleyMono = localFont({
   src: "./BerkeleyMono-Regular.woff2",
 });
 
+const siteConfig = {
+  name: "LocalForge",
+  description:
+    "Privacy-first developer utilities that run entirely in your browser. Format JSON, encode/decode Base64, parse URLs, generate UUIDs, and more — your data never leaves your device.",
+  url: "https://localforge.dev",
+  author: "@mauryaratan",
+};
+
 export const metadata: Metadata = {
-  title: "DevTools",
-  description: "A developer tools application",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} — Privacy-First Developer Utilities`,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: [
+    "developer tools",
+    "localforge",
+    "json formatter",
+    "base64 encoder",
+    "url parser",
+    "uuid generator",
+    "regex tester",
+    "color converter",
+    "cron parser",
+    "offline tools",
+    "privacy tools",
+    "local-first",
+    "pwa",
+    "web tools",
+  ],
+  authors: [{ name: siteConfig.author }],
+  creator: siteConfig.author,
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteConfig.url,
+    title: `${siteConfig.name} — Privacy-First Developer Utilities`,
+    description: siteConfig.description,
+    siteName: siteConfig.name,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} — Privacy-First Developer Utilities`,
+    description: siteConfig.description,
+    creator: siteConfig.author,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "DevTools",
+    title: siteConfig.name,
   },
   formatDetection: {
     telephone: false,

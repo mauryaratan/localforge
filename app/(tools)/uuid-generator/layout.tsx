@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "UUID & ULID Generator - DevTools",
+  title: "UUID & ULID Generator",
   description:
     "Generate UUIDs (v4, v7) and ULIDs instantly. Create unique identifiers for databases, APIs, and distributed systems. Parse and validate existing IDs with timestamp extraction.",
   keywords: [
@@ -16,18 +16,18 @@ export const metadata: Metadata = {
     "random id",
     "time-ordered uuid",
     "sortable id",
-    "devtools",
+    "localforge",
     "developer tools",
   ],
   openGraph: {
-    title: "UUID & ULID Generator - DevTools",
+    title: "UUID & ULID Generator - LocalForge",
     description:
       "Generate UUIDs (v4, v7) and ULIDs instantly. Parse and validate existing identifiers.",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "UUID & ULID Generator - DevTools",
+    title: "UUID & ULID Generator - LocalForge",
     description: "Generate UUIDs and ULIDs with parsing and validation",
   },
 };

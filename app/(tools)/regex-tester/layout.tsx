@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Regex Tester - DevTools",
+  title: "Regex Tester",
   description:
     "Test, debug, and build regular expressions with real-time matching, syntax highlighting, capture groups, and substitution. Includes common patterns and quick reference guide.",
   keywords: [
@@ -14,18 +14,18 @@ export const metadata: Metadata = {
     "pattern matching",
     "javascript regex",
     "regex replace",
-    "devtools",
+    "localforge",
     "developer tools",
   ],
   openGraph: {
-    title: "Regex Tester - DevTools",
+    title: "Regex Tester - LocalForge",
     description:
       "Test and debug regular expressions with real-time matching, capture groups, and substitution support.",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Regex Tester - DevTools",
+    title: "Regex Tester - LocalForge",
     description:
       "Test and debug regular expressions with real-time matching and capture groups",
   },

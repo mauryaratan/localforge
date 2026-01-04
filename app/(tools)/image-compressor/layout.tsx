@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Image Compressor - DevTools",
+  title: "Image Compressor",
   description:
-    "Compress PNG and JPEG images directly in your browser using high-performance WebAssembly. Supports lossy and lossless compression, image resizing, and real-time comparison. Zero uploads, complete privacy.",
+    "Compress PNG and JPEG images directly in your browser using high-performance WebAssembly. Supports lossy and lossless compression, image resizing, and real-time comparison. Zero uploads — complete privacy.",
   keywords: [
     "image compression",
     "png compressor",
@@ -11,23 +11,22 @@ export const metadata: Metadata = {
     "image optimizer",
     "wasm",
     "webassembly",
-    "pixo",
     "browser compression",
     "lossless compression",
     "lossy compression",
     "image resize",
-    "devtools",
+    "localforge",
     "developer tools",
   ],
   openGraph: {
-    title: "Image Compressor - DevTools",
+    title: "Image Compressor - LocalForge",
     description:
       "Compress PNG and JPEG images in your browser with WASM. No uploads needed, complete privacy.",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Image Compressor - DevTools",
+    title: "Image Compressor - LocalForge",
     description:
       "High-performance image compression using WebAssembly. Supports PNG and JPEG.",
   },

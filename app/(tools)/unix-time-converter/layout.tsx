@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Unix Time Converter - DevTools",
+  title: "Unix Time Converter",
   description:
     "Convert Unix timestamps to human-readable dates and vice versa. Supports seconds, milliseconds, microseconds, and nanoseconds with UTC and local timezone options.",
   keywords: [
@@ -12,10 +12,10 @@ export const metadata: Metadata = {
     "date converter",
     "epoch time",
     "milliseconds",
-    "devtools",
+    "localforge",
   ],
   openGraph: {
-    title: "Unix Time Converter - DevTools",
+    title: "Unix Time Converter - LocalForge",
     description:
       "Convert Unix timestamps to human-readable dates and vice versa",
     type: "website",

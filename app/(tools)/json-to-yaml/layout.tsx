@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "JSON YAML Converter - DevTools",
+  title: "JSON ↔ YAML Converter",
   description:
     "Convert between JSON and YAML formats instantly with live preview. Features validation, formatting, and minification. Perfect for Kubernetes configs and API configurations.",
   keywords: [
@@ -13,10 +13,10 @@ export const metadata: Metadata = {
     "formatter",
     "kubernetes",
     "config",
-    "devtools",
+    "localforge",
   ],
   openGraph: {
-    title: "JSON YAML Converter - DevTools",
+    title: "JSON YAML Converter - LocalForge",
     description:
       "Convert between JSON and YAML formats instantly with live preview and validation",
     type: "website",

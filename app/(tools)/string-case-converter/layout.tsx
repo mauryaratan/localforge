@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "String Case Converter - DevTools",
+  title: "String Case Converter",
   description:
     "Convert text between camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, Title Case, and 12+ more formats. Perfect for variable naming, URL slugs, and code formatting.",
   keywords: [
@@ -16,18 +16,18 @@ export const metadata: Metadata = {
     "text converter",
     "variable naming",
     "code formatter",
-    "devtools",
+    "localforge",
     "developer tools",
   ],
   openGraph: {
-    title: "String Case Converter - DevTools",
+    title: "String Case Converter - LocalForge",
     description:
       "Convert text between camelCase, PascalCase, snake_case, kebab-case, and 12+ more formats instantly.",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "String Case Converter - DevTools",
+    title: "String Case Converter - LocalForge",
     description:
       "Convert text between camelCase, PascalCase, snake_case, kebab-case, and more",
   },

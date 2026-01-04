@@ -3,6 +3,7 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Logo } from "@/components/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -22,9 +23,9 @@ export const AppSidebar = () => {
   return (
     <Sidebar>
       <SidebarHeader className="border-sidebar-border border-b px-4 py-3">
-        <span className="font-medium text-sm">
-          <Link href="/">DevTools</Link>
-        </span>
+        <Link href="/" aria-label="LocalForge Home">
+          <Logo size="sm" />
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
