@@ -5,6 +5,7 @@ import {
   CodeIcon,
   CodeSquareIcon,
   CommandIcon,
+  DocumentCodeIcon,
   FingerPrintIcon,
   GridTableIcon,
   Image01Icon,
@@ -127,6 +128,11 @@ export const navItems: NavItem[] = [
     title: "Image Compressor",
     href: "/image-compressor",
     icon: Image01Icon,
+  },
+  {
+    title: "SVG to CSS",
+    href: "/svg-to-css",
+    icon: DocumentCodeIcon,
   },
 ];
 
