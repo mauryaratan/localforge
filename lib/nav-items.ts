@@ -14,6 +14,7 @@ import {
   Link01Icon,
   NoteEditIcon,
   PaintBoardIcon,
+  PaintBrush01Icon,
   PercentIcon,
   QrCodeIcon,
   ReactIcon,
@@ -145,6 +146,11 @@ export const navItems: NavItem[] = [
     title: "SVG to JSX",
     href: "/svg-to-jsx",
     icon: ReactIcon,
+  },
+  {
+    title: "Logo Maker",
+    href: "/logo-maker",
+    icon: PaintBrush01Icon,
   },
 ];
 

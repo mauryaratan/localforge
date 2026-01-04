@@ -19,3 +19,4 @@ As a senior software engineer, when asked to add a tool:
 - If adding a secondary section on right for example or anything else, make sure its sticky and the main section width remain consistent across all tools.
 - Use Shadcn MCP to find and install appropriate components that may make the experience better for end users
 - Feel free to use animations and transitions for subtle effects but don't overdo it.
+- Don't store heavy data in local storage, i.e. images
