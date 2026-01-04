@@ -9,6 +9,7 @@ import {
   FingerPrintIcon,
   GridTableIcon,
   Image01Icon,
+  ImageCompositionIcon,
   Key01Icon,
   Link01Icon,
   NoteEditIcon,
@@ -129,6 +130,11 @@ export const navItems: NavItem[] = [
     title: "Image Compressor",
     href: "/image-compressor",
     icon: Image01Icon,
+  },
+  {
+    title: "Favicon Maker",
+    href: "/favicon-maker",
+    icon: ImageCompositionIcon,
   },
   {
     title: "SVG to CSS",
