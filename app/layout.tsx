@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { AppSidebar } from "@/components/app-sidebar";
 import { CommandMenu } from "@/components/command-menu";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -108,11 +109,12 @@ export default function RootLayout({
                   <ModeToggle />
                 </div>
               </header>
-              <main className="relative flex-1 min-h-0 p-4">{children}</main>
+              <main className="relative min-h-0 flex-1 p-4">{children}</main>
             </SidebarInset>
           </SidebarProvider>
           <Toaster position="bottom-right" />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
