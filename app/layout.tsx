@@ -20,7 +20,7 @@ const siteConfig = {
   name: "LocalForge",
   description:
     "Privacy-first developer utilities that run entirely in your browser. Format JSON, encode/decode Base64, parse URLs, generate UUIDs, and more — your data never leaves your device.",
-  url: "https://localforge.dev",
+  url: "https://localforge.app",
   author: "@mauryaratan",
 };
 

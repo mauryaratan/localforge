@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://localforge.dev/sitemap.xml",
+    sitemap: "https://localforge.app/sitemap.xml",
   };
 }
