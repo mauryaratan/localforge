@@ -7,6 +7,7 @@ import {
   CommandIcon,
   FingerPrintIcon,
   GridTableIcon,
+  Image01Icon,
   Key01Icon,
   Link01Icon,
   NoteEditIcon,
@@ -121,6 +122,11 @@ export const navItems: NavItem[] = [
     title: "Word Counter",
     href: "/word-counter",
     icon: AnalysisTextLinkIcon,
+  },
+  {
+    title: "Image Compressor",
+    href: "/image-compressor",
+    icon: Image01Icon,
   },
 ];
 
