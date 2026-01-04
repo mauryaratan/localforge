@@ -15,6 +15,7 @@ import {
   PaintBoardIcon,
   PercentIcon,
   QrCodeIcon,
+  ReactIcon,
   SourceCodeIcon,
   StarIcon,
   TextAlignLeftIcon,
@@ -133,6 +134,11 @@ export const navItems: NavItem[] = [
     title: "SVG to CSS",
     href: "/svg-to-css",
     icon: DocumentCodeIcon,
+  },
+  {
+    title: "SVG to JSX",
+    href: "/svg-to-jsx",
+    icon: ReactIcon,
   },
 ];
 
