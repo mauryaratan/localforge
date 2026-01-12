@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LocalForge
+
+Privacy-first developer utilities that run entirely in your browser. Your data never leaves your device.
+
+## Features
+
+- **100% Private** — No server uploads, no tracking. Everything runs locally in your browser
+- **Works Offline** — Install as a PWA and use anywhere, even without internet
+- **Lightning Fast** — No network latency, instant results with WebAssembly-powered processing
+- **20+ Tools** — All the utilities developers need, in one place
+
+## Available Tools
+
+| Category | Tools |
+|----------|-------|
+| **Encoding** | Base64, URL Encoder, HTML Entities |
+| **Data Formats** | JSON Formatter, JSON/YAML, JSON/CSV |
+| **Text** | String Case Converter, Word Counter, Markdown Preview |
+| **Web** | URL Parser, HTML Preview, HTML Symbols |
+| **Generators** | UUID/ULID, QR Code, Favicon Maker, Logo Maker |
+| **Images** | Image Compressor, SVG to CSS, SVG to JSX |
+| **Dev Tools** | Regex Tester, Cron Parser, Unix Time, Keycode, Color Converter |
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- pnpm 10+
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Clone the repository
+git clone https://github.com/your-username/localforge.git
+cd localforge
+
+# Install dependencies
+pnpm install
+
+# Start development server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm build
+pnpm start
+```
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: [Next.js 16](https://nextjs.org/) with App Router
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/) with Radix primitives
+- **Icons**: [Hugeicons](https://hugeicons.com/)
+- **Linting**: [Biome](https://biomejs.dev/)
+- **Testing**: [Vitest](https://vitest.dev/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start development server |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+| `pnpm lint` | Run Biome linter |
+| `pnpm format` | Format code with Biome |
+| `pnpm test` | Run tests with Vitest |
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Create a `.env.local` file for local development:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Optional: Your production URL (defaults to localhost in development)
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
+# Optional: Enable Vercel Analytics (only works on Vercel)
+NEXT_PUBLIC_ENABLE_ANALYTICS=true
+```
+
+See `.env.example` for all available options.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -23,7 +23,7 @@ export const AppSidebar = () => {
   return (
     <Sidebar>
       <SidebarHeader className="border-sidebar-border border-b px-4 py-3">
-        <Link href="/" aria-label="LocalForge Home">
+        <Link aria-label="LocalForge Home" href="/">
           <Logo size="sm" />
         </Link>
       </SidebarHeader>
@@ -52,13 +52,13 @@ export const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-sidebar-border border-t px-4 py-3">
-        <span className="text-sidebar-foreground/50 text-[10px]">
+        <span className="text-[10px] text-sidebar-foreground/50">
           Built by{" "}
           <a
-            href="https://x.com/mauryaratan"
-            target="_blank"
-            rel="noopener noreferrer"
             className="underline"
+            href="https://x.com/mauryaratan"
+            rel="noopener noreferrer"
+            target="_blank"
           >
             @mauryaratan
           </a>
