@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { navItems } from "@/lib/nav-items";
 
+export const dynamic = "force-dynamic";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://localforge.app";
 
