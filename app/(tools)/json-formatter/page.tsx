@@ -306,7 +306,7 @@ const JsonFormatterPage = () => {
           <CardContent className="pt-4">
             <Textarea
               aria-label="JSON input"
-              className="h-[280px] max-h-[400px] min-h-[200px] resize-y !field-sizing-fixed font-mono text-xs leading-relaxed"
+              className="!field-sizing-fixed h-[280px] max-h-[400px] min-h-[200px] resize-y font-mono text-xs leading-relaxed"
               onChange={(e) => setInput(e.target.value)}
               placeholder='{"key": "value"}'
               spellCheck={false}
@@ -379,7 +379,7 @@ const JsonFormatterPage = () => {
               <div className="mt-3">
                 <Textarea
                   aria-label="JSONPath result"
-                  className="h-[100px] max-h-[200px] min-h-[80px] resize-y !field-sizing-fixed bg-muted/30 font-mono text-xs"
+                  className="!field-sizing-fixed h-[100px] max-h-[200px] min-h-[80px] resize-y bg-muted/30 font-mono text-xs"
                   readOnly
                   spellCheck={false}
                   value={pathResult}
@@ -431,16 +431,16 @@ const JsonFormatterPage = () => {
                         <span className="text-muted-foreground text-xs">
                           Indent:
                         </span>
-                        <ToggleGroup variant="outline" size="sm">
+                        <ToggleGroup size="sm" variant="outline">
                           {[2, 4].map((size) => (
                             <ToggleGroupItem
-                              key={size}
-                              value={size.toString()}
                               aria-label={`${size} spaces`}
                               aria-pressed={indentSize === size}
-                              pressed={indentSize === size}
-                              onClick={() => setIndentSize(size)}
                               className="cursor-pointer px-2"
+                              key={size}
+                              onClick={() => setIndentSize(size)}
+                              pressed={indentSize === size}
+                              value={size.toString()}
                             >
                               {size}
                             </ToggleGroupItem>
@@ -468,7 +468,7 @@ const JsonFormatterPage = () => {
                 <TabsContent value="formatted">
                   <Textarea
                     aria-label="Formatted JSON output"
-                    className="h-[280px] max-h-[400px] min-h-[200px] resize-y !field-sizing-fixed bg-muted/30 font-mono text-xs leading-relaxed"
+                    className="!field-sizing-fixed h-[280px] max-h-[400px] min-h-[200px] resize-y bg-muted/30 font-mono text-xs leading-relaxed"
                     readOnly
                     spellCheck={false}
                     value={formattedOutput}

@@ -210,7 +210,7 @@ const MarkdownPreviewPage = () => {
               <TabsContent value="editor">
                 <Textarea
                   aria-label="Markdown input"
-                  className="h-[500px] max-h-[700px] min-h-[300px] resize-y !field-sizing-fixed font-mono text-xs leading-relaxed"
+                  className="!field-sizing-fixed h-[500px] max-h-[700px] min-h-[300px] resize-y font-mono text-xs leading-relaxed"
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="# Start typing your markdown here..."
                   spellCheck={false}
@@ -234,13 +234,13 @@ const MarkdownPreviewPage = () => {
               {/* Split View */}
               <TabsContent className="overflow-hidden" value="split">
                 <ResizablePanelGroup
-                  orientation="horizontal"
                   className="h-[500px] rounded-md"
+                  orientation="horizontal"
                 >
                   <ResizablePanel defaultSize={50} minSize={25}>
                     <Textarea
                       aria-label="Markdown input"
-                      className="h-full resize-none rounded-none border-0 !field-sizing-fixed font-mono text-xs leading-relaxed focus-visible:ring-0"
+                      className="!field-sizing-fixed h-full resize-none rounded-none border-0 font-mono text-xs leading-relaxed focus-visible:ring-0"
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="# Start typing your markdown here..."
                       spellCheck={false}
@@ -386,7 +386,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             const id = slugify(text);
             return (
               <h1
-                className="mb-4 mt-6 border-b pb-2 font-semibold text-2xl first:mt-0"
+                className="mt-6 mb-4 border-b pb-2 font-semibold text-2xl first:mt-0"
                 id={id}
                 {...props}
               >
@@ -399,7 +399,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             const id = slugify(text);
             return (
               <h2
-                className="mb-3 mt-5 border-b pb-1.5 font-semibold text-xl"
+                className="mt-5 mb-3 border-b pb-1.5 font-semibold text-xl"
                 id={id}
                 {...props}
               >
@@ -412,7 +412,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             const id = slugify(text);
             return (
               <h3
-                className="mb-2 mt-4 font-semibold text-lg"
+                className="mt-4 mb-2 font-semibold text-lg"
                 id={id}
                 {...props}
               >
@@ -425,7 +425,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             const id = slugify(text);
             return (
               <h4
-                className="mb-2 mt-3 font-semibold text-base"
+                className="mt-3 mb-2 font-semibold text-base"
                 id={id}
                 {...props}
               >
@@ -438,7 +438,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             const id = slugify(text);
             return (
               <h5
-                className="mb-1 mt-2 font-semibold text-sm"
+                className="mt-2 mb-1 font-semibold text-sm"
                 id={id}
                 {...props}
               >
@@ -451,7 +451,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             const id = slugify(text);
             return (
               <h6
-                className="mb-1 mt-2 font-semibold text-muted-foreground text-xs"
+                className="mt-2 mb-1 font-semibold text-muted-foreground text-xs"
                 id={id}
                 {...props}
               >

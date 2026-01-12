@@ -213,7 +213,7 @@ const JsonCsvPage = () => {
   }, [input, isJsonMode]);
 
   const inputStats = useMemo(() => {
-    if (!input.trim() || !isValidInput) return null;
+    if (!(input.trim() && isValidInput)) return null;
     return isJsonMode
       ? getJsonArrayStats(input)
       : getCsvStats(input, delimiter);
@@ -269,27 +269,27 @@ const JsonCsvPage = () => {
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2">
                 <Label
+                  className="whitespace-nowrap text-xs"
                   htmlFor="delimiter"
-                  className="text-xs whitespace-nowrap"
                 >
                   Delimiter
                 </Label>
                 <Select
-                  value={delimiter}
                   onValueChange={(v) => v && setDelimiter(v)}
+                  value={delimiter}
                 >
                   <SelectTrigger
-                    id="delimiter"
                     className="h-8 w-[130px] cursor-pointer"
+                    id="delimiter"
                   >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {delimiterOptions.map((opt) => (
                       <SelectItem
+                        className="cursor-pointer"
                         key={opt.value}
                         value={opt.value}
-                        className="cursor-pointer"
                       >
                         {opt.label}
                       </SelectItem>
@@ -302,28 +302,28 @@ const JsonCsvPage = () => {
                 <>
                   <div className="flex items-center gap-2">
                     <Switch
-                      id="include-header"
                       checked={includeHeader}
-                      onCheckedChange={setIncludeHeader}
                       className="cursor-pointer"
+                      id="include-header"
+                      onCheckedChange={setIncludeHeader}
                     />
                     <Label
-                      htmlFor="include-header"
                       className="cursor-pointer text-xs"
+                      htmlFor="include-header"
                     >
                       Include header row
                     </Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      id="flatten-nested"
                       checked={flattenNested}
-                      onCheckedChange={setFlattenNested}
                       className="cursor-pointer"
+                      id="flatten-nested"
+                      onCheckedChange={setFlattenNested}
                     />
                     <Label
-                      htmlFor="flatten-nested"
                       className="cursor-pointer text-xs"
+                      htmlFor="flatten-nested"
                     >
                       Flatten nested objects
                     </Label>
@@ -332,14 +332,14 @@ const JsonCsvPage = () => {
               ) : (
                 <div className="flex items-center gap-2">
                   <Switch
-                    id="has-header"
                     checked={hasHeader}
-                    onCheckedChange={setHasHeader}
                     className="cursor-pointer"
+                    id="has-header"
+                    onCheckedChange={setHasHeader}
                   />
                   <Label
-                    htmlFor="has-header"
                     className="cursor-pointer text-xs"
+                    htmlFor="has-header"
                   >
                     First row is header
                   </Label>
@@ -385,7 +385,7 @@ const JsonCsvPage = () => {
           <CardContent className="pt-4">
             <Textarea
               aria-label={`${inputLabel} input`}
-              className="h-[220px] max-h-[400px] min-h-[180px] resize-y !field-sizing-fixed font-mono text-xs leading-relaxed"
+              className="!field-sizing-fixed h-[220px] max-h-[400px] min-h-[180px] resize-y font-mono text-xs leading-relaxed"
               onChange={(e) => setInput(e.target.value)}
               placeholder={
                 isJsonMode
@@ -458,7 +458,7 @@ const JsonCsvPage = () => {
           <CardContent className="pt-4">
             <Textarea
               aria-label={`${outputLabel} output`}
-              className="h-[220px] max-h-[400px] min-h-[180px] resize-y !field-sizing-fixed bg-muted/30 font-mono text-xs leading-relaxed"
+              className="!field-sizing-fixed h-[220px] max-h-[400px] min-h-[180px] resize-y bg-muted/30 font-mono text-xs leading-relaxed"
               placeholder={`${outputLabel} output will appear here...`}
               readOnly
               spellCheck={false}

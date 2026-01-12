@@ -3,9 +3,9 @@
  * Run with: node scripts/generate-icons.mjs
  */
 
-import sharp from "sharp";
 import { writeFileSync } from "fs";
-import { join, dirname } from "path";
+import { dirname, join } from "path";
+import sharp from "sharp";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

@@ -150,20 +150,18 @@ const parseCsvLine = (line: string, delimiter: string): string[] => {
         current += char;
         i++;
       }
+    } else if (char === '"') {
+      // Start of quoted field
+      inQuotes = true;
+      i++;
+    } else if (char === delimiter) {
+      // End of field
+      result.push(current);
+      current = "";
+      i++;
     } else {
-      if (char === '"') {
-        // Start of quoted field
-        inQuotes = true;
-        i++;
-      } else if (char === delimiter) {
-        // End of field
-        result.push(current);
-        current = "";
-        i++;
-      } else {
-        current += char;
-        i++;
-      }
+      current += char;
+      i++;
     }
   }
 

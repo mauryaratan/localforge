@@ -7,13 +7,23 @@ import { describe, expect, it } from "vitest";
 const formatBytes = (bytes: number): string => {
   if (bytes === 0) return "0 B";
   const units = ["B", "KB", "MB", "GB"];
-  const exp = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-  const value = bytes / Math.pow(1024, exp);
+  const exp = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
+  const value = bytes / 1024 ** exp;
   return `${value.toFixed(value >= 10 || value % 1 === 0 ? 0 : 1)} ${units[exp]}`;
 };
 
 const isFileSupported = (file: File): boolean => {
-  const supportedTypes = ["image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp", "image/gif"];
+  const supportedTypes = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/svg+xml",
+    "image/webp",
+    "image/gif",
+  ];
   return supportedTypes.includes(file.type);
 };
 
@@ -55,10 +65,34 @@ const generateHtmlCode = (): string => {
 const FAVICON_SIZES = [
   { name: "favicon-16x16.png", width: 16, height: 16, format: "png" as const },
   { name: "favicon-32x32.png", width: 32, height: 32, format: "png" as const },
-  { name: "apple-touch-icon.png", width: 180, height: 180, format: "png" as const, purpose: "Apple devices" },
-  { name: "android-chrome-192x192.png", width: 192, height: 192, format: "png" as const, purpose: "Android/PWA" },
-  { name: "android-chrome-512x512.png", width: 512, height: 512, format: "png" as const, purpose: "Android/PWA" },
-  { name: "favicon.ico", width: 48, height: 48, format: "ico" as const, purpose: "Legacy browsers" },
+  {
+    name: "apple-touch-icon.png",
+    width: 180,
+    height: 180,
+    format: "png" as const,
+    purpose: "Apple devices",
+  },
+  {
+    name: "android-chrome-192x192.png",
+    width: 192,
+    height: 192,
+    format: "png" as const,
+    purpose: "Android/PWA",
+  },
+  {
+    name: "android-chrome-512x512.png",
+    width: 512,
+    height: 512,
+    format: "png" as const,
+    purpose: "Android/PWA",
+  },
+  {
+    name: "favicon.ico",
+    width: 48,
+    height: 48,
+    format: "ico" as const,
+    purpose: "Legacy browsers",
+  },
 ];
 
 describe("formatBytes", () => {
@@ -74,17 +108,17 @@ describe("formatBytes", () => {
   it("should format kilobytes correctly", () => {
     expect(formatBytes(1024)).toBe("1 KB");
     expect(formatBytes(1536)).toBe("1.5 KB");
-    expect(formatBytes(10240)).toBe("10 KB");
+    expect(formatBytes(10_240)).toBe("10 KB");
   });
 
   it("should format megabytes correctly", () => {
-    expect(formatBytes(1048576)).toBe("1 MB");
-    expect(formatBytes(1572864)).toBe("1.5 MB");
-    expect(formatBytes(10485760)).toBe("10 MB");
+    expect(formatBytes(1_048_576)).toBe("1 MB");
+    expect(formatBytes(1_572_864)).toBe("1.5 MB");
+    expect(formatBytes(10_485_760)).toBe("10 MB");
   });
 
   it("should format gigabytes correctly", () => {
-    expect(formatBytes(1073741824)).toBe("1 GB");
+    expect(formatBytes(1_073_741_824)).toBe("1 GB");
   });
 });
 
@@ -135,7 +169,7 @@ describe("generateManifest", () => {
   it("should generate valid JSON manifest with default values", () => {
     const manifest = generateManifest();
     const parsed = JSON.parse(manifest);
-    
+
     expect(parsed.name).toBe("App");
     expect(parsed.short_name).toBe("App");
     expect(parsed.theme_color).toBe("#ffffff");
@@ -146,7 +180,7 @@ describe("generateManifest", () => {
   it("should generate manifest with custom app name", () => {
     const manifest = generateManifest("My Cool App", "CoolApp");
     const parsed = JSON.parse(manifest);
-    
+
     expect(parsed.name).toBe("My Cool App");
     expect(parsed.short_name).toBe("CoolApp");
   });
@@ -154,7 +188,7 @@ describe("generateManifest", () => {
   it("should generate manifest with custom colors", () => {
     const manifest = generateManifest("App", "App", "#3b82f6", "#1e3a5f");
     const parsed = JSON.parse(manifest);
-    
+
     expect(parsed.theme_color).toBe("#3b82f6");
     expect(parsed.background_color).toBe("#1e3a5f");
   });
@@ -162,7 +196,7 @@ describe("generateManifest", () => {
   it("should include required icon sizes", () => {
     const manifest = generateManifest();
     const parsed = JSON.parse(manifest);
-    
+
     expect(parsed.icons).toHaveLength(2);
     expect(parsed.icons[0].sizes).toBe("192x192");
     expect(parsed.icons[1].sizes).toBe("512x512");
@@ -171,7 +205,7 @@ describe("generateManifest", () => {
   it("should include correct icon paths", () => {
     const manifest = generateManifest();
     const parsed = JSON.parse(manifest);
-    
+
     expect(parsed.icons[0].src).toBe("/android-chrome-192x192.png");
     expect(parsed.icons[1].src).toBe("/android-chrome-512x512.png");
   });
@@ -179,7 +213,7 @@ describe("generateManifest", () => {
   it("should include correct icon types", () => {
     const manifest = generateManifest();
     const parsed = JSON.parse(manifest);
-    
+
     expect(parsed.icons[0].type).toBe("image/png");
     expect(parsed.icons[1].type).toBe("image/png");
   });
@@ -220,7 +254,7 @@ describe("generateHtmlCode", () => {
 describe("FAVICON_SIZES", () => {
   it("should include all required favicon sizes", () => {
     const names = FAVICON_SIZES.map((s) => s.name);
-    
+
     expect(names).toContain("favicon-16x16.png");
     expect(names).toContain("favicon-32x32.png");
     expect(names).toContain("apple-touch-icon.png");
@@ -238,15 +272,21 @@ describe("FAVICON_SIZES", () => {
     expect(favicon32?.width).toBe(32);
     expect(favicon32?.height).toBe(32);
 
-    const appleTouch = FAVICON_SIZES.find((s) => s.name === "apple-touch-icon.png");
+    const appleTouch = FAVICON_SIZES.find(
+      (s) => s.name === "apple-touch-icon.png"
+    );
     expect(appleTouch?.width).toBe(180);
     expect(appleTouch?.height).toBe(180);
 
-    const android192 = FAVICON_SIZES.find((s) => s.name === "android-chrome-192x192.png");
+    const android192 = FAVICON_SIZES.find(
+      (s) => s.name === "android-chrome-192x192.png"
+    );
     expect(android192?.width).toBe(192);
     expect(android192?.height).toBe(192);
 
-    const android512 = FAVICON_SIZES.find((s) => s.name === "android-chrome-512x512.png");
+    const android512 = FAVICON_SIZES.find(
+      (s) => s.name === "android-chrome-512x512.png"
+    );
     expect(android512?.width).toBe(512);
     expect(android512?.height).toBe(512);
   });
@@ -269,7 +309,7 @@ describe("Base64 conversion utilities", () => {
     const base64 = "data:image/png;base64,iVBORw0KGgo=";
     const [meta, data] = base64.split(",");
     const mimeMatch = meta.match(/:(.*?);/);
-    
+
     expect(mimeMatch).not.toBeNull();
     expect(mimeMatch?.[1]).toBe("image/png");
     expect(data).toBe("iVBORw0KGgo=");
@@ -294,7 +334,7 @@ describe("ICO file structure", () => {
   it("should have correct header and entry sizes defined", () => {
     const ICO_HEADER_SIZE = 6;
     const ICO_ENTRY_SIZE = 16;
-    
+
     expect(ICO_HEADER_SIZE).toBe(6);
     expect(ICO_ENTRY_SIZE).toBe(16);
   });
@@ -304,11 +344,12 @@ describe("ICO file structure", () => {
     const ICO_ENTRY_SIZE = 16;
     const imageCount = 3; // 16, 32, 48 sizes
     const mockPngSizes = [500, 1000, 2000]; // Mock PNG sizes
-    
-    const headerAndDirectorySize = ICO_HEADER_SIZE + (imageCount * ICO_ENTRY_SIZE);
+
+    const headerAndDirectorySize =
+      ICO_HEADER_SIZE + imageCount * ICO_ENTRY_SIZE;
     const totalPngSize = mockPngSizes.reduce((a, b) => a + b, 0);
     const totalSize = headerAndDirectorySize + totalPngSize;
-    
+
     expect(headerAndDirectorySize).toBe(6 + 48); // 54 bytes for header and 3 entries
     expect(totalPngSize).toBe(3500);
     expect(totalSize).toBe(3554);
@@ -324,7 +365,7 @@ describe("Type definitions", () => {
       format: "png" as const,
       purpose: "Test",
     };
-    
+
     expect(size.name).toBe("test.png");
     expect(size.width).toBe(32);
     expect(size.height).toBe(32);
@@ -341,7 +382,7 @@ describe("Type definitions", () => {
       url: "blob:test",
       format: "png" as const,
     };
-    
+
     expect(favicon.name).toBe("favicon.png");
     expect(favicon.blob).toBeInstanceOf(Blob);
     expect(favicon.format).toBe("png");

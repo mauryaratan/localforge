@@ -3,7 +3,7 @@
  * Supports UUID v4, UUID v7, and ULID formats
  */
 
-import { ulid, decodeTime } from "ulid";
+import { decodeTime, ulid } from "ulid";
 
 export type IdFormat = "uuid-v4" | "uuid-v7" | "ulid";
 export type UuidStyle = "lowercase" | "uppercase";

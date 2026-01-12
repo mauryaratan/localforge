@@ -27,8 +27,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "SVG to JSX Converter - LocalForge",
-    description:
-      "Convert SVG to JSX instantly. Privacy-first, works offline.",
+    description: "Convert SVG to JSX instantly. Privacy-first, works offline.",
   },
 };
 

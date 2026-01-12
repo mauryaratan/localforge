@@ -1,10 +1,10 @@
 "use client";
 
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { Command as CommandPrimitive } from "cmdk";
 import { Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import * as React from "react";
+import { Command as CommandPrimitive } from "cmdk";
+import type * as React from "react";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
 
@@ -73,7 +73,7 @@ function CommandInput({
     <div className="border-b" data-slot="command-input-wrapper">
       <InputGroup className="border-none">
         <InputGroupAddon align="inline-start">
-          <HugeiconsIcon icon={Search01Icon} className="size-4 opacity-50" />
+          <HugeiconsIcon className="size-4 opacity-50" icon={Search01Icon} />
         </InputGroupAddon>
         <CommandPrimitive.Input
           className={cn(
@@ -169,7 +169,7 @@ function CommandShortcut({
   return (
     <span
       className={cn(
-        "ml-auto text-xs tracking-widest text-muted-foreground",
+        "ml-auto text-muted-foreground text-xs tracking-widest",
         className
       )}
       data-slot="command-shortcut"

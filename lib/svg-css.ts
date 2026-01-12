@@ -29,18 +29,20 @@ export const ensureXmlns = (svg: string): string => {
 /**
  * Validates if the input is valid SVG markup
  */
-export const validateSvg = (input: string): { isValid: boolean; error?: string } => {
+export const validateSvg = (
+  input: string
+): { isValid: boolean; error?: string } => {
   const trimmed = input.trim();
-  
+
   if (!trimmed) {
     return { isValid: false, error: "Please enter SVG code" };
   }
 
-  if (!trimmed.startsWith("<svg") && !trimmed.startsWith("<?xml")) {
+  if (!(trimmed.startsWith("<svg") || trimmed.startsWith("<?xml"))) {
     return { isValid: false, error: "Input must start with <svg or <?xml" };
   }
 
-  if (!trimmed.includes("</svg>") && !trimmed.match(/<svg[^>]*\/>/)) {
+  if (!(trimmed.includes("</svg>") || trimmed.match(/<svg[^>]*\/>/))) {
     return { isValid: false, error: "SVG tag is not properly closed" };
   }
 
@@ -65,7 +67,7 @@ export const validateSvg = (input: string): { isValid: boolean; error?: string }
  */
 export const urlEncodeSvg = (svg: string): string => {
   const prepared = ensureXmlns(svg.trim());
-  
+
   // Minimal encoding - only encode characters that are required
   // This produces smaller output than encodeURIComponent
   return prepared
@@ -85,7 +87,7 @@ export const urlEncodeSvg = (svg: string): string => {
  */
 export const base64EncodeSvg = (svg: string): string => {
   const prepared = ensureXmlns(svg.trim());
-  
+
   // Use btoa for base64 encoding, handling unicode
   try {
     return btoa(unescape(encodeURIComponent(prepared)));
@@ -103,7 +105,7 @@ export const createDataUri = (svg: string, encoding: EncodingType): string => {
     const encoded = base64EncodeSvg(svg);
     return `data:image/svg+xml;base64,${encoded}`;
   }
-  
+
   const encoded = urlEncodeSvg(svg);
   return `data:image/svg+xml,${encoded}`;
 };
@@ -139,7 +141,7 @@ export const convertSvgToCss = (
   encoding: EncodingType = "url"
 ): ConversionResult => {
   const validation = validateSvg(svg);
-  
+
   if (!validation.isValid) {
     return {
       isValid: false,
@@ -190,9 +192,17 @@ export const decodeSvgFromDataUri = (dataUri: string): string => {
       const base64 = dataUri.split(";base64,")[1];
       return decodeURIComponent(escape(atob(base64)));
     }
-    
+
     const encoded = dataUri.replace(/^data:image\/svg\+xml,/, "");
-    return decodeURIComponent(encoded.replace(/%3C/g, "<").replace(/%3E/g, ">").replace(/%23/g, "#").replace(/%7B/g, "{").replace(/%7D/g, "}").replace(/%25/g, "%"));
+    return decodeURIComponent(
+      encoded
+        .replace(/%3C/g, "<")
+        .replace(/%3E/g, ">")
+        .replace(/%23/g, "#")
+        .replace(/%7B/g, "{")
+        .replace(/%7D/g, "}")
+        .replace(/%25/g, "%")
+    );
   } catch {
     return "";
   }
@@ -203,11 +213,11 @@ export const decodeSvgFromDataUri = (dataUri: string): string => {
  */
 export const formatBytes = (bytes: number): string => {
   if (bytes === 0) return "0 B";
-  
+
   const units = ["B", "KB", "MB"];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  const size = bytes / Math.pow(1024, i);
-  
+  const size = bytes / 1024 ** i;
+
   return `${size.toFixed(i > 0 ? 2 : 0)} ${units[i]}`;
 };
 

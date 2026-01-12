@@ -157,24 +157,24 @@ const Base64Page = () => {
           <Label className="text-muted-foreground text-xs uppercase tracking-wider">
             Mode
           </Label>
-          <ToggleGroup variant="outline" size="sm">
+          <ToggleGroup size="sm" variant="outline">
             <ToggleGroupItem
-              value="standard"
               aria-label="Standard Base64 mode"
               aria-pressed={mode === "standard"}
-              pressed={mode === "standard"}
-              onClick={() => setMode("standard")}
               className="cursor-pointer px-3"
+              onClick={() => setMode("standard")}
+              pressed={mode === "standard"}
+              value="standard"
             >
               Standard
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="url-safe"
               aria-label="URL-safe Base64 mode"
               aria-pressed={mode === "url-safe"}
-              pressed={mode === "url-safe"}
-              onClick={() => setMode("url-safe")}
               className="cursor-pointer px-3"
+              onClick={() => setMode("url-safe")}
+              pressed={mode === "url-safe"}
+              value="url-safe"
             >
               URL-Safe
             </ToggleGroupItem>

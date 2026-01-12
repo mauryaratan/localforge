@@ -1,20 +1,21 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, DragEvent } from "react";
 import {
-  type ImageJob,
-  type EncodeFormat,
-  type PresetLevel,
-  type ResizeAlgorithm,
-  compressImage,
-  resizeImage,
-  decodeFile,
-  formatBytes,
-  isFileSupported,
-} from "@/lib/image-compressor";
+  Cancel01Icon,
+  ImageUploadIcon,
+  Loading03Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import JSZip from "jszip";
+import {
+  type DragEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -23,13 +24,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import {
-  Cancel01Icon,
-  ImageUploadIcon,
-  Loading03Icon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import JSZip from "jszip";
+  compressImage,
+  decodeFile,
+  type EncodeFormat,
+  formatBytes,
+  type ImageJob,
+  isFileSupported,
+  type PresetLevel,
+  type ResizeAlgorithm,
+  resizeImage,
+} from "@/lib/image-compressor";
 
 type GlobalOptions = {
   format: EncodeFormat;
@@ -58,7 +64,8 @@ const getId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 export default function ImageCompressorPage() {
   const [jobs, setJobs] = useState<ImageJob[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [globalOptions, setGlobalOptions] = useState<GlobalOptions>(defaultOptions);
+  const [globalOptions, setGlobalOptions] =
+    useState<GlobalOptions>(defaultOptions);
   const [zoomLevel, setZoomLevel] = useState<1 | 2 | 4>(1);
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
@@ -70,36 +77,52 @@ export default function ImageCompressorPage() {
   const jobsRef = useRef(jobs);
   jobsRef.current = jobs;
 
-  const selectedJob = jobs.find((j) => j.id === selectedJobId) ?? jobs[0] ?? null;
+  const selectedJob =
+    jobs.find((j) => j.id === selectedJobId) ?? jobs[0] ?? null;
 
   // Calculate display dimensions based on available space and zoom
-  const calculateDisplaySize = useCallback((imgW: number, imgH: number, areaW: number, areaH: number, zoom: number) => {
-    if (zoom > 1) {
-      return { width: imgW * zoom, height: imgH * zoom };
-    }
-    const imgAspect = imgW / imgH;
-    const areaAspect = areaW / areaH;
-    let w, h;
-    if (imgAspect > areaAspect) {
-      w = Math.min(imgW, areaW);
-      h = w / imgAspect;
-    } else {
-      h = Math.min(imgH, areaH);
-      w = h * imgAspect;
-    }
-    return { width: Math.round(w), height: Math.round(h) };
-  }, []);
+  const calculateDisplaySize = useCallback(
+    (
+      imgW: number,
+      imgH: number,
+      areaW: number,
+      areaH: number,
+      zoom: number
+    ) => {
+      if (zoom > 1) {
+        return { width: imgW * zoom, height: imgH * zoom };
+      }
+      const imgAspect = imgW / imgH;
+      const areaAspect = areaW / areaH;
+      let w, h;
+      if (imgAspect > areaAspect) {
+        w = Math.min(imgW, areaW);
+        h = w / imgAspect;
+      } else {
+        h = Math.min(imgH, areaH);
+        w = h * imgAspect;
+      }
+      return { width: Math.round(w), height: Math.round(h) };
+    },
+    []
+  );
 
   // Update container size when image or zoom changes
   useEffect(() => {
     const updateSize = () => {
-      if (!selectedJob || !imageAreaRef.current) return;
+      if (!(selectedJob && imageAreaRef.current)) return;
       const area = imageAreaRef.current;
       const rect = area.getBoundingClientRect();
       const padding = 32;
       const availableW = rect.width - padding;
       const availableH = rect.height - padding;
-      const size = calculateDisplaySize(selectedJob.width, selectedJob.height, availableW, availableH, zoomLevel);
+      const size = calculateDisplaySize(
+        selectedJob.width,
+        selectedJob.height,
+        availableW,
+        availableH,
+        zoomLevel
+      );
       setContainerSize(size);
     };
     updateSize();
@@ -108,36 +131,46 @@ export default function ImageCompressorPage() {
   }, [selectedJob, zoomLevel, calculateDisplaySize]);
 
   // Handle resize width change with aspect ratio
-  const handleResizeWidthChange = useCallback((newWidth: number) => {
-    if (!selectedJob) return;
-    const w = Math.max(1, newWidth || 1);
-    if (globalOptions.maintainAspectRatio) {
-      const aspect = selectedJob.width / selectedJob.height;
-      const h = Math.max(1, Math.round(w / aspect));
-      setGlobalOptions((o) => ({ ...o, resizeWidth: w, resizeHeight: h }));
-    } else {
-      setGlobalOptions((o) => ({ ...o, resizeWidth: w }));
-    }
-  }, [selectedJob, globalOptions.maintainAspectRatio]);
+  const handleResizeWidthChange = useCallback(
+    (newWidth: number) => {
+      if (!selectedJob) return;
+      const w = Math.max(1, newWidth || 1);
+      if (globalOptions.maintainAspectRatio) {
+        const aspect = selectedJob.width / selectedJob.height;
+        const h = Math.max(1, Math.round(w / aspect));
+        setGlobalOptions((o) => ({ ...o, resizeWidth: w, resizeHeight: h }));
+      } else {
+        setGlobalOptions((o) => ({ ...o, resizeWidth: w }));
+      }
+    },
+    [selectedJob, globalOptions.maintainAspectRatio]
+  );
 
   // Handle resize height change with aspect ratio
-  const handleResizeHeightChange = useCallback((newHeight: number) => {
-    if (!selectedJob) return;
-    const h = Math.max(1, newHeight || 1);
-    if (globalOptions.maintainAspectRatio) {
-      const aspect = selectedJob.width / selectedJob.height;
-      const w = Math.max(1, Math.round(h * aspect));
-      setGlobalOptions((o) => ({ ...o, resizeWidth: w, resizeHeight: h }));
-    } else {
-      setGlobalOptions((o) => ({ ...o, resizeHeight: h }));
-    }
-  }, [selectedJob, globalOptions.maintainAspectRatio]);
+  const handleResizeHeightChange = useCallback(
+    (newHeight: number) => {
+      if (!selectedJob) return;
+      const h = Math.max(1, newHeight || 1);
+      if (globalOptions.maintainAspectRatio) {
+        const aspect = selectedJob.width / selectedJob.height;
+        const w = Math.max(1, Math.round(h * aspect));
+        setGlobalOptions((o) => ({ ...o, resizeWidth: w, resizeHeight: h }));
+      } else {
+        setGlobalOptions((o) => ({ ...o, resizeHeight: h }));
+      }
+    },
+    [selectedJob, globalOptions.maintainAspectRatio]
+  );
 
   const buildCompressOptions = useCallback(
     (job: ImageJob) => ({
       format: globalOptions.format,
       quality: globalOptions.quality,
-      preset: (globalOptions.quality < 33 ? 0 : globalOptions.quality < 66 ? 1 : 2) as PresetLevel,
+      preset: (globalOptions.quality < 33
+        ? 0
+        : globalOptions.quality < 66
+          ? 1
+          : 2) as PresetLevel,
       subsampling420: true,
       hasAlpha: job.hasAlpha && globalOptions.format === "png",
       lossy: !globalOptions.lossless,
@@ -158,7 +191,11 @@ export default function ImageCompressorPage() {
   const compressJob = useCallback(
     async (job: ImageJob) => {
       setJobs((prev) =>
-        prev.map((j) => (j.id === job.id ? { ...j, status: "compressing", error: undefined } : j))
+        prev.map((j) =>
+          j.id === job.id
+            ? { ...j, status: "compressing", error: undefined }
+            : j
+        )
       );
 
       try {
@@ -203,7 +240,11 @@ export default function ImageCompressorPage() {
         setJobs((prev) =>
           prev.map((j) =>
             j.id === job.id
-              ? { ...j, status: "error", error: e instanceof Error ? e.message : "Unknown error" }
+              ? {
+                  ...j,
+                  status: "error",
+                  error: e instanceof Error ? e.message : "Unknown error",
+                }
               : j
           )
         );
@@ -223,7 +264,16 @@ export default function ImageCompressorPage() {
     }, 300);
     return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [globalOptions.format, globalOptions.quality, globalOptions.lossless, globalOptions.resizeEnabled, globalOptions.resizeWidth, globalOptions.resizeHeight, globalOptions.resizeAlgorithm, globalOptions.maintainAspectRatio]);
+  }, [
+    globalOptions.format,
+    globalOptions.quality,
+    globalOptions.lossless,
+    globalOptions.resizeEnabled,
+    globalOptions.resizeWidth,
+    globalOptions.resizeHeight,
+    globalOptions.resizeAlgorithm,
+    globalOptions.maintainAspectRatio,
+  ]);
 
   const handleAddFiles = useCallback(
     async (files: FileList | File[]) => {
@@ -381,30 +431,39 @@ export default function ImageCompressorPage() {
   if (!selectedJob) {
     return (
       <div
-        className={`absolute inset-4 flex flex-col items-center justify-center border-2 border-dashed rounded-lg transition-colors cursor-pointer ${
-          isDragging ? "border-blue-500 bg-blue-500/10" : "border-white/20 hover:border-white/40"
-        }`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
-        tabIndex={0}
-        role="button"
         aria-label="Upload images"
+        className={`absolute inset-4 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
+          isDragging
+            ? "border-blue-500 bg-blue-500/10"
+            : "border-white/20 hover:border-white/40"
+        }`}
+        onClick={() => inputRef.current?.click()}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
       >
         <input
+          accept="image/png,image/jpeg"
+          className="hidden"
+          multiple
+          onChange={(e) => e.target.files && handleAddFiles(e.target.files)}
           ref={inputRef}
           type="file"
-          accept="image/png,image/jpeg"
-          multiple
-          className="hidden"
-          onChange={(e) => e.target.files && handleAddFiles(e.target.files)}
         />
-        <HugeiconsIcon icon={ImageUploadIcon} className="h-16 w-16 text-white/40 mb-4" />
-        <p className="text-lg text-white/80 mb-2">Drop images here or click to upload</p>
+        <HugeiconsIcon
+          className="mb-4 h-16 w-16 text-white/40"
+          icon={ImageUploadIcon}
+        />
+        <p className="mb-2 text-lg text-white/80">
+          Drop images here or click to upload
+        </p>
         <p className="text-sm text-white/50">Supports PNG and JPEG</p>
-        <p className="text-xs text-white/40 mt-2">You can also paste images from clipboard</p>
+        <p className="mt-2 text-white/40 text-xs">
+          You can also paste images from clipboard
+        </p>
       </div>
     );
   }
@@ -415,141 +474,148 @@ export default function ImageCompressorPage() {
 
   return (
     <div
-      className="absolute inset-0 bg-[#0a0a0a] flex flex-col overflow-hidden"
-      onDragOver={handleDragOver}
+      className="absolute inset-0 flex flex-col overflow-hidden bg-[#0a0a0a]"
       onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
       <input
+        accept="image/png,image/jpeg"
+        className="hidden"
+        multiple
+        onChange={(e) => e.target.files && handleAddFiles(e.target.files)}
         ref={inputRef}
         type="file"
-        accept="image/png,image/jpeg"
-        multiple
-        className="hidden"
-        onChange={(e) => e.target.files && handleAddFiles(e.target.files)}
       />
 
       {/* Close button - top right */}
       <button
-        onClick={() => handleRemoveJob(job.id)}
-        className="absolute top-4 right-4 z-20 text-white/50 hover:text-white transition-colors cursor-pointer"
         aria-label="Close"
+        className="absolute top-4 right-4 z-20 cursor-pointer text-white/50 transition-colors hover:text-white"
+        onClick={() => handleRemoveJob(job.id)}
       >
-        <HugeiconsIcon icon={Cancel01Icon} className="h-5 w-5" />
+        <HugeiconsIcon className="h-5 w-5" icon={Cancel01Icon} />
       </button>
 
       {/* Main image area */}
-      <div ref={imageAreaRef} className="flex-1 overflow-auto relative">
-        <div className="min-h-full min-w-full flex items-center justify-center p-4">
+      <div className="relative flex-1 overflow-auto" ref={imageAreaRef}>
+        <div className="flex min-h-full min-w-full items-center justify-center p-4">
           <div
+            className={`relative shrink-0 select-none ${hasResult ? "cursor-ew-resize" : ""}`}
+            onMouseDown={(e) => {
+              if (!hasResult) return;
+              setIsDraggingSlider(true);
+              handleSliderDrag(e.clientX);
+            }}
+            onTouchStart={(e) => {
+              if (!(hasResult && e.touches[0])) return;
+              setIsDraggingSlider(true);
+              handleSliderDrag(e.touches[0].clientX);
+            }}
             ref={imageContainerRef}
-            className={`relative select-none shrink-0 ${hasResult ? "cursor-ew-resize" : ""}`}
             style={{
               width: containerSize.width || "auto",
               height: containerSize.height || "auto",
             }}
-          onMouseDown={(e) => {
-            if (!hasResult) return;
-            setIsDraggingSlider(true);
-            handleSliderDrag(e.clientX);
-          }}
-          onTouchStart={(e) => {
-            if (!hasResult || !e.touches[0]) return;
-            setIsDraggingSlider(true);
-            handleSliderDrag(e.touches[0].clientX);
-          }}
-        >
-          {/* Original image (shows on right side of slider) */}
-          <img
-            src={job.originalUrl}
-            alt="Original"
-            className="pointer-events-none block w-full h-full object-contain"
-            draggable={false}
-          />
+          >
+            {/* Original image (shows on right side of slider) */}
+            <img
+              alt="Original"
+              className="pointer-events-none block h-full w-full object-contain"
+              draggable={false}
+              src={job.originalUrl}
+            />
 
-          {/* Compressed image overlay (shows on left side of slider) */}
-          {hasResult && (
-            <div
-              className="absolute inset-0 overflow-hidden"
-              style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
-            >
-              <img
-                src={job.result!.url}
-                alt="Compressed"
-                className="pointer-events-none block w-full h-full object-contain"
-                draggable={false}
-              />
-            </div>
-          )}
-
-          {/* Vertical slider line */}
-          {hasResult && (
-            <div
-              className="absolute inset-y-0 pointer-events-none"
-              style={{ left: `${sliderPosition}%` }}
-            >
-              <div className="h-full w-px bg-white/90" />
-              <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-black text-[10px] font-medium px-1.5 py-0.5 rounded shadow">
-                {sliderPosition}%
+            {/* Compressed image overlay (shows on left side of slider) */}
+            {hasResult && (
+              <div
+                className="absolute inset-0 overflow-hidden"
+                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+              >
+                <img
+                  alt="Compressed"
+                  className="pointer-events-none block h-full w-full object-contain"
+                  draggable={false}
+                  src={job.result!.url}
+                />
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Loading spinner */}
-          {isCompressing && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <HugeiconsIcon icon={Loading03Icon} className="h-8 w-8 animate-spin text-white" />
-            </div>
-          )}
-        </div>
+            {/* Vertical slider line */}
+            {hasResult && (
+              <div
+                className="pointer-events-none absolute inset-y-0"
+                style={{ left: `${sliderPosition}%` }}
+              >
+                <div className="h-full w-px bg-white/90" />
+                <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 rounded bg-white px-1.5 py-0.5 font-medium text-[10px] text-black shadow">
+                  {sliderPosition}%
+                </div>
+              </div>
+            )}
+
+            {/* Loading spinner */}
+            {isCompressing && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <HugeiconsIcon
+                  className="h-8 w-8 animate-spin text-white"
+                  icon={Loading03Icon}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Fixed overlays - positioned relative to scroll container */}
         {/* File info overlay - bottom left */}
-        <div className="absolute bottom-6 left-4 bg-black/60 backdrop-blur-sm rounded px-2 py-1 text-xs text-white/80 pointer-events-none z-10">
+        <div className="pointer-events-none absolute bottom-6 left-4 z-10 rounded bg-black/60 px-2 py-1 text-white/80 text-xs backdrop-blur-sm">
           <span className="font-medium">{job.name}</span>
-          <span className="ml-2 text-white/60">{job.width} × {job.height}</span>
+          <span className="ml-2 text-white/60">
+            {job.width} × {job.height}
+          </span>
         </div>
 
         {/* Horizontal comparison slider overlay - bottom center */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-xs px-4 z-10">
+        <div className="absolute bottom-8 left-1/2 z-10 w-full max-w-xs -translate-x-1/2 px-4">
           <Slider
-            min={0}
+            className="w-full"
             max={100}
-            step={1}
-            value={[sliderPosition]}
+            min={0}
             onValueChange={(v) => {
               const val = Array.isArray(v) ? v[0] : v;
               setSliderPosition(val);
             }}
-            className="w-full"
+            step={1}
+            value={[sliderPosition]}
           />
         </div>
       </div>
 
       {/* Controls row */}
-      <div className="px-4 py-2.5 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-white/10 border-t px-4 py-2.5 text-xs">
         {/* Format toggle */}
         <div className="flex items-center gap-2">
           <span className="text-white/50">Format</span>
-          <div className="flex rounded overflow-hidden border border-white/20">
+          <div className="flex overflow-hidden rounded border border-white/20">
             <button
-              onClick={() => setGlobalOptions((o) => ({ ...o, format: "jpeg" }))}
-              className={`px-2.5 py-1 text-xs cursor-pointer transition-colors ${
+              className={`cursor-pointer px-2.5 py-1 text-xs transition-colors ${
                 globalOptions.format === "jpeg"
                   ? "bg-white/20 text-white"
-                  : "text-white/50 hover:text-white hover:bg-white/10"
+                  : "text-white/50 hover:bg-white/10 hover:text-white"
               }`}
+              onClick={() =>
+                setGlobalOptions((o) => ({ ...o, format: "jpeg" }))
+              }
             >
               JPG
             </button>
             <button
-              onClick={() => setGlobalOptions((o) => ({ ...o, format: "png" }))}
-              className={`px-2.5 py-1 text-xs cursor-pointer transition-colors border-l border-white/20 ${
+              className={`cursor-pointer border-white/20 border-l px-2.5 py-1 text-xs transition-colors ${
                 globalOptions.format === "png"
                   ? "bg-white/20 text-white"
-                  : "text-white/50 hover:text-white hover:bg-white/10"
+                  : "text-white/50 hover:bg-white/10 hover:text-white"
               }`}
+              onClick={() => setGlobalOptions((o) => ({ ...o, format: "png" }))}
             >
               PNG
             </button>
@@ -560,25 +626,27 @@ export default function ImageCompressorPage() {
         <div className="flex items-center gap-2">
           <span className="text-white/50">Smaller</span>
           <Slider
-            min={1}
+            className="w-20"
             max={100}
-            step={1}
-            value={[globalOptions.quality]}
+            min={1}
             onValueChange={(v) => {
               const val = Array.isArray(v) ? v[0] : v;
               setGlobalOptions((o) => ({ ...o, quality: val }));
             }}
-            className="w-20"
+            step={1}
+            value={[globalOptions.quality]}
           />
           <span className="text-white/50">Faster</span>
         </div>
 
         {/* Lossless (PNG) */}
         {globalOptions.format === "png" && (
-          <label className="flex items-center gap-1.5 cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-1.5">
             <Switch
               checked={globalOptions.lossless}
-              onCheckedChange={(c) => setGlobalOptions((o) => ({ ...o, lossless: c === true }))}
+              onCheckedChange={(c) =>
+                setGlobalOptions((o) => ({ ...o, lossless: c === true }))
+              }
               size="sm"
             />
             <span className="text-white/50">Lossless</span>
@@ -586,10 +654,12 @@ export default function ImageCompressorPage() {
         )}
 
         {/* Resize */}
-        <label className="flex items-center gap-1.5 cursor-pointer">
+        <label className="flex cursor-pointer items-center gap-1.5">
           <Switch
             checked={globalOptions.resizeEnabled}
-            onCheckedChange={(c) => setGlobalOptions((o) => ({ ...o, resizeEnabled: c === true }))}
+            onCheckedChange={(c) =>
+              setGlobalOptions((o) => ({ ...o, resizeEnabled: c === true }))
+            }
             size="sm"
           />
           <span className="text-white/50">Resize</span>
@@ -600,26 +670,35 @@ export default function ImageCompressorPage() {
             <div className="flex items-center gap-1.5">
               <span className="text-white/50">Size</span>
               <Input
-                type="number"
+                className="h-6 w-14 border-white/20 bg-transparent px-1.5 text-xs"
                 min={1}
+                onChange={(e) =>
+                  handleResizeWidthChange(Number.parseInt(e.target.value))
+                }
+                type="number"
                 value={globalOptions.resizeWidth}
-                onChange={(e) => handleResizeWidthChange(parseInt(e.target.value))}
-                className="w-14 h-6 text-xs bg-transparent border-white/20 px-1.5"
               />
               <span className="text-white/30">×</span>
               <Input
-                type="number"
+                className="h-6 w-14 border-white/20 bg-transparent px-1.5 text-xs"
                 min={1}
+                onChange={(e) =>
+                  handleResizeHeightChange(Number.parseInt(e.target.value))
+                }
+                type="number"
                 value={globalOptions.resizeHeight}
-                onChange={(e) => handleResizeHeightChange(parseInt(e.target.value))}
-                className="w-14 h-6 text-xs bg-transparent border-white/20 px-1.5"
               />
             </div>
 
-            <label className="flex items-center gap-1.5 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-1.5">
               <Switch
                 checked={globalOptions.maintainAspectRatio}
-                onCheckedChange={(c) => setGlobalOptions((o) => ({ ...o, maintainAspectRatio: c === true }))}
+                onCheckedChange={(c) =>
+                  setGlobalOptions((o) => ({
+                    ...o,
+                    maintainAspectRatio: c === true,
+                  }))
+                }
                 size="sm"
               />
               <span className="text-white/50">Keep aspect</span>
@@ -628,16 +707,27 @@ export default function ImageCompressorPage() {
             <div className="flex items-center gap-2">
               <span className="text-white/50">Quality</span>
               <Select
+                onValueChange={(v) =>
+                  setGlobalOptions((o) => ({
+                    ...o,
+                    resizeAlgorithm: v as ResizeAlgorithm,
+                  }))
+                }
                 value={globalOptions.resizeAlgorithm}
-                onValueChange={(v) => setGlobalOptions((o) => ({ ...o, resizeAlgorithm: v as ResizeAlgorithm }))}
               >
-                <SelectTrigger className="h-7 w-[120px] text-xs bg-transparent border-white/20 cursor-pointer">
+                <SelectTrigger className="h-7 w-[120px] cursor-pointer border-white/20 bg-transparent text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="nearest" className="cursor-pointer">Nearest</SelectItem>
-                  <SelectItem value="bilinear" className="cursor-pointer">Bilinear</SelectItem>
-                  <SelectItem value="lanczos3" className="cursor-pointer">Lanczos3 (best)</SelectItem>
+                  <SelectItem className="cursor-pointer" value="nearest">
+                    Nearest
+                  </SelectItem>
+                  <SelectItem className="cursor-pointer" value="bilinear">
+                    Bilinear
+                  </SelectItem>
+                  <SelectItem className="cursor-pointer" value="lanczos3">
+                    Lanczos3 (best)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -646,14 +736,16 @@ export default function ImageCompressorPage() {
 
         {/* Zoom - pushed to right */}
         <div className="ml-auto flex items-center gap-1">
-          <span className="text-white/50 mr-1">Zoom</span>
+          <span className="mr-1 text-white/50">Zoom</span>
           {([1, 2, 4] as const).map((z) => (
             <button
+              className={`cursor-pointer rounded px-2 py-0.5 text-xs transition-colors ${
+                zoomLevel === z
+                  ? "bg-white/20 text-white"
+                  : "text-white/50 hover:bg-white/10 hover:text-white"
+              }`}
               key={z}
               onClick={() => setZoomLevel(z)}
-              className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
-                zoomLevel === z ? "bg-white/20 text-white" : "text-white/50 hover:text-white hover:bg-white/10"
-              }`}
             >
               {z}x
             </button>
@@ -662,39 +754,47 @@ export default function ImageCompressorPage() {
       </div>
 
       {/* Footer: stats + download */}
-      <div className="px-4 py-3 border-t border-white/10 flex items-center justify-between">
+      <div className="flex items-center justify-between border-white/10 border-t px-4 py-3">
         <div className="text-sm">
           <span className="text-white/50">Original</span>{" "}
-          <span className="text-white font-medium">{formatBytes(job.size)}</span>
+          <span className="font-medium text-white">
+            {formatBytes(job.size)}
+          </span>
           {hasResult && (
             <>
-              <span className="text-white/30 mx-2">→</span>
+              <span className="mx-2 text-white/30">→</span>
               <span className="text-white/50">Compressed</span>{" "}
-              <span className="text-white font-medium">{formatBytes(job.result!.size)}</span>
-              <span className={`ml-2 font-medium ${job.result!.savings > 0 ? "text-green-400" : "text-red-400"}`}>
+              <span className="font-medium text-white">
+                {formatBytes(job.result!.size)}
+              </span>
+              <span
+                className={`ml-2 font-medium ${job.result!.savings > 0 ? "text-green-400" : "text-red-400"}`}
+              >
                 {job.result!.savings > 0 ? "-" : "+"}
                 {Math.abs(job.result!.savings).toFixed(1)}%
               </span>
             </>
           )}
-          {isCompressing && <span className="text-white/50 ml-2">Compressing...</span>}
+          {isCompressing && (
+            <span className="ml-2 text-white/50">Compressing...</span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
           {jobs.length > 1 && jobs.filter((j) => j.result).length > 0 && (
             <Button
-              onClick={handleDownloadAll}
-              disabled={isCompressing}
-              variant="outline"
               className="cursor-pointer border-white/20 hover:bg-white/10 disabled:opacity-50"
+              disabled={isCompressing}
+              onClick={handleDownloadAll}
+              variant="outline"
             >
               Download All ({jobs.filter((j) => j.result).length})
             </Button>
           )}
           <Button
-            onClick={handleDownload}
-            disabled={!hasResult || isCompressing}
             className="cursor-pointer bg-white text-black hover:bg-white/90 disabled:opacity-50"
+            disabled={!hasResult || isCompressing}
+            onClick={handleDownload}
           >
             Download
           </Button>
@@ -703,25 +803,36 @@ export default function ImageCompressorPage() {
 
       {/* Multiple images thumbnail strip */}
       {jobs.length > 1 && (
-        <div className="px-4 py-2 border-t border-white/10 flex items-center gap-2 overflow-x-auto">
+        <div className="flex items-center gap-2 overflow-x-auto border-white/10 border-t px-4 py-2">
           {jobs.map((j) => (
             <button
+              className={`relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded border-2 transition-colors ${
+                j.id === selectedJobId
+                  ? "border-white"
+                  : "border-transparent hover:border-white/50"
+              }`}
               key={j.id}
               onClick={() => setSelectedJobId(j.id)}
-              className={`relative shrink-0 w-12 h-12 rounded overflow-hidden border-2 cursor-pointer transition-colors ${
-                j.id === selectedJobId ? "border-white" : "border-transparent hover:border-white/50"
-              }`}
             >
-              <img src={j.originalUrl} alt={j.name} className="w-full h-full object-cover" />
+              <img
+                alt={j.name}
+                className="h-full w-full object-cover"
+                src={j.originalUrl}
+              />
               {j.status === "compressing" && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                  <HugeiconsIcon icon={Loading03Icon} className="h-4 w-4 animate-spin text-white" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                  <HugeiconsIcon
+                    className="h-4 w-4 animate-spin text-white"
+                    icon={Loading03Icon}
+                  />
                 </div>
               )}
               {j.result && (
                 <div
-                  className={`absolute bottom-0 inset-x-0 text-[9px] font-medium text-center py-0.5 ${
-                    j.result.savings > 0 ? "bg-green-500/90 text-white" : "bg-red-500/90 text-white"
+                  className={`absolute inset-x-0 bottom-0 py-0.5 text-center font-medium text-[9px] ${
+                    j.result.savings > 0
+                      ? "bg-green-500/90 text-white"
+                      : "bg-red-500/90 text-white"
                   }`}
                 >
                   {j.result.savings > 0 ? "-" : "+"}
@@ -731,8 +842,8 @@ export default function ImageCompressorPage() {
             </button>
           ))}
           <button
+            className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded border-2 border-white/20 border-dashed text-lg text-white/40 transition-colors hover:border-white/40 hover:text-white/60"
             onClick={() => inputRef.current?.click()}
-            className="shrink-0 w-12 h-12 rounded border-2 border-dashed border-white/20 hover:border-white/40 flex items-center justify-center text-white/40 hover:text-white/60 cursor-pointer transition-colors text-lg"
           >
             +
           </button>
@@ -741,9 +852,12 @@ export default function ImageCompressorPage() {
 
       {/* Drag overlay */}
       {isDragging && (
-        <div className="absolute inset-0 z-50 bg-blue-500/20 backdrop-blur-sm flex items-center justify-center pointer-events-none">
-          <div className="bg-black/80 rounded-lg p-8 text-center">
-            <HugeiconsIcon icon={ImageUploadIcon} className="h-16 w-16 mx-auto text-blue-400 mb-4" />
+        <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-blue-500/20 backdrop-blur-sm">
+          <div className="rounded-lg bg-black/80 p-8 text-center">
+            <HugeiconsIcon
+              className="mx-auto mb-4 h-16 w-16 text-blue-400"
+              icon={ImageUploadIcon}
+            />
             <p className="text-lg">Drop images to compress</p>
           </div>
         </div>

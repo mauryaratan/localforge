@@ -278,12 +278,16 @@ self.onmessage = async (e) => {
 // Worker instance and message handling
 let worker: Worker | null = null;
 let msgId = 0;
-const pending = new Map<string, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
+const pending = new Map<
+  string,
+  { resolve: (v: unknown) => void; reject: (e: Error) => void }
+>();
 
 function getWorker(): Worker {
   if (!worker && typeof window !== "undefined") {
     // Build absolute URL for WASM file
-    const wasmUrl = new URL("/pixo-wasm/pixo_bg.wasm", window.location.origin).href;
+    const wasmUrl = new URL("/pixo-wasm/pixo_bg.wasm", window.location.origin)
+      .href;
     const code = createWorkerCode(wasmUrl);
     const blob = new Blob([code], { type: "application/javascript" });
     const url = URL.createObjectURL(blob);
@@ -297,7 +301,13 @@ function getWorker(): Worker {
         if (success) {
           if (result.data instanceof ArrayBuffer) {
             // Resize result
-            p.resolve(new ImageData(new Uint8ClampedArray(result.data), result.width, result.height));
+            p.resolve(
+              new ImageData(
+                new Uint8ClampedArray(result.data),
+                result.width,
+                result.height
+              )
+            );
           } else {
             p.resolve(result);
           }
@@ -317,25 +327,45 @@ function getWorker(): Worker {
   return worker!;
 }
 
-export const compressImage = (imageData: ImageData, options: CompressOptions): Promise<CompressResult> => {
+export const compressImage = (
+  imageData: ImageData,
+  options: CompressOptions
+): Promise<CompressResult> => {
   return new Promise((resolve, reject) => {
     const id = `c${++msgId}`;
     pending.set(id, { resolve: resolve as (v: unknown) => void, reject });
     const buffer = imageData.data.buffer.slice(0);
     getWorker().postMessage(
-      { id, type: "compress", width: imageData.width, height: imageData.height, data: buffer, options },
+      {
+        id,
+        type: "compress",
+        width: imageData.width,
+        height: imageData.height,
+        data: buffer,
+        options,
+      },
       [buffer]
     );
   });
 };
 
-export const resizeImage = (imageData: ImageData, options: ResizeOptions): Promise<ImageData> => {
+export const resizeImage = (
+  imageData: ImageData,
+  options: ResizeOptions
+): Promise<ImageData> => {
   return new Promise((resolve, reject) => {
     const id = `r${++msgId}`;
     pending.set(id, { resolve: resolve as (v: unknown) => void, reject });
     const buffer = imageData.data.buffer.slice(0);
     getWorker().postMessage(
-      { id, type: "resize", width: imageData.width, height: imageData.height, data: buffer, options },
+      {
+        id,
+        type: "resize",
+        width: imageData.width,
+        height: imageData.height,
+        data: buffer,
+        options,
+      },
       [buffer]
     );
   });
@@ -343,15 +373,20 @@ export const resizeImage = (imageData: ImageData, options: ResizeOptions): Promi
 
 export const detectAlpha = (data: Uint8ClampedArray): boolean => {
   const len = data.length;
-  const step = len > 400000 ? Math.floor(len / 40000) * 4 : 4;
+  const step = len > 400_000 ? Math.floor(len / 40_000) * 4 : 4;
   for (let i = 3; i < len; i += step) {
     if (data[i] !== 255) return true;
   }
   return false;
 };
 
-export const decodeFile = async (file: File): Promise<{
-  imageData: ImageData; width: number; height: number; hasAlpha: boolean;
+export const decodeFile = async (
+  file: File
+): Promise<{
+  imageData: ImageData;
+  width: number;
+  height: number;
+  hasAlpha: boolean;
 }> => {
   const bitmap = await createImageBitmap(file);
   const { width, height } = bitmap;
@@ -374,4 +409,5 @@ export const formatBytes = (b: number): string => {
 };
 
 export const ACCEPTED_MIME_TYPES = ["image/png", "image/jpeg"];
-export const isFileSupported = (f: File): boolean => ACCEPTED_MIME_TYPES.includes(f.type);
+export const isFileSupported = (f: File): boolean =>
+  ACCEPTED_MIME_TYPES.includes(f.type);

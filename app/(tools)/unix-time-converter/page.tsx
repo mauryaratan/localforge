@@ -372,15 +372,15 @@ const UnixTimeConverterPage = () => {
               <div className="flex flex-wrap items-center gap-4 text-xs">
                 <div className="flex items-center gap-2">
                   <Label className="text-muted-foreground">Output unit:</Label>
-                  <ToggleGroup variant="outline" size="sm">
+                  <ToggleGroup size="sm" variant="outline">
                     {UNIT_OPTIONS.map((opt) => (
                       <ToggleGroupItem
-                        key={opt.value}
-                        value={opt.value}
                         aria-pressed={unit === opt.value}
-                        pressed={unit === opt.value}
-                        onClick={() => setUnit(opt.value)}
                         className="cursor-pointer px-2"
+                        key={opt.value}
+                        onClick={() => setUnit(opt.value)}
+                        pressed={unit === opt.value}
+                        value={opt.value}
                       >
                         {opt.label.slice(0, 2)}
                       </ToggleGroupItem>
@@ -389,22 +389,22 @@ const UnixTimeConverterPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Label className="text-muted-foreground">Timezone:</Label>
-                  <ToggleGroup variant="outline" size="sm">
+                  <ToggleGroup size="sm" variant="outline">
                     <ToggleGroupItem
-                      value="local"
                       aria-pressed={timezone === "local"}
-                      pressed={timezone === "local"}
-                      onClick={() => setTimezone("local")}
                       className="cursor-pointer px-2.5"
+                      onClick={() => setTimezone("local")}
+                      pressed={timezone === "local"}
+                      value="local"
                     >
                       Local
                     </ToggleGroupItem>
                     <ToggleGroupItem
-                      value="utc"
                       aria-pressed={timezone === "utc"}
-                      pressed={timezone === "utc"}
-                      onClick={() => setTimezone("utc")}
                       className="cursor-pointer px-2.5"
+                      onClick={() => setTimezone("utc")}
+                      pressed={timezone === "utc"}
+                      value="utc"
                     >
                       UTC
                     </ToggleGroupItem>

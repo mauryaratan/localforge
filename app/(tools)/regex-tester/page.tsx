@@ -166,10 +166,10 @@ const RegexTesterPage = () => {
                       render={
                         <label className="flex cursor-pointer items-center gap-1.5">
                           <Switch
-                            size="sm"
+                            aria-label={`Toggle ${flag.label} flag`}
                             checked={flags.includes(flag.key)}
                             onCheckedChange={() => handleToggleFlag(flag.key)}
-                            aria-label={`Toggle ${flag.label} flag`}
+                            size="sm"
                           />
                           <span className="font-medium text-xs">
                             {flag.label}

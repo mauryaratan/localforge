@@ -67,17 +67,17 @@ describe("formatBytes", () => {
   it("should format kilobytes correctly", () => {
     expect(formatBytes(1024)).toBe("1 KB");
     expect(formatBytes(1536)).toBe("1.5 KB");
-    expect(formatBytes(10240)).toBe("10 KB");
+    expect(formatBytes(10_240)).toBe("10 KB");
   });
 
   it("should format megabytes correctly", () => {
-    expect(formatBytes(1048576)).toBe("1 MB");
-    expect(formatBytes(1572864)).toBe("1.5 MB");
-    expect(formatBytes(10485760)).toBe("10 MB");
+    expect(formatBytes(1_048_576)).toBe("1 MB");
+    expect(formatBytes(1_572_864)).toBe("1.5 MB");
+    expect(formatBytes(10_485_760)).toBe("10 MB");
   });
 
   it("should format gigabytes correctly", () => {
-    expect(formatBytes(1073741824)).toBe("1 GB");
+    expect(formatBytes(1_073_741_824)).toBe("1 GB");
   });
 
   it("should handle decimal values appropriately", () => {
@@ -111,10 +111,22 @@ describe("detectAlpha", () => {
   it("should return false for fully opaque pixels", () => {
     // RGBA data with all alpha = 255
     const data = new Uint8ClampedArray([
-      255, 0, 0, 255, // Red pixel
-      0, 255, 0, 255, // Green pixel
-      0, 0, 255, 255, // Blue pixel
-      255, 255, 255, 255, // White pixel
+      255,
+      0,
+      0,
+      255, // Red pixel
+      0,
+      255,
+      0,
+      255, // Green pixel
+      0,
+      0,
+      255,
+      255, // Blue pixel
+      255,
+      255,
+      255,
+      255, // White pixel
     ]);
     expect(detectAlpha(data)).toBe(false);
   });
@@ -122,17 +134,32 @@ describe("detectAlpha", () => {
   it("should return true for pixels with transparency", () => {
     // RGBA data with some alpha < 255
     const data = new Uint8ClampedArray([
-      255, 0, 0, 255, // Red pixel (opaque)
-      0, 255, 0, 128, // Green pixel (semi-transparent)
-      0, 0, 255, 255, // Blue pixel (opaque)
-      255, 255, 255, 255, // White pixel (opaque)
+      255,
+      0,
+      0,
+      255, // Red pixel (opaque)
+      0,
+      255,
+      0,
+      128, // Green pixel (semi-transparent)
+      0,
+      0,
+      255,
+      255, // Blue pixel (opaque)
+      255,
+      255,
+      255,
+      255, // White pixel (opaque)
     ]);
     expect(detectAlpha(data)).toBe(true);
   });
 
   it("should return true for fully transparent pixels", () => {
     const data = new Uint8ClampedArray([
-      255, 0, 0, 0, // Red pixel (fully transparent)
+      255,
+      0,
+      0,
+      0, // Red pixel (fully transparent)
     ]);
     expect(detectAlpha(data)).toBe(true);
   });
@@ -217,7 +244,7 @@ describe("calculateResizeDimensions", () => {
   });
 
   it("should never return dimensions less than 1", () => {
-    const result = calculateResizeDimensions(10000, 1, 100, 100);
+    const result = calculateResizeDimensions(10_000, 1, 100, 100);
     expect(result.width).toBeGreaterThanOrEqual(1);
     expect(result.height).toBeGreaterThanOrEqual(1);
   });

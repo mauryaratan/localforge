@@ -18,12 +18,12 @@ import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   type GeneratedId,
-  type IdFormat,
-  type ParsedId,
-  type UuidStyle,
   generateIds,
   getFormatInfo,
+  type IdFormat,
+  type ParsedId,
   parseId,
+  type UuidStyle,
 } from "@/lib/uuid-ulid";
 
 const STORAGE_KEY = "devtools:uuid-generator:settings";
@@ -189,34 +189,34 @@ const UuidGeneratorPage = () => {
           <Label className="text-muted-foreground text-xs uppercase tracking-wider">
             Format
           </Label>
-          <ToggleGroup variant="outline" size="sm" className="justify-start">
+          <ToggleGroup className="justify-start" size="sm" variant="outline">
             <ToggleGroupItem
-              value="uuid-v4"
               aria-label="UUID v4 format"
               aria-pressed={format === "uuid-v4"}
-              pressed={format === "uuid-v4"}
-              onClick={() => handleFormatChange("uuid-v4")}
               className="cursor-pointer px-3"
+              onClick={() => handleFormatChange("uuid-v4")}
+              pressed={format === "uuid-v4"}
+              value="uuid-v4"
             >
               UUID v4
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="uuid-v7"
               aria-label="UUID v7 format"
               aria-pressed={format === "uuid-v7"}
-              pressed={format === "uuid-v7"}
-              onClick={() => handleFormatChange("uuid-v7")}
               className="cursor-pointer px-3"
+              onClick={() => handleFormatChange("uuid-v7")}
+              pressed={format === "uuid-v7"}
+              value="uuid-v7"
             >
               UUID v7
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="ulid"
               aria-label="ULID format"
               aria-pressed={format === "ulid"}
-              pressed={format === "ulid"}
-              onClick={() => handleFormatChange("ulid")}
               className="cursor-pointer px-3"
+              onClick={() => handleFormatChange("ulid")}
+              pressed={format === "ulid"}
+              value="ulid"
             >
               ULID
             </ToggleGroupItem>
@@ -234,13 +234,13 @@ const UuidGeneratorPage = () => {
               Count: {count}
             </Label>
             <Slider
-              value={[count]}
-              onValueChange={handleCountChange}
-              min={1}
-              max={50}
-              step={1}
-              className="cursor-pointer"
               aria-label="Number of IDs to generate"
+              className="cursor-pointer"
+              max={50}
+              min={1}
+              onValueChange={handleCountChange}
+              step={1}
+              value={[count]}
             />
           </div>
 
@@ -250,24 +250,24 @@ const UuidGeneratorPage = () => {
               <Label className="text-muted-foreground text-xs uppercase tracking-wider">
                 Case
               </Label>
-              <ToggleGroup variant="outline" size="sm">
+              <ToggleGroup size="sm" variant="outline">
                 <ToggleGroupItem
-                  value="lowercase"
                   aria-label="Lowercase"
                   aria-pressed={style === "lowercase"}
-                  pressed={style === "lowercase"}
-                  onClick={() => handleStyleChange("lowercase")}
                   className="cursor-pointer px-3"
+                  onClick={() => handleStyleChange("lowercase")}
+                  pressed={style === "lowercase"}
+                  value="lowercase"
                 >
                   lower
                 </ToggleGroupItem>
                 <ToggleGroupItem
-                  value="uppercase"
                   aria-label="Uppercase"
                   aria-pressed={style === "uppercase"}
-                  pressed={style === "uppercase"}
-                  onClick={() => handleStyleChange("uppercase")}
                   className="cursor-pointer px-3"
+                  onClick={() => handleStyleChange("uppercase")}
+                  pressed={style === "uppercase"}
+                  value="uppercase"
                 >
                   UPPER
                 </ToggleGroupItem>
@@ -279,15 +279,15 @@ const UuidGeneratorPage = () => {
           {format !== "ulid" && (
             <div className="flex items-center gap-3">
               <Switch
-                id="hyphens"
-                checked={withHyphens}
-                onCheckedChange={handleHyphensChange}
-                className="cursor-pointer"
                 aria-label="Include hyphens"
+                checked={withHyphens}
+                className="cursor-pointer"
+                id="hyphens"
+                onCheckedChange={handleHyphensChange}
               />
               <Label
+                className="cursor-pointer text-muted-foreground text-xs"
                 htmlFor="hyphens"
-                className="cursor-pointer text-xs text-muted-foreground"
               >
                 Hyphens
               </Label>
@@ -302,7 +302,7 @@ const UuidGeneratorPage = () => {
               <CardTitle className="flex items-center gap-2">
                 Generated
                 {generatedIds.length > 0 && (
-                  <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs font-normal text-muted-foreground">
+                  <span className="rounded bg-muted px-2 py-0.5 font-mono font-normal text-muted-foreground text-xs">
                     {generatedIds.length}
                   </span>
                 )}
@@ -362,17 +362,17 @@ const UuidGeneratorPage = () => {
           </CardHeader>
           <CardContent className="pt-4">
             {generatedIds.length === 0 ? (
-              <p className="text-center text-muted-foreground text-sm py-8">
+              <p className="py-8 text-center text-muted-foreground text-sm">
                 Click "Generate" to create IDs
               </p>
             ) : (
               <div className="flex flex-col gap-2">
                 {generatedIds.map((id, index) => (
                   <div
-                    key={`${id.value}-${index}`}
                     className="group flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 transition-colors hover:bg-muted/50"
+                    key={`${id.value}-${index}`}
                   >
-                    <code className="flex-1 font-mono text-xs break-all">
+                    <code className="flex-1 break-all font-mono text-xs">
                       {id.value}
                     </code>
                     {id.timestampReadable && (
@@ -408,18 +408,18 @@ const UuidGeneratorPage = () => {
           <CardContent className="pt-4">
             <div className="flex flex-col gap-4">
               <Input
-                type="text"
-                placeholder="Enter a UUID or ULID to parse..."
-                value={parseInput}
-                onChange={(e) => handleParseInputChange(e.target.value)}
-                className="font-mono text-xs"
                 aria-label="UUID or ULID to parse"
+                className="font-mono text-xs"
+                onChange={(e) => handleParseInputChange(e.target.value)}
+                placeholder="Enter a UUID or ULID to parse..."
+                type="text"
+                value={parseInput}
               />
               {parsedResult && (
                 <div className="rounded-md border bg-muted/30 p-4">
                   <div className="grid gap-3 text-xs sm:grid-cols-2">
                     <div className="flex flex-col gap-1">
-                      <span className="text-muted-foreground uppercase tracking-wider text-[10px]">
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                         Status
                       </span>
                       <span
@@ -433,7 +433,7 @@ const UuidGeneratorPage = () => {
                       </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className="text-muted-foreground uppercase tracking-wider text-[10px]">
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                         Format
                       </span>
                       <span>
@@ -449,7 +449,7 @@ const UuidGeneratorPage = () => {
                     </div>
                     {parsedResult.variant && (
                       <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground uppercase tracking-wider text-[10px]">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                           Variant
                         </span>
                         <span>{parsedResult.variant}</span>
@@ -457,7 +457,7 @@ const UuidGeneratorPage = () => {
                     )}
                     {parsedResult.timestampReadable && (
                       <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground uppercase tracking-wider text-[10px]">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                           Timestamp
                         </span>
                         <span>{parsedResult.timestampReadable}</span>
@@ -465,7 +465,7 @@ const UuidGeneratorPage = () => {
                     )}
                     {parsedResult.timestamp && (
                       <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground uppercase tracking-wider text-[10px]">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                           Unix (ms)
                         </span>
                         <span className="font-mono">
@@ -496,7 +496,7 @@ const UuidGeneratorPage = () => {
                     <span className="font-medium">UUID v4</span>
                     <span className="text-muted-foreground">36 chars</span>
                   </div>
-                  <code className="rounded bg-muted/50 px-2 py-1 font-mono text-[10px] break-all">
+                  <code className="break-all rounded bg-muted/50 px-2 py-1 font-mono text-[10px]">
                     xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
                   </code>
                   <p className="text-[10px] text-muted-foreground">
@@ -509,7 +509,7 @@ const UuidGeneratorPage = () => {
                     <span className="font-medium">UUID v7</span>
                     <span className="text-muted-foreground">36 chars</span>
                   </div>
-                  <code className="rounded bg-muted/50 px-2 py-1 font-mono text-[10px] break-all">
+                  <code className="break-all rounded bg-muted/50 px-2 py-1 font-mono text-[10px]">
                     tttttttt-tttt-7xxx-yxxx-xxxxxxxxxxxx
                   </code>
                   <p className="text-[10px] text-muted-foreground">
@@ -522,7 +522,7 @@ const UuidGeneratorPage = () => {
                     <span className="font-medium">ULID</span>
                     <span className="text-muted-foreground">26 chars</span>
                   </div>
-                  <code className="rounded bg-muted/50 px-2 py-1 font-mono text-[10px] break-all">
+                  <code className="break-all rounded bg-muted/50 px-2 py-1 font-mono text-[10px]">
                     01ARZ3NDEKTSV4RRFFQ69G5FAV
                   </code>
                   <p className="text-[10px] text-muted-foreground">
@@ -543,25 +543,25 @@ const UuidGeneratorPage = () => {
                 <span className="font-medium text-xs">
                   Database Primary Keys
                 </span>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="mt-0.5 text-[10px] text-muted-foreground">
                   UUID v7 or ULID for time-ordered queries
                 </p>
               </div>
               <div className="rounded-md border bg-muted/30 px-3 py-2">
                 <span className="font-medium text-xs">API Keys</span>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="mt-0.5 text-[10px] text-muted-foreground">
                   UUID v4 for unpredictable tokens
                 </p>
               </div>
               <div className="rounded-md border bg-muted/30 px-3 py-2">
                 <span className="font-medium text-xs">Event Streams</span>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="mt-0.5 text-[10px] text-muted-foreground">
                   ULID for sortable event IDs
                 </p>
               </div>
               <div className="rounded-md border bg-muted/30 px-3 py-2">
                 <span className="font-medium text-xs">URL Slugs</span>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="mt-0.5 text-[10px] text-muted-foreground">
                   ULID for compact, URL-safe IDs
                 </p>
               </div>

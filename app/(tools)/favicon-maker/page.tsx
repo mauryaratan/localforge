@@ -1,29 +1,35 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, type DragEvent } from "react";
-import {
-  generateFavicons,
-  cleanupFavicons,
-  isFileSupported,
-  formatBytes,
-  generateManifest,
-  FAVICON_SIZES,
-  type GeneratedFavicon,
-  type FaviconResult,
-} from "@/lib/favicon-maker";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Cancel01Icon,
+  CheckmarkCircle01Icon,
+  Copy01Icon,
+  Download01Icon,
   ImageUploadIcon,
   Loading03Icon,
-  Download01Icon,
-  Copy01Icon,
-  CheckmarkCircle01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import JSZip from "jszip";
+import {
+  type DragEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  cleanupFavicons,
+  FAVICON_SIZES,
+  type FaviconResult,
+  formatBytes,
+  type GeneratedFavicon,
+  generateFavicons,
+  generateManifest,
+  isFileSupported,
+} from "@/lib/favicon-maker";
 
 type ProcessingStatus = "idle" | "processing" | "done" | "error";
 
@@ -50,33 +56,40 @@ export default function FaviconMakerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!isFileSupported(file)) {
-      setError("Unsupported file type. Please upload PNG, JPG, SVG, WebP, or GIF.");
-      return;
-    }
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!isFileSupported(file)) {
+        setError(
+          "Unsupported file type. Please upload PNG, JPG, SVG, WebP, or GIF."
+        );
+        return;
+      }
 
-    // Cleanup previous result
-    if (result) {
-      cleanupFavicons(result.favicons);
-      setResult(null);
-    }
+      // Cleanup previous result
+      if (result) {
+        cleanupFavicons(result.favicons);
+        setResult(null);
+      }
 
-    setStatus("processing");
-    setError(null);
-    setSourceImage(URL.createObjectURL(file));
-    setSourceFileName(file.name);
+      setStatus("processing");
+      setError(null);
+      setSourceImage(URL.createObjectURL(file));
+      setSourceFileName(file.name);
 
-    try {
-      const faviconResult = await generateFavicons(file);
-      setResult(faviconResult);
-      setStatus("done");
-    } catch (err) {
-      console.error("Favicon generation error:", err);
-      setError(err instanceof Error ? err.message : "Failed to generate favicons");
-      setStatus("error");
-    }
-  }, [result]);
+      try {
+        const faviconResult = await generateFavicons(file);
+        setResult(faviconResult);
+        setStatus("done");
+      } catch (err) {
+        console.error("Favicon generation error:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to generate favicons"
+        );
+        setStatus("error");
+      }
+    },
+    [result]
+  );
 
   const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
@@ -206,30 +219,43 @@ Generated with LocalForge Favicon Maker
   if (!sourceImage) {
     return (
       <div
-        className={`absolute inset-4 flex flex-col items-center justify-center border-2 border-dashed rounded-lg transition-colors cursor-pointer ${
-          isDragging ? "border-primary bg-primary/10" : "border-foreground/20 hover:border-foreground/40"
-        }`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
-        tabIndex={0}
-        role="button"
         aria-label="Upload image to create favicons"
+        className={`absolute inset-4 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
+          isDragging
+            ? "border-primary bg-primary/10"
+            : "border-foreground/20 hover:border-foreground/40"
+        }`}
+        onClick={() => inputRef.current?.click()}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
       >
         <input
-          ref={inputRef}
-          type="file"
           accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp,image/gif"
           className="hidden"
           onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+          ref={inputRef}
+          type="file"
         />
-        <HugeiconsIcon icon={ImageUploadIcon} className="h-16 w-16 text-foreground/40 mb-4" />
-        <p className="text-lg text-foreground/80 mb-2">Drop your logo here or click to upload</p>
-        <p className="text-sm text-foreground/50">Supports PNG, JPG, SVG, WebP, GIF</p>
-        <p className="text-xs text-foreground/40 mt-2">Recommended: Square image for best results</p>
-        <p className="text-xs text-foreground/40 mt-1">You can also paste from clipboard</p>
+        <HugeiconsIcon
+          className="mb-4 h-16 w-16 text-foreground/40"
+          icon={ImageUploadIcon}
+        />
+        <p className="mb-2 text-foreground/80 text-lg">
+          Drop your logo here or click to upload
+        </p>
+        <p className="text-foreground/50 text-sm">
+          Supports PNG, JPG, SVG, WebP, GIF
+        </p>
+        <p className="mt-2 text-foreground/40 text-xs">
+          Recommended: Square image for best results
+        </p>
+        <p className="mt-1 text-foreground/40 text-xs">
+          You can also paste from clipboard
+        </p>
       </div>
     );
   }
@@ -238,72 +264,77 @@ Generated with LocalForge Favicon Maker
 
   return (
     <div
-      className="h-full flex flex-col lg:flex-row gap-4 p-4 overflow-hidden"
-      onDragOver={handleDragOver}
+      className="flex h-full flex-col gap-4 overflow-hidden p-4 lg:flex-row"
       onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
       <input
-        ref={inputRef}
-        type="file"
         accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp,image/gif"
         className="hidden"
         onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+        ref={inputRef}
+        type="file"
       />
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-auto">
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto">
         {/* Source image preview and clear button */}
-        <div className="flex items-center gap-4 mb-4 pb-4 border-b border-border">
-          <div className="relative w-16 h-16 bg-muted rounded-lg overflow-hidden shrink-0">
+        <div className="mb-4 flex items-center gap-4 border-border border-b pb-4">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
             {/* biome-ignore lint/nursery/noImgElement: simple preview */}
             <img
-              src={sourceImage}
               alt="Source"
-              className="w-full h-full object-contain"
+              className="h-full w-full object-contain"
+              src={sourceImage}
             />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{sourceFileName}</p>
-            <p className="text-xs text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-medium text-sm">{sourceFileName}</p>
+            <p className="text-muted-foreground text-xs">
               {isProcessing ? "Generating favicons..." : "Source image"}
             </p>
           </div>
           <div className="flex gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => inputRef.current?.click()}
-              className="cursor-pointer"
               aria-label="Upload new image"
+              className="cursor-pointer"
+              onClick={() => inputRef.current?.click()}
+              size="sm"
+              variant="outline"
             >
               Replace
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClear}
-              className="cursor-pointer text-muted-foreground hover:text-foreground"
               aria-label="Clear image"
+              className="cursor-pointer text-muted-foreground hover:text-foreground"
+              onClick={handleClear}
+              size="icon"
+              variant="ghost"
             >
-              <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
+              <HugeiconsIcon className="h-4 w-4" icon={Cancel01Icon} />
             </Button>
           </div>
         </div>
 
         {/* Error state */}
         {error && (
-          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+          <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-destructive text-sm">
             {error}
           </div>
         )}
 
         {/* Loading state */}
         {isProcessing && (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-1 items-center justify-center">
             <div className="text-center">
-              <HugeiconsIcon icon={Loading03Icon} className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground">Generating favicons...</p>
+              <HugeiconsIcon
+                className="mx-auto mb-4 h-12 w-12 animate-spin text-primary"
+                icon={Loading03Icon}
+              />
+              <p className="text-muted-foreground text-sm">
+                Generating favicons...
+              </p>
             </div>
           </div>
         )}
@@ -312,43 +343,45 @@ Generated with LocalForge Favicon Maker
         {status === "done" && result && (
           <>
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-medium">Generated Favicons</h2>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="font-medium text-sm">Generated Favicons</h2>
                 <Button
-                  onClick={handleDownloadAll}
                   className="cursor-pointer gap-2"
+                  onClick={handleDownloadAll}
                   size="sm"
                 >
-                  <HugeiconsIcon icon={Download01Icon} className="h-4 w-4" />
+                  <HugeiconsIcon className="h-4 w-4" icon={Download01Icon} />
                   Download All (ZIP)
                 </Button>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4">
                 {result.favicons.map((favicon) => (
                   <div
+                    className="group relative flex h-40 flex-col rounded-lg border border-border bg-muted/50 p-3 transition-colors hover:border-primary/50"
                     key={favicon.name}
-                    className="group relative bg-muted/50 rounded-lg p-3 border border-border hover:border-primary/50 transition-colors flex flex-col h-40"
                   >
                     {/* Image container - flex-1 to take remaining space, centers image */}
-                    <div className="flex-1 flex items-center justify-center min-h-0">
+                    <div className="flex min-h-0 flex-1 items-center justify-center">
                       <div
-                        className="relative rounded overflow-hidden"
+                        className="relative overflow-hidden rounded"
                         style={{
                           width: Math.min(favicon.width, 96),
                           height: Math.min(favicon.height, 96),
-                          backgroundImage: "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                          backgroundImage:
+                            "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
                           backgroundSize: "8px 8px",
                           backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
                         }}
                       >
                         {/* biome-ignore lint/nursery/noImgElement: favicon preview */}
                         <img
-                          src={favicon.url}
                           alt={favicon.name}
-                          className="w-full h-full object-contain relative z-10"
+                          className="relative z-10 h-full w-full object-contain"
+                          src={favicon.url}
                           style={{
-                            imageRendering: favicon.width <= 32 ? "pixelated" : "auto",
+                            imageRendering:
+                              favicon.width <= 32 ? "pixelated" : "auto",
                           }}
                         />
                       </div>
@@ -356,22 +389,29 @@ Generated with LocalForge Favicon Maker
 
                     {/* Info at bottom */}
                     <div className="mt-2 shrink-0">
-                      <p className="text-xs font-medium text-center truncate" title={favicon.name}>
+                      <p
+                        className="truncate text-center font-medium text-xs"
+                        title={favicon.name}
+                      >
                         {favicon.name}
                       </p>
-                      <p className="text-[10px] text-muted-foreground text-center">
-                        {favicon.width}×{favicon.height} • {formatBytes(favicon.blob.size)}
+                      <p className="text-center text-[10px] text-muted-foreground">
+                        {favicon.width}×{favicon.height} •{" "}
+                        {formatBytes(favicon.blob.size)}
                       </p>
                     </div>
 
                     {/* Download button on hover */}
                     <button
-                      onClick={() => handleDownloadSingle(favicon)}
-                      className="absolute top-2 right-2 p-1.5 bg-background/90 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-background"
                       aria-label={`Download ${favicon.name}`}
+                      className="absolute top-2 right-2 cursor-pointer rounded-md bg-background/90 p-1.5 opacity-0 transition-opacity hover:bg-background group-hover:opacity-100"
+                      onClick={() => handleDownloadSingle(favicon)}
                       type="button"
                     >
-                      <HugeiconsIcon icon={Download01Icon} className="h-3 w-3" />
+                      <HugeiconsIcon
+                        className="h-3 w-3"
+                        icon={Download01Icon}
+                      />
                     </button>
                   </div>
                 ))}
@@ -380,21 +420,27 @@ Generated with LocalForge Favicon Maker
 
             {/* Browser preview */}
             <div className="mb-4">
-              <h3 className="text-sm font-medium mb-3">Browser Tab Preview</h3>
-              <div className="bg-muted rounded-lg p-4">
-                <div className="flex items-center gap-2 bg-background rounded-t-lg px-3 py-2 border-b border-border max-w-xs">
-                  <div className="w-4 h-4 rounded overflow-hidden shrink-0">
+              <h3 className="mb-3 font-medium text-sm">Browser Tab Preview</h3>
+              <div className="rounded-lg bg-muted p-4">
+                <div className="flex max-w-xs items-center gap-2 rounded-t-lg border-border border-b bg-background px-3 py-2">
+                  <div className="h-4 w-4 shrink-0 overflow-hidden rounded">
                     {/* biome-ignore lint/nursery/noImgElement: tab preview */}
                     <img
-                      src={result.favicons.find((f) => f.name === "favicon-16x16.png")?.url || result.favicons[0]?.url}
                       alt="Tab favicon"
-                      className="w-full h-full"
+                      className="h-full w-full"
+                      src={
+                        result.favicons.find(
+                          (f) => f.name === "favicon-16x16.png"
+                        )?.url || result.favicons[0]?.url
+                      }
                     />
                   </div>
-                  <span className="text-xs truncate flex-1">{appName || "My Website"}</span>
-                  <span className="text-xs text-muted-foreground">×</span>
+                  <span className="flex-1 truncate text-xs">
+                    {appName || "My Website"}
+                  </span>
+                  <span className="text-muted-foreground text-xs">×</span>
                 </div>
-                <div className="bg-background rounded-b-lg h-24 flex items-center justify-center text-xs text-muted-foreground">
+                <div className="flex h-24 items-center justify-center rounded-b-lg bg-background text-muted-foreground text-xs">
                   Page content
                 </div>
               </div>
@@ -405,135 +451,173 @@ Generated with LocalForge Favicon Maker
 
       {/* Sidebar with code snippets and settings */}
       {status === "done" && result && (
-        <div className="w-full lg:w-80 xl:w-96 shrink-0 lg:sticky lg:top-0 overflow-auto">
+        <div className="w-full shrink-0 overflow-auto lg:sticky lg:top-0 lg:w-80 xl:w-96">
           <Tabs defaultValue="html">
             <TabsList className="w-full">
-              <TabsTrigger value="html" className="flex-1 cursor-pointer">HTML</TabsTrigger>
-              <TabsTrigger value="manifest" className="flex-1 cursor-pointer">Manifest</TabsTrigger>
-              <TabsTrigger value="settings" className="flex-1 cursor-pointer">Settings</TabsTrigger>
+              <TabsTrigger className="flex-1 cursor-pointer" value="html">
+                HTML
+              </TabsTrigger>
+              <TabsTrigger className="flex-1 cursor-pointer" value="manifest">
+                Manifest
+              </TabsTrigger>
+              <TabsTrigger className="flex-1 cursor-pointer" value="settings">
+                Settings
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="html" className="mt-4">
+            <TabsContent className="mt-4" value="html">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium">HTML Code</h3>
+                  <h3 className="font-medium text-sm">HTML Code</h3>
                   <Button
-                    variant="ghost"
-                    size="sm"
+                    className="h-7 cursor-pointer gap-1.5 px-2"
                     onClick={() => handleCopy(result.htmlCode, "html")}
-                    className="cursor-pointer gap-1.5 h-7 px-2"
+                    size="sm"
+                    variant="ghost"
                   >
                     <HugeiconsIcon
-                      icon={copiedField === "html" ? CheckmarkCircle01Icon : Copy01Icon}
                       className="h-3 w-3"
+                      icon={
+                        copiedField === "html"
+                          ? CheckmarkCircle01Icon
+                          : Copy01Icon
+                      }
                     />
                     {copiedField === "html" ? "Copied!" : "Copy"}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Add this to the &lt;head&gt; section of your HTML:
                 </p>
-                <pre className="bg-muted p-3 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap break-all">
+                <pre className="overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-muted p-3 text-xs">
                   <code>{result.htmlCode}</code>
                 </pre>
               </div>
             </TabsContent>
 
-            <TabsContent value="manifest" className="mt-4">
+            <TabsContent className="mt-4" value="manifest">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium">site.webmanifest</h3>
+                  <h3 className="font-medium text-sm">site.webmanifest</h3>
                   <div className="flex gap-1">
                     <Button
-                      variant="ghost"
+                      className="h-7 cursor-pointer gap-1.5 px-2"
+                      onClick={() =>
+                        handleCopy(
+                          generateManifest(
+                            appName,
+                            appName,
+                            themeColor,
+                            bgColor
+                          ),
+                          "manifest"
+                        )
+                      }
                       size="sm"
-                      onClick={() => handleCopy(generateManifest(appName, appName, themeColor, bgColor), "manifest")}
-                      className="cursor-pointer gap-1.5 h-7 px-2"
+                      variant="ghost"
                     >
                       <HugeiconsIcon
-                        icon={copiedField === "manifest" ? CheckmarkCircle01Icon : Copy01Icon}
                         className="h-3 w-3"
+                        icon={
+                          copiedField === "manifest"
+                            ? CheckmarkCircle01Icon
+                            : Copy01Icon
+                        }
                       />
                       {copiedField === "manifest" ? "Copied!" : "Copy"}
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      className="h-7 cursor-pointer gap-1.5 px-2"
                       onClick={handleDownloadManifest}
-                      className="cursor-pointer gap-1.5 h-7 px-2"
+                      size="sm"
+                      variant="ghost"
                     >
-                      <HugeiconsIcon icon={Download01Icon} className="h-3 w-3" />
+                      <HugeiconsIcon
+                        className="h-3 w-3"
+                        icon={Download01Icon}
+                      />
                     </Button>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Web app manifest for PWA support:
                 </p>
-                <pre className="bg-muted p-3 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap break-all max-h-64">
-                  <code>{generateManifest(appName, appName, themeColor, bgColor)}</code>
+                <pre className="max-h-64 overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-muted p-3 text-xs">
+                  <code>
+                    {generateManifest(appName, appName, themeColor, bgColor)}
+                  </code>
                 </pre>
               </div>
             </TabsContent>
 
-            <TabsContent value="settings" className="mt-4">
+            <TabsContent className="mt-4" value="settings">
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Manifest Settings</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="font-medium text-sm">Manifest Settings</h3>
+                <p className="text-muted-foreground text-xs">
                   Customize the manifest file for your PWA:
                 </p>
 
                 <div className="space-y-3">
                   <div>
-                    <label htmlFor="app-name" className="text-xs font-medium block mb-1.5">
+                    <label
+                      className="mb-1.5 block font-medium text-xs"
+                      htmlFor="app-name"
+                    >
                       App Name
                     </label>
                     <Input
+                      className="h-8 text-sm"
                       id="app-name"
-                      value={appName}
                       onChange={(e) => setAppName(e.target.value)}
                       placeholder="My App"
-                      className="h-8 text-sm"
+                      value={appName}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="theme-color" className="text-xs font-medium block mb-1.5">
+                    <label
+                      className="mb-1.5 block font-medium text-xs"
+                      htmlFor="theme-color"
+                    >
                       Theme Color
                     </label>
                     <div className="flex gap-2">
                       <input
-                        type="color"
+                        className="h-8 w-10 cursor-pointer rounded border border-border"
                         id="theme-color"
-                        value={themeColor}
                         onChange={(e) => setThemeColor(e.target.value)}
-                        className="h-8 w-10 rounded cursor-pointer border border-border"
+                        type="color"
+                        value={themeColor}
                       />
                       <Input
-                        value={themeColor}
+                        className="h-8 flex-1 text-sm"
                         onChange={(e) => setThemeColor(e.target.value)}
                         placeholder="#ffffff"
-                        className="h-8 text-sm flex-1"
+                        value={themeColor}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="bg-color" className="text-xs font-medium block mb-1.5">
+                    <label
+                      className="mb-1.5 block font-medium text-xs"
+                      htmlFor="bg-color"
+                    >
                       Background Color
                     </label>
                     <div className="flex gap-2">
                       <input
-                        type="color"
+                        className="h-8 w-10 cursor-pointer rounded border border-border"
                         id="bg-color"
-                        value={bgColor}
                         onChange={(e) => setBgColor(e.target.value)}
-                        className="h-8 w-10 rounded cursor-pointer border border-border"
+                        type="color"
+                        value={bgColor}
                       />
                       <Input
-                        value={bgColor}
+                        className="h-8 flex-1 text-sm"
                         onChange={(e) => setBgColor(e.target.value)}
                         placeholder="#ffffff"
-                        className="h-8 text-sm flex-1"
+                        value={bgColor}
                       />
                     </div>
                   </div>
@@ -543,16 +627,21 @@ Generated with LocalForge Favicon Maker
           </Tabs>
 
           {/* File list */}
-          <div className="mt-6 pt-4 border-t border-border">
-            <h3 className="text-sm font-medium mb-3">Generated Files</h3>
+          <div className="mt-6 border-border border-t pt-4">
+            <h3 className="mb-3 font-medium text-sm">Generated Files</h3>
             <div className="space-y-1.5">
               {FAVICON_SIZES.map((size) => (
-                <div key={size.name} className="flex items-center justify-between text-xs py-1">
+                <div
+                  className="flex items-center justify-between py-1 text-xs"
+                  key={size.name}
+                >
                   <span className="text-muted-foreground">{size.name}</span>
-                  <span className="text-foreground/60">{size.width}×{size.height}</span>
+                  <span className="text-foreground/60">
+                    {size.width}×{size.height}
+                  </span>
                 </div>
               ))}
-              <div className="flex items-center justify-between text-xs py-1">
+              <div className="flex items-center justify-between py-1 text-xs">
                 <span className="text-muted-foreground">site.webmanifest</span>
                 <span className="text-foreground/60">JSON</span>
               </div>
@@ -563,9 +652,12 @@ Generated with LocalForge Favicon Maker
 
       {/* Drag overlay */}
       {isDragging && (
-        <div className="absolute inset-0 z-50 bg-primary/20 backdrop-blur-sm flex items-center justify-center pointer-events-none">
-          <div className="bg-background rounded-lg p-8 text-center shadow-lg">
-            <HugeiconsIcon icon={ImageUploadIcon} className="h-16 w-16 mx-auto text-primary mb-4" />
+        <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-primary/20 backdrop-blur-sm">
+          <div className="rounded-lg bg-background p-8 text-center shadow-lg">
+            <HugeiconsIcon
+              className="mx-auto mb-4 h-16 w-16 text-primary"
+              icon={ImageUploadIcon}
+            />
             <p className="text-lg">Drop image to create favicons</p>
           </div>
         </div>

@@ -91,13 +91,15 @@ describe("urlEncodeSvg", () => {
   });
 
   it("should encode hash symbols", () => {
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg"><rect fill="#f00" /></svg>';
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg"><rect fill="#f00" /></svg>';
     const result = urlEncodeSvg(svg);
     expect(result).toContain("%23");
   });
 
   it("should trim whitespace and collapse multiple spaces", () => {
-    const svg = '  <svg xmlns="http://www.w3.org/2000/svg">  <rect />  </svg>  ';
+    const svg =
+      '  <svg xmlns="http://www.w3.org/2000/svg">  <rect />  </svg>  ';
     const result = urlEncodeSvg(svg);
     expect(result).not.toMatch(/\s{2,}/);
   });
@@ -113,7 +115,8 @@ describe("base64EncodeSvg", () => {
   });
 
   it("should handle unicode characters", () => {
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg"><text>日本語</text></svg>';
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg"><text>日本語</text></svg>';
     const result = base64EncodeSvg(svg);
     expect(result).toBeTruthy();
     // Should decode back properly
@@ -137,7 +140,8 @@ describe("createDataUri", () => {
 });
 
 describe("convertSvgToCss", () => {
-  const validSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>';
+  const validSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>';
 
   it("should convert valid SVG successfully", () => {
     const result = convertSvgToCss(validSvg);
@@ -207,6 +211,6 @@ describe("formatBytes", () => {
     expect(formatBytes(100)).toBe("100 B");
     expect(formatBytes(1024)).toBe("1.00 KB");
     expect(formatBytes(1536)).toBe("1.50 KB");
-    expect(formatBytes(1048576)).toBe("1.00 MB");
+    expect(formatBytes(1_048_576)).toBe("1.00 MB");
   });
 });

@@ -502,7 +502,7 @@ const VirtualizedTable = ({
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* Fixed Header */}
-      <div className="flex shrink-0 border-b bg-card px-4 py-2 text-xs font-medium text-muted-foreground">
+      <div className="flex shrink-0 border-b bg-card px-4 py-2 font-medium text-muted-foreground text-xs">
         <div className="w-[60px] shrink-0">Symbol</div>
         <div className="w-[120px] shrink-0">Name</div>
         <div className="w-[80px] shrink-0">Unicode</div>

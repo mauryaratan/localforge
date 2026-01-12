@@ -32,11 +32,7 @@ export const metadata: Metadata = {
   },
 };
 
-const ImageCompressorLayout = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+const ImageCompressorLayout = ({ children }: { children: React.ReactNode }) => {
   return children;
 };
 

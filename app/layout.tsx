@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -13,16 +13,16 @@ import {
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 
-const berkeleyMono = localFont({
-  src: "./BerkeleyMono-Regular.woff2",
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 const siteConfig = {
   name: "LocalForge",
   description:
     "Privacy-first developer utilities that run entirely in your browser. Format JSON, encode/decode Base64, parse URLs, generate UUIDs, and more — your data never leaves your device.",
-  url: "https://localforge.app",
-  author: "@mauryaratan",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://localforge.app",
 };
 
 export const metadata: Metadata = {
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
     "pwa",
     "web tools",
   ],
-  authors: [{ name: siteConfig.author }],
-  creator: siteConfig.author,
+  authors: [{ name: "LocalForge Contributors" }],
+  creator: "LocalForge Contributors",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${siteConfig.name} — Privacy-First Developer Utilities`,
     description: siteConfig.description,
-    creator: siteConfig.author,
+    creator: "@localforge",
   },
   robots: {
     index: true,
@@ -92,7 +92,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${berkeleyMono.className} antialiased`}>
+      <body className={`${jetbrainsMono.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -114,7 +114,7 @@ export default function RootLayout({
           </SidebarProvider>
           <Toaster position="bottom-right" />
         </ThemeProvider>
-        <Analytics />
+        {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true" && <Analytics />}
       </body>
     </html>
   );

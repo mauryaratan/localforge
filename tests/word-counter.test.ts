@@ -150,9 +150,7 @@ describe("word-counter", () => {
 
   describe("getLongestSentenceWords", () => {
     it("should return longest sentence word count", () => {
-      expect(
-        getLongestSentenceWords("Hi. Hello world today. Bye.")
-      ).toBe(3);
+      expect(getLongestSentenceWords("Hi. Hello world today. Bye.")).toBe(3);
     });
 
     it("should return 0 for empty string", () => {
@@ -162,9 +160,7 @@ describe("word-counter", () => {
 
   describe("getShortestSentenceWords", () => {
     it("should return shortest sentence word count", () => {
-      expect(
-        getShortestSentenceWords("Hi. Hello world today. Bye.")
-      ).toBe(1);
+      expect(getShortestSentenceWords("Hi. Hello world today. Bye.")).toBe(1);
     });
 
     it("should return 0 for empty string", () => {

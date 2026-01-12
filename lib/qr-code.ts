@@ -112,15 +112,16 @@ export const formatQRContent = (
       }
       return content;
 
-    case "wifi":
+    case "wifi": {
       // WiFi QR format: WIFI:T:<encryption>;S:<ssid>;P:<password>;H:<hidden>;;
       const ssid = metadata?.ssid || content;
       const password = metadata?.password || "";
       const encryption = metadata?.encryption || "WPA";
       const hidden = metadata?.hidden ? "true" : "false";
       return `WIFI:T:${encryption};S:${ssid};P:${password};H:${hidden};;`;
+    }
 
-    case "email":
+    case "email": {
       // mailto: format
       const subject = metadata?.subject
         ? `?subject=${encodeURIComponent(metadata.subject)}`
@@ -129,18 +130,21 @@ export const formatQRContent = (
         ? `${subject ? "&" : "?"}body=${encodeURIComponent(metadata.body)}`
         : "";
       return `mailto:${content}${subject}${body}`;
+    }
 
-    case "phone":
+    case "phone": {
       // tel: format - strip non-numeric except +
       const cleaned = content.replace(/[^\d+]/g, "");
       return `tel:${cleaned}`;
+    }
 
-    case "sms":
+    case "sms": {
       // sms: format
       const smsBody = metadata?.body
         ? `?body=${encodeURIComponent(metadata.body)}`
         : "";
       return `sms:${content.replace(/[^\d+]/g, "")}${smsBody}`;
+    }
 
     case "text":
     default:
@@ -243,7 +247,7 @@ export const generateQRCodeToElement = async (
  */
 export const downloadQRCodeFromElement = async (
   element: HTMLElement,
-  filename: string = "qrcode"
+  filename = "qrcode"
 ): Promise<boolean> => {
   try {
     const canvas = element.querySelector("canvas");

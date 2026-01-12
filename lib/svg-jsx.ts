@@ -30,8 +30,8 @@ const defaultOptions: ConversionOptions = {
  * Map of SVG attributes to their JSX equivalents
  */
 const attributeMap: Record<string, string> = {
-  "class": "className",
-  "for": "htmlFor",
+  class: "className",
+  for: "htmlFor",
   "xlink:href": "xlinkHref",
   "xlink:title": "xlinkTitle",
   "xlink:show": "xlinkShow",
@@ -126,7 +126,7 @@ export const toCamelCase = (str: string): string => {
   if (str.startsWith("aria-") || str.startsWith("data-")) {
     return str;
   }
-  
+
   return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 };
 
@@ -138,48 +138,52 @@ export const convertAttributeName = (attr: string): string => {
   if (attributeMap[attr]) {
     return attributeMap[attr];
   }
-  
+
   // Convert hyphenated attributes to camelCase
   if (attr.includes("-")) {
     return toCamelCase(attr);
   }
-  
+
   return attr;
 };
 
 /**
  * Parses inline CSS style string to JSX style object
  */
-export const parseStyleToJsx = (styleStr: string, singleQuotes: boolean): string => {
+export const parseStyleToJsx = (
+  styleStr: string,
+  singleQuotes: boolean
+): string => {
   if (!styleStr.trim()) return "{}";
-  
+
   const quote = singleQuotes ? "'" : '"';
-  const styles = styleStr.split(";").filter(s => s.trim());
+  const styles = styleStr.split(";").filter((s) => s.trim());
   const jsxStyles: string[] = [];
-  
+
   for (const style of styles) {
     const colonIndex = style.indexOf(":");
     if (colonIndex === -1) continue;
-    
+
     const prop = style.slice(0, colonIndex).trim();
     const value = style.slice(colonIndex + 1).trim();
-    
-    if (!prop || !value) continue;
-    
+
+    if (!(prop && value)) continue;
+
     // Convert CSS property to camelCase
     const jsxProp = toCamelCase(prop);
-    
+
     // Check if value is numeric (for unitless values)
     const numericValue = Number.parseFloat(value);
-    const isNumeric = !Number.isNaN(numericValue) && String(numericValue) === value;
-    
+    const isNumeric =
+      !Number.isNaN(numericValue) && String(numericValue) === value;
+
     if (isNumeric) {
       jsxStyles.push(`${jsxProp}: ${value}`);
     } else {
       jsxStyles.push(`${jsxProp}: ${quote}${value}${quote}`);
     }
   }
-  
+
   return `{ ${jsxStyles.join(", ")} }`;
 };
 
@@ -193,18 +197,20 @@ const generateIdPrefix = (): string => {
 /**
  * Validates if the input is valid SVG markup
  */
-export const validateSvg = (input: string): { isValid: boolean; error?: string } => {
+export const validateSvg = (
+  input: string
+): { isValid: boolean; error?: string } => {
   const trimmed = input.trim();
-  
+
   if (!trimmed) {
     return { isValid: false, error: "Please enter SVG code" };
   }
 
-  if (!trimmed.startsWith("<svg") && !trimmed.startsWith("<?xml")) {
+  if (!(trimmed.startsWith("<svg") || trimmed.startsWith("<?xml"))) {
     return { isValid: false, error: "Input must start with <svg or <?xml" };
   }
 
-  if (!trimmed.includes("</svg>") && !trimmed.match(/<svg[^>]*\/>/)) {
+  if (!(trimmed.includes("</svg>") || trimmed.match(/<svg[^>]*\/>/))) {
     return { isValid: false, error: "SVG tag is not properly closed" };
   }
 
@@ -234,61 +240,72 @@ export const convertAttributes = (
   idPrefix?: string
 ): string => {
   if (!attributesStr.trim()) return "";
-  
+
   const quote = options.singleQuotes ? "'" : '"';
   const result: string[] = [];
-  
+
   // Match attributes including those with complex values (like xmlns)
-  const attrRegex = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'))?/g;
+  const attrRegex =
+    /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'))?/g;
   let match: RegExpExecArray | null;
-  
+
   while ((match = attrRegex.exec(attributesStr)) !== null) {
     const [, attrName, doubleValue, singleValue] = match;
     const value = doubleValue ?? singleValue ?? "";
-    
+
     // Convert attribute name
     const jsxAttrName = convertAttributeName(attrName);
-    
+
     // Skip xmlns:xlink if we're using xlinkHref
     if (attrName === "xmlns:xlink") {
       continue;
     }
-    
+
     // Handle style attribute specially
     if (attrName === "style") {
       const jsxStyle = parseStyleToJsx(value, options.singleQuotes);
       result.push(`style={${jsxStyle}}`);
       continue;
     }
-    
+
     // Handle id attribute with cleanup option
     if (attrName === "id" && options.cleanupIds && idPrefix) {
       result.push(`${jsxAttrName}=${quote}${idPrefix}-${value}${quote}`);
       continue;
     }
-    
+
     // Handle url() references in attributes (for gradients, clips, etc.)
     if (options.cleanupIds && idPrefix && value.includes("url(#")) {
-      const updatedValue = value.replace(/url\(#([^)]+)\)/g, `url(#${idPrefix}-$1)`);
+      const updatedValue = value.replace(
+        /url\(#([^)]+)\)/g,
+        `url(#${idPrefix}-$1)`
+      );
       result.push(`${jsxAttrName}=${quote}${updatedValue}${quote}`);
       continue;
     }
-    
+
     // Handle href referencing internal IDs
-    if (options.cleanupIds && idPrefix && (attrName === "href" || attrName === "xlink:href") && value.startsWith("#")) {
-      result.push(`${jsxAttrName}=${quote}#${idPrefix}-${value.slice(1)}${quote}`);
+    if (
+      options.cleanupIds &&
+      idPrefix &&
+      (attrName === "href" || attrName === "xlink:href") &&
+      value.startsWith("#")
+    ) {
+      result.push(
+        `${jsxAttrName}=${quote}#${idPrefix}-${value.slice(1)}${quote}`
+      );
       continue;
     }
-    
+
     // Boolean attributes (no value)
     if (value === "" && match[0] === attrName) {
       result.push(`${jsxAttrName}={true}`);
       continue;
     }
-    
+
     result.push(`${jsxAttrName}=${quote}${value}${quote}`);
   }
-  
+
   return result.join(" ");
 };
 
@@ -301,7 +318,7 @@ export const convertSvgToJsx = (
 ): ConversionResult => {
   const opts = { ...defaultOptions, ...options };
   const validation = validateSvg(svg);
-  
+
   if (!validation.isValid) {
     return {
       isValid: false,
@@ -311,25 +328,25 @@ export const convertSvgToJsx = (
       outputSize: 0,
     };
   }
-  
+
   const originalSize = new Blob([svg]).size;
   let result = svg.trim();
-  
+
   // Generate ID prefix if cleanup is enabled
   const idPrefix = opts.cleanupIds ? generateIdPrefix() : undefined;
-  
+
   // Remove XML declaration
   result = result.replace(/<\?xml[^?]*\?>/gi, "");
-  
+
   // Remove DOCTYPE
   result = result.replace(/<!DOCTYPE[^>]*>/gi, "");
-  
+
   // Remove comments
   result = result.replace(/<!--[\s\S]*?-->/g, "");
-  
+
   // Remove CDATA (but keep content)
   result = result.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
-  
+
   // Process all tags with attributes
   result = result.replace(
     /<([a-zA-Z][a-zA-Z0-9]*)((?:\s+[a-zA-Z_:][-a-zA-Z0-9_:.]*(?:\s*=\s*(?:"[^"]*"|'[^']*'))?)*)\s*(\/?)>/g,
@@ -339,18 +356,15 @@ export const convertSvgToJsx = (
       return `<${tagName}${space}${convertedAttrs}${selfClosing ? " /" : ""}>`;
     }
   );
-  
+
   // Add spread props to root SVG element if enabled
   if (opts.spreadProps) {
-    result = result.replace(
-      /^(<svg\s+[^>]*)(\/?>)/,
-      "$1 {...props}$2"
-    );
+    result = result.replace(/^(<svg\s+[^>]*)(\/?>)/, "$1 {...props}$2");
   }
-  
+
   // Format output based on selected format
   const quote = opts.singleQuotes ? "'" : '"';
-  
+
   if (opts.outputFormat === "jsx") {
     // Just the JSX element
     const outputSize = new Blob([result]).size;
@@ -361,16 +375,17 @@ export const convertSvgToJsx = (
       outputSize,
     };
   }
-  
+
   // Component wrapper
   const componentName = opts.componentName || "SvgIcon";
-  const propsType = opts.outputFormat === "componentTs" 
-    ? ": React.SVGProps<SVGSVGElement>" 
-    : "";
+  const propsType =
+    opts.outputFormat === "componentTs"
+      ? ": React.SVGProps<SVGSVGElement>"
+      : "";
   const memoWrapper = opts.memo;
-  
+
   let component: string;
-  
+
   if (opts.outputFormat === "componentTs") {
     if (memoWrapper) {
       component = `import { memo } from ${quote}react${quote};
@@ -389,9 +404,8 @@ export default ${componentName};`;
 
 export default ${componentName};`;
     }
-  } else {
-    if (memoWrapper) {
-      component = `import { memo } from ${quote}react${quote};
+  } else if (memoWrapper) {
+    component = `import { memo } from ${quote}react${quote};
 
 const ${componentName} = memo((props) => (
   ${result.trim()}
@@ -400,17 +414,16 @@ const ${componentName} = memo((props) => (
 ${componentName}.displayName = ${quote}${componentName}${quote};
 
 export default ${componentName};`;
-    } else {
-      component = `const ${componentName} = (props) => (
+  } else {
+    component = `const ${componentName} = (props) => (
   ${result.trim()}
 );
 
 export default ${componentName};`;
-    }
   }
-  
+
   const outputSize = new Blob([component]).size;
-  
+
   return {
     isValid: true,
     output: component,
@@ -424,11 +437,11 @@ export default ${componentName};`;
  */
 export const formatBytes = (bytes: number): string => {
   if (bytes === 0) return "0 B";
-  
+
   const units = ["B", "KB", "MB"];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  const size = bytes / Math.pow(1024, i);
-  
+  const size = bytes / 1024 ** i;
+
   return `${size.toFixed(i > 0 ? 2 : 0)} ${units[i]}`;
 };
 

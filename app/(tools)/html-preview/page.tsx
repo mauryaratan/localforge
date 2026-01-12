@@ -45,8 +45,8 @@ import {
   formatHtml,
   getHtmlStats,
   minifyHtml,
-  validateHtml,
   type ViewportPreset,
+  validateHtml,
   viewportPresets,
 } from "@/lib/html-preview";
 
@@ -118,7 +118,7 @@ const HtmlPreviewPage = () => {
 
   // Update iframe content
   useEffect(() => {
-    if (!iframeRef.current || !previewHtml) {
+    if (!(iframeRef.current && previewHtml)) {
       return;
     }
 
@@ -193,16 +193,16 @@ const HtmlPreviewPage = () => {
       return;
     }
 
-    if (!isFullscreen) {
-      fullscreenRef.current.requestFullscreen?.().catch(() => {
-        setIsFullscreen(true);
-      });
-      setIsFullscreen(true);
-    } else {
+    if (isFullscreen) {
       document.exitFullscreen?.().catch(() => {
         setIsFullscreen(false);
       });
       setIsFullscreen(false);
+    } else {
+      fullscreenRef.current.requestFullscreen?.().catch(() => {
+        setIsFullscreen(true);
+      });
+      setIsFullscreen(true);
     }
   }, [isFullscreen]);
 
@@ -233,7 +233,7 @@ const HtmlPreviewPage = () => {
         {showViewportControls && (
           <div className="flex items-center justify-between border-b px-3 py-2">
             <div className="flex items-center gap-2">
-              <ToggleGroup variant="outline" size="sm">
+              <ToggleGroup size="sm" variant="outline">
                 <Tooltip>
                   <TooltipTrigger
                     render={
@@ -544,7 +544,7 @@ const HtmlPreviewPage = () => {
               <div className="p-4">
                 <Textarea
                   aria-label="HTML input"
-                  className="h-[500px] max-h-[700px] min-h-[300px] resize-y field-sizing-fixed! font-mono text-xs leading-relaxed"
+                  className="field-sizing-fixed! h-[500px] max-h-[700px] min-h-[300px] resize-y font-mono text-xs leading-relaxed"
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="<!DOCTYPE html>\n<html>\n<head>\n  <title>My Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>"
                   spellCheck={false}
@@ -567,7 +567,7 @@ const HtmlPreviewPage = () => {
                 <ResizablePanel defaultSize={50} minSize={25}>
                   <Textarea
                     aria-label="HTML input"
-                    className="h-full min-h-[500px] resize-none rounded-none border-0 field-sizing-fixed! font-mono text-xs leading-relaxed focus-visible:ring-0"
+                    className="field-sizing-fixed! h-full min-h-[500px] resize-none rounded-none border-0 font-mono text-xs leading-relaxed focus-visible:ring-0"
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="<!DOCTYPE html>\n<html>\n<head>\n  <title>My Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>"
                     spellCheck={false}

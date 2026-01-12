@@ -3,7 +3,6 @@
 import {
   Copy01Icon,
   Delete02Icon,
-  FileEditIcon,
   Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -15,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -83,7 +82,15 @@ const SvgToJsxPage = () => {
       singleQuotes,
       cleanupIds,
     });
-  }, [input, outputFormat, componentName, memo, spreadProps, singleQuotes, cleanupIds]);
+  }, [
+    input,
+    outputFormat,
+    componentName,
+    memo,
+    spreadProps,
+    singleQuotes,
+    cleanupIds,
+  ]);
 
   const handleCopy = useCallback(async () => {
     if (!result?.output) return;
@@ -125,7 +132,8 @@ const SvgToJsxPage = () => {
         <div className="flex flex-col gap-1">
           <h1 className="font-medium text-lg">SVG to JSX</h1>
           <p className="text-muted-foreground text-xs">
-            Convert SVG code to JSX for React components with proper attribute transformations
+            Convert SVG code to JSX for React components with proper attribute
+            transformations
           </p>
         </div>
 
@@ -159,7 +167,7 @@ const SvgToJsxPage = () => {
           <CardContent className="p-0">
             <Textarea
               aria-label="SVG input"
-              className="min-h-[200px] max-h-[400px] resize-y rounded-none border-0 field-sizing-fixed! font-mono text-xs leading-relaxed focus-visible:ring-0"
+              className="field-sizing-fixed! max-h-[400px] min-h-[200px] resize-y rounded-none border-0 font-mono text-xs leading-relaxed focus-visible:ring-0"
               onChange={(e) => setInput(e.target.value)}
               placeholder={`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2">\n  <circle cx="12" cy="12" r="10" />\n</svg>`}
               spellCheck={false}
@@ -192,15 +200,15 @@ const SvgToJsxPage = () => {
               <CardTitle>JSX Output</CardTitle>
               <div className="flex items-center gap-2">
                 <Tabs
-                  value={outputFormat}
                   onValueChange={(v) => setOutputFormat(v as OutputFormat)}
+                  value={outputFormat}
                 >
                   <TabsList className="h-8">
                     {(Object.keys(outputFormatLabels) as OutputFormat[]).map(
                       (format) => (
                         <TabsTrigger
+                          className="px-2 text-xs"
                           key={format}
-                          className="text-xs px-2"
                           value={format}
                         >
                           {outputFormatLabels[format]}
@@ -223,9 +231,14 @@ const SvgToJsxPage = () => {
                       />
                     }
                   >
-                    <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
+                    <HugeiconsIcon
+                      icon={copied ? Tick01Icon : Copy01Icon}
+                      size={14}
+                    />
                   </TooltipTrigger>
-                  <TooltipContent>{copied ? "Copied!" : "Copy JSX"}</TooltipContent>
+                  <TooltipContent>
+                    {copied ? "Copied!" : "Copy JSX"}
+                  </TooltipContent>
                 </Tooltip>
               </div>
             </div>
@@ -233,7 +246,7 @@ const SvgToJsxPage = () => {
           <CardContent className="p-0">
             <Textarea
               aria-label="JSX output"
-              className="min-h-[200px] max-h-[400px] resize-y rounded-none border-0 field-sizing-fixed! font-mono text-xs leading-relaxed focus-visible:ring-0"
+              className="field-sizing-fixed! max-h-[400px] min-h-[200px] resize-y rounded-none border-0 font-mono text-xs leading-relaxed focus-visible:ring-0"
               placeholder="JSX output will appear here..."
               readOnly
               spellCheck={false}
@@ -255,7 +268,7 @@ const SvgToJsxPage = () => {
                         <button
                           aria-label="White background"
                           aria-pressed={previewBg === "white"}
-                          className={`cursor-pointer flex items-center justify-center rounded-md border p-1.5 transition-colors ${previewBg === "white" ? "bg-muted border-primary" : "hover:bg-muted/50"}`}
+                          className={`flex cursor-pointer items-center justify-center rounded-md border p-1.5 transition-colors ${previewBg === "white" ? "border-primary bg-muted" : "hover:bg-muted/50"}`}
                           onClick={() => setPreviewBg("white")}
                           tabIndex={0}
                           type="button"
@@ -272,7 +285,7 @@ const SvgToJsxPage = () => {
                         <button
                           aria-label="Checkered background"
                           aria-pressed={previewBg === "checkered"}
-                          className={`cursor-pointer flex items-center justify-center rounded-md border p-1.5 transition-colors ${previewBg === "checkered" ? "bg-muted border-primary" : "hover:bg-muted/50"}`}
+                          className={`flex cursor-pointer items-center justify-center rounded-md border p-1.5 transition-colors ${previewBg === "checkered" ? "border-primary bg-muted" : "hover:bg-muted/50"}`}
                           onClick={() => setPreviewBg("checkered")}
                           tabIndex={0}
                           type="button"
@@ -289,7 +302,7 @@ const SvgToJsxPage = () => {
                         <button
                           aria-label="Dark background"
                           aria-pressed={previewBg === "black"}
-                          className={`cursor-pointer flex items-center justify-center rounded-md border p-1.5 transition-colors ${previewBg === "black" ? "bg-muted border-primary" : "hover:bg-muted/50"}`}
+                          className={`flex cursor-pointer items-center justify-center rounded-md border p-1.5 transition-colors ${previewBg === "black" ? "border-primary bg-muted" : "hover:bg-muted/50"}`}
                           onClick={() => setPreviewBg("black")}
                           tabIndex={0}
                           type="button"
@@ -308,7 +321,7 @@ const SvgToJsxPage = () => {
                 className={`flex items-center justify-center rounded-md border p-8 ${getPreviewBgClass(previewBg)}`}
               >
                 <div
-                  className="size-24 [&>svg]:w-full [&>svg]:h-full"
+                  className="size-24 [&>svg]:h-full [&>svg]:w-full"
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - using user-provided SVG for preview
                   dangerouslySetInnerHTML={{ __html: input }}
                 />
@@ -329,13 +342,13 @@ const SvgToJsxPage = () => {
             {/* Component Name */}
             {outputFormat !== "jsx" && (
               <div className="flex flex-col gap-2">
-                <Label htmlFor="component-name" className="text-xs">
+                <Label className="text-xs" htmlFor="component-name">
                   Component Name
                 </Label>
                 <Input
-                  id="component-name"
                   aria-label="Component name"
                   className="h-8 text-xs"
+                  id="component-name"
                   onChange={(e) => setComponentName(e.target.value)}
                   placeholder="SvgIcon"
                   value={componentName}
@@ -345,14 +358,14 @@ const SvgToJsxPage = () => {
 
             {/* Spread Props */}
             <div className="flex items-center justify-between">
-              <Label htmlFor="spread-props" className="text-xs">
+              <Label className="text-xs" htmlFor="spread-props">
                 Spread props on SVG
               </Label>
               <Switch
-                id="spread-props"
                 aria-label="Spread props on SVG element"
                 checked={spreadProps}
                 className="cursor-pointer"
+                id="spread-props"
                 onCheckedChange={setSpreadProps}
               />
             </div>
@@ -360,14 +373,14 @@ const SvgToJsxPage = () => {
             {/* React.memo */}
             {outputFormat !== "jsx" && (
               <div className="flex items-center justify-between">
-                <Label htmlFor="memo" className="text-xs">
+                <Label className="text-xs" htmlFor="memo">
                   Wrap with React.memo
                 </Label>
                 <Switch
-                  id="memo"
                   aria-label="Wrap component with React.memo"
                   checked={memo}
                   className="cursor-pointer"
+                  id="memo"
                   onCheckedChange={setMemo}
                 />
               </div>
@@ -375,28 +388,28 @@ const SvgToJsxPage = () => {
 
             {/* Single Quotes */}
             <div className="flex items-center justify-between">
-              <Label htmlFor="single-quotes" className="text-xs">
+              <Label className="text-xs" htmlFor="single-quotes">
                 Use single quotes
               </Label>
               <Switch
-                id="single-quotes"
                 aria-label="Use single quotes instead of double quotes"
                 checked={singleQuotes}
                 className="cursor-pointer"
+                id="single-quotes"
                 onCheckedChange={setSingleQuotes}
               />
             </div>
 
             {/* Cleanup IDs */}
             <div className="flex items-center justify-between">
-              <Label htmlFor="cleanup-ids" className="text-xs">
+              <Label className="text-xs" htmlFor="cleanup-ids">
                 Prefix IDs (avoid conflicts)
               </Label>
               <Switch
-                id="cleanup-ids"
                 aria-label="Prefix IDs to avoid conflicts when using multiple SVGs"
                 checked={cleanupIds}
                 className="cursor-pointer"
+                id="cleanup-ids"
                 onCheckedChange={setCleanupIds}
               />
             </div>
@@ -410,25 +423,27 @@ const SvgToJsxPage = () => {
           </CardHeader>
           <CardContent className="pt-4">
             <div className="flex flex-col gap-2">
-              {(Object.keys(exampleSvgs) as Array<keyof typeof exampleSvgs>).map(
-                (key) => (
-                  <button
-                    key={key}
-                    aria-label={`Load ${exampleLabels[key]} example`}
-                    className="cursor-pointer flex items-center gap-3 rounded-md border bg-muted/30 px-3 py-2 text-left text-xs transition-colors hover:bg-muted"
-                    onClick={() => handleLoadExample(key)}
-                    tabIndex={0}
-                    type="button"
-                  >
-                    <div
-                      className="size-5 shrink-0 [&>svg]:w-full [&>svg]:h-full"
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - using trusted example SVGs
-                      dangerouslySetInnerHTML={{ __html: exampleSvgs[key] }}
-                    />
-                    <span className="text-muted-foreground">{exampleLabels[key]}</span>
-                  </button>
-                )
-              )}
+              {(
+                Object.keys(exampleSvgs) as Array<keyof typeof exampleSvgs>
+              ).map((key) => (
+                <button
+                  aria-label={`Load ${exampleLabels[key]} example`}
+                  className="flex cursor-pointer items-center gap-3 rounded-md border bg-muted/30 px-3 py-2 text-left text-xs transition-colors hover:bg-muted"
+                  key={key}
+                  onClick={() => handleLoadExample(key)}
+                  tabIndex={0}
+                  type="button"
+                >
+                  <div
+                    className="size-5 shrink-0 [&>svg]:h-full [&>svg]:w-full"
+                    // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - using trusted example SVGs
+                    dangerouslySetInnerHTML={{ __html: exampleSvgs[key] }}
+                  />
+                  <span className="text-muted-foreground">
+                    {exampleLabels[key]}
+                  </span>
+                </button>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -441,29 +456,31 @@ const SvgToJsxPage = () => {
           <CardContent className="pt-4">
             <ul className="flex flex-col gap-2 text-muted-foreground text-xs">
               <li className="flex gap-2">
-                <span className="text-foreground font-mono">class</span>
+                <span className="font-mono text-foreground">class</span>
                 <span>→</span>
-                <span className="text-foreground font-mono">className</span>
+                <span className="font-mono text-foreground">className</span>
               </li>
               <li className="flex gap-2">
-                <span className="text-foreground font-mono">stroke-width</span>
+                <span className="font-mono text-foreground">stroke-width</span>
                 <span>→</span>
-                <span className="text-foreground font-mono">strokeWidth</span>
+                <span className="font-mono text-foreground">strokeWidth</span>
               </li>
               <li className="flex gap-2">
-                <span className="text-foreground font-mono">fill-opacity</span>
+                <span className="font-mono text-foreground">fill-opacity</span>
                 <span>→</span>
-                <span className="text-foreground font-mono">fillOpacity</span>
+                <span className="font-mono text-foreground">fillOpacity</span>
               </li>
               <li className="flex gap-2">
-                <span className="text-foreground font-mono">xlink:href</span>
+                <span className="font-mono text-foreground">xlink:href</span>
                 <span>→</span>
-                <span className="text-foreground font-mono">xlinkHref</span>
+                <span className="font-mono text-foreground">xlinkHref</span>
               </li>
               <li className="flex gap-2">
-                <span className="text-foreground font-mono">style="..."</span>
+                <span className="font-mono text-foreground">style="..."</span>
                 <span>→</span>
-                <span className="text-foreground font-mono">{"style={{ }}"}</span>
+                <span className="font-mono text-foreground">
+                  {"style={{ }}"}
+                </span>
               </li>
             </ul>
           </CardContent>

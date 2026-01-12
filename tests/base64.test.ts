@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  encodeBase64,
-  decodeBase64,
-  isValidBase64,
   calculateSizeInfo,
+  decodeBase64,
+  encodeBase64,
+  isValidBase64,
 } from "@/lib/base64";
 
 describe("encodeBase64 - Standard Mode", () => {

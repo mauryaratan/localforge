@@ -1,19 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
+  COLOR_PRESETS,
+  DEFAULT_BACKGROUND_CONFIG,
+  DEFAULT_ICON_CONFIG,
+  DEFAULT_LOGO_CONFIG,
+  EXPORT_SIZES,
+  GRADIENT_PRESETS,
   generateLogoSVG,
+  ICON_CATEGORIES,
+  ICON_PATHS,
   isValidHexColor,
   isValidImageFile,
-  ICON_PATHS,
-  ICON_CATEGORIES,
-  COLOR_PRESETS,
-  GRADIENT_PRESETS,
-  EXPORT_SIZES,
-  DEFAULT_LOGO_CONFIG,
-  DEFAULT_ICON_CONFIG,
-  DEFAULT_BACKGROUND_CONFIG,
   type LogoConfig,
-  type IconConfig,
-  type BackgroundConfig,
 } from "../lib/logo-maker";
 
 describe("logo-maker", () => {
@@ -180,8 +178,8 @@ describe("logo-maker", () => {
       const svg = generateLogoSVG(config);
       expect(svg).toContain("<linearGradient");
       expect(svg).toContain("url(#logoGradient)");
-      expect(svg).toContain('stop-color:#ff0000');
-      expect(svg).toContain('stop-color:#0000ff');
+      expect(svg).toContain("stop-color:#ff0000");
+      expect(svg).toContain("stop-color:#0000ff");
     });
 
     it("should generate SVG with icon", () => {

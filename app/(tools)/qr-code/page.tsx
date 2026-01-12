@@ -40,18 +40,18 @@ import {
   CONTENT_TYPE_LABELS,
   DEFAULT_OPTIONS,
   DOT_SCALE_OPTIONS,
+  type DotScale,
   downloadQRCodeFromElement,
   ERROR_CORRECTION_LABELS,
+  type ErrorCorrectionLevel,
   fileToDataUrl,
   formatQRContent,
   generateQRCodeToElement,
   isValidHexColor,
   parseWiFiData,
-  readQRCodeFromFile,
-  type DotScale,
-  type ErrorCorrectionLevel,
   type QRContentType,
   type QRGenerateOptions,
+  readQRCodeFromFile,
 } from "@/lib/qr-code";
 
 const STORAGE_KEY = "devtools:qr-code:input";
@@ -119,7 +119,7 @@ const QRCodePage = () => {
 
   // Generate QR code when inputs change
   useEffect(() => {
-    if (!isHydrated || !content.trim() || !qrContainerRef.current) {
+    if (!(isHydrated && content.trim() && qrContainerRef.current)) {
       if (qrContainerRef.current) {
         qrContainerRef.current.innerHTML = "";
       }
@@ -341,17 +341,17 @@ const QRCodePage = () => {
         <Tabs defaultValue="generate">
           <TabsList variant="line">
             <TabsTrigger
-              value="generate"
-              className="cursor-pointer gap-1.5"
               aria-label="Generate QR Code tab"
+              className="cursor-pointer gap-1.5"
+              value="generate"
             >
               <HugeiconsIcon icon={QrCodeIcon} size={14} />
               Generate
             </TabsTrigger>
             <TabsTrigger
-              value="read"
-              className="cursor-pointer gap-1.5"
               aria-label="Read QR Code tab"
+              className="cursor-pointer gap-1.5"
+              value="read"
             >
               <HugeiconsIcon icon={ScanIcon} size={14} />
               Read
@@ -359,7 +359,7 @@ const QRCodePage = () => {
           </TabsList>
 
           {/* Generate Tab */}
-          <TabsContent value="generate" className="mt-4">
+          <TabsContent className="mt-4" value="generate">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
               {/* Input & Options Section */}
               <div className="flex flex-1 flex-col gap-4">
@@ -394,10 +394,10 @@ const QRCodePage = () => {
                         Type
                       </Label>
                       <Select
-                        value={contentType}
                         onValueChange={(v) =>
                           setContentType(v as QRContentType)
                         }
+                        value={contentType}
                       >
                         <SelectTrigger className="cursor-pointer">
                           <SelectValue />
@@ -406,9 +406,9 @@ const QRCodePage = () => {
                           {Object.entries(CONTENT_TYPE_LABELS).map(
                             ([key, label]) => (
                               <SelectItem
+                                className="cursor-pointer"
                                 key={key}
                                 value={key}
-                                className="cursor-pointer"
                               >
                                 {label}
                               </SelectItem>
@@ -421,8 +421,8 @@ const QRCodePage = () => {
                     {/* Content Input */}
                     <div className="flex flex-col gap-2">
                       <Label
-                        htmlFor="content-input"
                         className="text-muted-foreground text-xs uppercase tracking-wider"
+                        htmlFor="content-input"
                       >
                         {contentType === "wifi"
                           ? "Network Name (SSID)"
@@ -430,17 +430,18 @@ const QRCodePage = () => {
                       </Label>
                       {contentType === "text" ? (
                         <Textarea
-                          id="content-input"
                           aria-label="QR code content"
                           className="min-h-[80px] resize-none font-mono text-xs"
+                          id="content-input"
+                          onChange={(e) => setContent(e.target.value)}
                           placeholder="Enter text to encode..."
                           value={content}
-                          onChange={(e) => setContent(e.target.value)}
                         />
                       ) : (
                         <Input
-                          id="content-input"
                           aria-label="QR code content"
+                          id="content-input"
+                          onChange={(e) => setContent(e.target.value)}
                           placeholder={
                             contentType === "url"
                               ? "https://example.com"
@@ -455,7 +456,6 @@ const QRCodePage = () => {
                                       : "Enter content..."
                           }
                           value={content}
-                          onChange={(e) => setContent(e.target.value)}
                         />
                       )}
                     </div>
@@ -465,18 +465,18 @@ const QRCodePage = () => {
                       <>
                         <div className="flex flex-col gap-2">
                           <Label
-                            htmlFor="wifi-password"
                             className="text-muted-foreground text-xs uppercase tracking-wider"
+                            htmlFor="wifi-password"
                           >
                             Password
                           </Label>
                           <Input
-                            id="wifi-password"
-                            type="password"
                             aria-label="WiFi password"
-                            placeholder="Enter password (leave empty for open network)"
-                            value={wifiPassword}
+                            id="wifi-password"
                             onChange={(e) => setWifiPassword(e.target.value)}
+                            placeholder="Enter password (leave empty for open network)"
+                            type="password"
+                            value={wifiPassword}
                           />
                         </div>
                         <div className="flex gap-4">
@@ -485,30 +485,30 @@ const QRCodePage = () => {
                               Encryption
                             </Label>
                             <Select
-                              value={wifiEncryption}
                               onValueChange={(v) =>
                                 setWifiEncryption(v as typeof wifiEncryption)
                               }
+                              value={wifiEncryption}
                             >
                               <SelectTrigger className="cursor-pointer">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem
-                                  value="WPA"
                                   className="cursor-pointer"
+                                  value="WPA"
                                 >
                                   WPA/WPA2
                                 </SelectItem>
                                 <SelectItem
-                                  value="WEP"
                                   className="cursor-pointer"
+                                  value="WEP"
                                 >
                                   WEP
                                 </SelectItem>
                                 <SelectItem
-                                  value="nopass"
                                   className="cursor-pointer"
+                                  value="nopass"
                                 >
                                   None (Open)
                                 </SelectItem>
@@ -520,11 +520,11 @@ const QRCodePage = () => {
                               Hidden
                             </Label>
                             <Button
-                              variant={wifiHidden ? "default" : "outline"}
-                              size="sm"
+                              aria-pressed={wifiHidden}
                               className="cursor-pointer"
                               onClick={() => setWifiHidden(!wifiHidden)}
-                              aria-pressed={wifiHidden}
+                              size="sm"
+                              variant={wifiHidden ? "default" : "outline"}
                             >
                               {wifiHidden ? "Yes" : "No"}
                             </Button>
@@ -549,13 +549,13 @@ const QRCodePage = () => {
                       <div className="flex flex-wrap gap-2">
                         {COLOR_PRESETS.map((preset) => (
                           <button
-                            key={preset.name}
-                            type="button"
-                            onClick={() => applyColorPreset(preset)}
-                            className="group relative flex h-6 w-6 cursor-pointer items-center justify-center overflow-hidden rounded border transition-transform hover:scale-110"
-                            style={{ backgroundColor: preset.background }}
                             aria-label={`Apply ${preset.name} color preset`}
+                            className="group relative flex h-6 w-6 cursor-pointer items-center justify-center overflow-hidden rounded border transition-transform hover:scale-110"
+                            key={preset.name}
+                            onClick={() => applyColorPreset(preset)}
+                            style={{ backgroundColor: preset.background }}
                             title={preset.name}
+                            type="button"
                           >
                             <div
                               className="h-3 w-3 rounded-sm"
@@ -570,63 +570,63 @@ const QRCodePage = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
                         <Label
-                          htmlFor="fg-color"
                           className="text-[10px] text-muted-foreground"
+                          htmlFor="fg-color"
                         >
                           Foreground
                         </Label>
                         <div className="flex gap-2">
                           <input
-                            type="color"
+                            aria-label="Foreground color"
+                            className="h-8 w-8 cursor-pointer rounded border"
                             id="fg-color"
-                            value={options.foreground}
                             onChange={(e) =>
                               updateOption("foreground", e.target.value)
                             }
-                            className="h-8 w-8 cursor-pointer rounded border"
-                            aria-label="Foreground color"
+                            type="color"
+                            value={options.foreground}
                           />
                           <Input
-                            value={options.foreground}
+                            className="flex-1 font-mono text-xs uppercase"
+                            maxLength={7}
                             onChange={(e) => {
                               const val = e.target.value;
                               if (isValidHexColor(val) || val.length < 7) {
                                 updateOption("foreground", val);
                               }
                             }}
-                            className="flex-1 font-mono text-xs uppercase"
-                            maxLength={7}
+                            value={options.foreground}
                           />
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
                         <Label
-                          htmlFor="bg-color"
                           className="text-[10px] text-muted-foreground"
+                          htmlFor="bg-color"
                         >
                           Background
                         </Label>
                         <div className="flex gap-2">
                           <input
-                            type="color"
+                            aria-label="Background color"
+                            className="h-8 w-8 cursor-pointer rounded border"
                             id="bg-color"
-                            value={options.background}
                             onChange={(e) =>
                               updateOption("background", e.target.value)
                             }
-                            className="h-8 w-8 cursor-pointer rounded border"
-                            aria-label="Background color"
+                            type="color"
+                            value={options.background}
                           />
                           <Input
-                            value={options.background}
+                            className="flex-1 font-mono text-xs uppercase"
+                            maxLength={7}
                             onChange={(e) => {
                               const val = e.target.value;
                               if (isValidHexColor(val) || val.length < 7) {
                                 updateOption("background", val);
                               }
                             }}
-                            className="flex-1 font-mono text-xs uppercase"
-                            maxLength={7}
+                            value={options.background}
                           />
                         </div>
                       </div>
@@ -638,7 +638,6 @@ const QRCodePage = () => {
                         Dot Style
                       </Label>
                       <Select
-                        value={String(options.dotScale)}
                         onValueChange={(v) => {
                           if (v)
                             updateOption(
@@ -646,6 +645,7 @@ const QRCodePage = () => {
                               Number.parseFloat(v) as DotScale
                             );
                         }}
+                        value={String(options.dotScale)}
                       >
                         <SelectTrigger className="cursor-pointer">
                           <SelectValue />
@@ -653,9 +653,9 @@ const QRCodePage = () => {
                         <SelectContent>
                           {DOT_SCALE_OPTIONS.map((opt) => (
                             <SelectItem
+                              className="cursor-pointer"
                               key={opt.value}
                               value={String(opt.value)}
-                              className="cursor-pointer"
                             >
                               {opt.label}
                             </SelectItem>
@@ -676,18 +676,18 @@ const QRCodePage = () => {
                           </span>
                         </div>
                         <Slider
-                          value={[options.width]}
+                          aria-label="QR code size"
+                          className="cursor-pointer"
+                          max={512}
+                          min={128}
                           onValueChange={(values) => {
                             const newValue = Array.isArray(values)
                               ? values[0]
                               : values;
                             updateOption("width", newValue);
                           }}
-                          min={128}
-                          max={512}
                           step={32}
-                          className="cursor-pointer"
-                          aria-label="QR code size"
+                          value={[options.width]}
                         />
                       </div>
                       <div className="flex flex-col gap-2">
@@ -695,13 +695,13 @@ const QRCodePage = () => {
                           Error Correction
                         </Label>
                         <Select
-                          value={options.errorCorrectionLevel}
                           onValueChange={(v) =>
                             updateOption(
                               "errorCorrectionLevel",
                               v as ErrorCorrectionLevel
                             )
                           }
+                          value={options.errorCorrectionLevel}
                         >
                           <SelectTrigger className="cursor-pointer">
                             <SelectValue />
@@ -710,9 +710,9 @@ const QRCodePage = () => {
                             {Object.entries(ERROR_CORRECTION_LABELS).map(
                               ([key, label]) => (
                                 <SelectItem
+                                  className="cursor-pointer"
                                   key={key}
                                   value={key}
-                                  className="cursor-pointer"
                                 >
                                   {label}
                                 </SelectItem>
@@ -729,20 +729,20 @@ const QRCodePage = () => {
                         Logo / Icon
                       </Label>
                       <input
+                        accept="image/*"
+                        aria-label="Upload logo"
+                        className="hidden"
+                        onChange={handleLogoUpload}
                         ref={logoInputRef}
                         type="file"
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                        className="hidden"
-                        aria-label="Upload logo"
                       />
                       {logoPreview ? (
                         <div className="flex items-center gap-3">
                           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded border bg-muted">
                             <img
-                              src={logoPreview}
                               alt="Logo preview"
                               className="h-full w-full object-contain"
+                              src={logoPreview}
                             />
                           </div>
                           <div className="flex flex-1 flex-col gap-1">
@@ -752,7 +752,10 @@ const QRCodePage = () => {
                               </Label>
                             </div>
                             <Slider
-                              value={[options.logoWidth]}
+                              aria-label="Logo size"
+                              className="cursor-pointer"
+                              max={100}
+                              min={30}
                               onValueChange={(values) => {
                                 const newValue = Array.isArray(values)
                                   ? values[0]
@@ -760,29 +763,26 @@ const QRCodePage = () => {
                                 updateOption("logoWidth", newValue);
                                 updateOption("logoHeight", newValue);
                               }}
-                              min={30}
-                              max={100}
                               step={5}
-                              className="cursor-pointer"
-                              aria-label="Logo size"
+                              value={[options.logoWidth]}
                             />
                           </div>
                           <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={handleRemoveLogo}
-                            className="cursor-pointer"
                             aria-label="Remove logo"
+                            className="cursor-pointer"
+                            onClick={handleRemoveLogo}
+                            size="icon-xs"
+                            variant="ghost"
                           >
                             <HugeiconsIcon icon={Delete02Icon} size={14} />
                           </Button>
                         </div>
                       ) : (
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => logoInputRef.current?.click()}
                           className="cursor-pointer"
+                          onClick={() => logoInputRef.current?.click()}
+                          size="sm"
+                          variant="outline"
                         >
                           <HugeiconsIcon
                             data-icon="inline-start"
@@ -802,10 +802,10 @@ const QRCodePage = () => {
 
                     {/* Advanced Options Toggle */}
                     <button
-                      type="button"
-                      onClick={() => setShowAdvanced(!showAdvanced)}
-                      className="flex cursor-pointer items-center gap-2 border-t pt-4 text-left text-xs text-muted-foreground transition-colors hover:text-foreground"
                       aria-expanded={showAdvanced}
+                      className="flex cursor-pointer items-center gap-2 border-t pt-4 text-left text-muted-foreground text-xs transition-colors hover:text-foreground"
+                      onClick={() => setShowAdvanced(!showAdvanced)}
+                      type="button"
                     >
                       <HugeiconsIcon
                         icon={showAdvanced ? ArrowUp01Icon : ArrowDown01Icon}
@@ -816,7 +816,7 @@ const QRCodePage = () => {
 
                     {/* Advanced Options */}
                     {showAdvanced && (
-                      <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="fade-in slide-in-from-top-2 flex animate-in flex-col gap-4 duration-200">
                         {/* Corner Colors */}
                         <div className="grid grid-cols-2 gap-4">
                           <div className="flex flex-col gap-2">
@@ -825,22 +825,23 @@ const QRCodePage = () => {
                             </Label>
                             <div className="flex gap-2">
                               <input
-                                type="color"
-                                value={
-                                  options.positionOuterColor ||
-                                  options.foreground
-                                }
+                                aria-label="Corner outer color"
+                                className="h-8 w-8 cursor-pointer rounded border"
                                 onChange={(e) =>
                                   updateOption(
                                     "positionOuterColor",
                                     e.target.value
                                   )
                                 }
-                                className="h-8 w-8 cursor-pointer rounded border"
-                                aria-label="Corner outer color"
+                                type="color"
+                                value={
+                                  options.positionOuterColor ||
+                                  options.foreground
+                                }
                               />
                               <Input
-                                value={options.positionOuterColor || ""}
+                                className="flex-1 font-mono text-xs uppercase"
+                                maxLength={7}
                                 onChange={(e) => {
                                   const val = e.target.value;
                                   if (
@@ -852,8 +853,7 @@ const QRCodePage = () => {
                                   }
                                 }}
                                 placeholder="Same as FG"
-                                className="flex-1 font-mono text-xs uppercase"
-                                maxLength={7}
+                                value={options.positionOuterColor || ""}
                               />
                             </div>
                           </div>
@@ -863,22 +863,23 @@ const QRCodePage = () => {
                             </Label>
                             <div className="flex gap-2">
                               <input
-                                type="color"
-                                value={
-                                  options.positionInnerColor ||
-                                  options.foreground
-                                }
+                                aria-label="Corner inner color"
+                                className="h-8 w-8 cursor-pointer rounded border"
                                 onChange={(e) =>
                                   updateOption(
                                     "positionInnerColor",
                                     e.target.value
                                   )
                                 }
-                                className="h-8 w-8 cursor-pointer rounded border"
-                                aria-label="Corner inner color"
+                                type="color"
+                                value={
+                                  options.positionInnerColor ||
+                                  options.foreground
+                                }
                               />
                               <Input
-                                value={options.positionInnerColor || ""}
+                                className="flex-1 font-mono text-xs uppercase"
+                                maxLength={7}
                                 onChange={(e) => {
                                   const val = e.target.value;
                                   if (
@@ -890,8 +891,7 @@ const QRCodePage = () => {
                                   }
                                 }}
                                 placeholder="Same as FG"
-                                className="flex-1 font-mono text-xs uppercase"
-                                maxLength={7}
+                                value={options.positionInnerColor || ""}
                               />
                             </div>
                           </div>
@@ -908,18 +908,18 @@ const QRCodePage = () => {
                             </span>
                           </div>
                           <Slider
-                            value={[options.quietZone]}
+                            aria-label="Quiet zone size"
+                            className="cursor-pointer"
+                            max={50}
+                            min={0}
                             onValueChange={(values) => {
                               const newValue = Array.isArray(values)
                                 ? values[0]
                                 : values;
                               updateOption("quietZone", newValue);
                             }}
-                            min={0}
-                            max={50}
                             step={5}
-                            className="cursor-pointer"
-                            aria-label="Quiet zone size"
+                            value={[options.quietZone]}
                           />
                         </div>
                       </div>
@@ -965,7 +965,7 @@ const QRCodePage = () => {
                       <div className="text-center text-destructive text-xs">
                         {error}
                       </div>
-                    ) : !content ? (
+                    ) : content ? null : (
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <HugeiconsIcon
                           icon={QrCodeIcon}
@@ -976,33 +976,33 @@ const QRCodePage = () => {
                           Enter content to generate
                         </span>
                       </div>
-                    ) : null}
+                    )}
                     {/* QR Code renders here */}
                     <div
-                      ref={qrContainerRef}
                       className={`flex items-center justify-center ${!content || error ? "hidden" : ""}`}
+                      ref={qrContainerRef}
                     />
                   </div>
                   {content && !error && (
                     <div className="flex w-full flex-wrap items-center justify-center gap-2">
                       <Badge
-                        variant="secondary"
                         className="font-mono text-[10px]"
+                        variant="secondary"
                       >
                         {CONTENT_TYPE_LABELS[contentType]}
                       </Badge>
                       {options.dotScale < 1 && (
                         <Badge
-                          variant="outline"
                           className="font-mono text-[10px]"
+                          variant="outline"
                         >
                           {Math.round(options.dotScale * 100)}% dots
                         </Badge>
                       )}
                       {logoPreview && (
                         <Badge
-                          variant="outline"
                           className="font-mono text-[10px]"
+                          variant="outline"
                         >
                           +logo
                         </Badge>
@@ -1015,7 +1015,7 @@ const QRCodePage = () => {
           </TabsContent>
 
           {/* Read Tab */}
-          <TabsContent value="read" className="mt-4">
+          <TabsContent className="mt-4" value="read">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
               {/* Upload Section */}
               <Card className="flex-1">
@@ -1024,37 +1024,37 @@ const QRCodePage = () => {
                 </CardHeader>
                 <CardContent className="pt-4">
                   <input
+                    accept="image/*"
+                    aria-label="Upload QR code image"
+                    className="hidden"
+                    onChange={handleFileInputChange}
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
-                    onChange={handleFileInputChange}
-                    className="hidden"
-                    aria-label="Upload QR code image"
                   />
                   <div
-                    role="button"
-                    tabIndex={0}
+                    aria-label="Drop zone for QR code image"
                     className={`flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-8 transition-colors ${
                       isDragOver
                         ? "border-primary bg-primary/5"
                         : "border-muted-foreground/25 hover:border-muted-foreground/50"
                     }`}
                     onClick={() => fileInputRef.current?.click()}
+                    onDragLeave={handleDragLeave}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         fileInputRef.current?.click();
                       }
                     }}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    aria-label="Drop zone for QR code image"
+                    role="button"
+                    tabIndex={0}
                   >
                     <div className="rounded-full bg-muted p-4">
                       <HugeiconsIcon
+                        className="text-muted-foreground"
                         icon={ImageUploadIcon}
                         size={32}
-                        className="text-muted-foreground"
                       />
                     </div>
                     <div className="flex flex-col items-center gap-1 text-center">
@@ -1074,7 +1074,7 @@ const QRCodePage = () => {
                   )}
 
                   {readError && (
-                    <Badge variant="destructive" className="mt-4">
+                    <Badge className="mt-4" variant="destructive">
                       {readError}
                     </Badge>
                   )}
@@ -1116,8 +1116,8 @@ const QRCodePage = () => {
                   {decodedContent ? (
                     <div className="flex flex-col gap-3">
                       <Badge
-                        variant="secondary"
                         className="w-fit font-mono text-[10px]"
+                        variant="secondary"
                       >
                         {decodedType
                           ? CONTENT_TYPE_LABELS[decodedType]
@@ -1163,34 +1163,34 @@ const QRCodePage = () => {
                       {/* Action buttons based on type */}
                       {decodedType === "url" && (
                         <a
-                          href={decodedContent}
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-primary-foreground text-xs transition-colors hover:bg-primary/90"
+                          href={decodedContent}
+                          rel="noopener noreferrer"
+                          target="_blank"
                         >
                           Open Link
                         </a>
                       )}
                       {decodedType === "email" && (
                         <a
+                          className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-primary-foreground text-xs transition-colors hover:bg-primary/90"
                           href={
                             decodedContent.startsWith("mailto:")
                               ? decodedContent
                               : `mailto:${decodedContent}`
                           }
-                          className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-primary-foreground text-xs transition-colors hover:bg-primary/90"
                         >
                           Send Email
                         </a>
                       )}
                       {decodedType === "phone" && (
                         <a
+                          className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-primary-foreground text-xs transition-colors hover:bg-primary/90"
                           href={
                             decodedContent.startsWith("tel:")
                               ? decodedContent
                               : `tel:${decodedContent}`
                           }
-                          className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-primary-foreground text-xs transition-colors hover:bg-primary/90"
                         >
                           Call Number
                         </a>
@@ -1222,12 +1222,12 @@ const QRCodePage = () => {
           <CardContent className="flex flex-col gap-2 pt-4">
             {EXAMPLE_CONTENT.map((example) => (
               <button
-                key={example.label}
-                type="button"
                 aria-label={`Use example: ${example.label}`}
                 className="cursor-pointer rounded-md border bg-muted/30 px-3 py-2 text-left text-xs transition-colors hover:bg-muted/50"
+                key={example.label}
                 onClick={() => handleExampleClick(example.value, example.type)}
                 tabIndex={0}
+                type="button"
               >
                 <span className="font-medium">{example.label}</span>
                 <span className="mt-1 block truncate text-muted-foreground">

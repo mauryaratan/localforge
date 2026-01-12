@@ -170,7 +170,7 @@ export const splitIntoWords = (input: string): string[] => {
   if (!input.trim()) return [];
 
   // Handle camelCase and PascalCase by inserting spaces before capitals
-  let normalized = input
+  const normalized = input
     // Insert space before uppercase letters that follow lowercase letters
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     // Insert space before uppercase letters that are followed by lowercase letters (for acronyms)

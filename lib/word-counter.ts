@@ -258,7 +258,7 @@ export const getWordCountStats = (text: string): WordCountStats => {
  */
 export const getTopWords = (
   text: string,
-  limit: number = 10
+  limit = 10
 ): { word: string; count: number }[] => {
   if (!text.trim()) return [];
 
@@ -285,7 +285,8 @@ export const getTopWords = (
  * Example texts for demonstration
  */
 export const exampleTexts = {
-  short: `The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet.`,
+  short:
+    "The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet.",
   medium: `In the heart of the city, where neon lights flicker against rain-slicked streets, a lone figure walks purposefully toward an uncertain future. The night air carries whispers of change, stories untold, and dreams yet to be realized.
 
 Every step echoes with determination. The journey ahead is long, but the destination promises everything worth fighting for. Success isn't just about reaching the end—it's about the courage to begin.`,

@@ -6,7 +6,11 @@ type LogoProps = {
   showText?: boolean;
 };
 
-export const Logo = ({ className, size = "md", showText = true }: LogoProps) => {
+export const Logo = ({
+  className,
+  size = "md",
+  showText = true,
+}: LogoProps) => {
   const sizes = {
     sm: { icon: 20, text: "text-sm" },
     md: { icon: 24, text: "text-base" },
@@ -18,45 +22,40 @@ export const Logo = ({ className, size = "md", showText = true }: LogoProps) => 
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <svg
-        width={icon}
+        aria-hidden="true"
+        fill="none"
         height={icon}
         viewBox="0 0 32 32"
-        fill="none"
+        width={icon}
         xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
       >
         {/* Terminal bracket with privacy shield */}
         <rect
-          x="2"
-          y="4"
-          width="28"
+          className="fill-primary/10 stroke-primary"
           height="24"
           rx="4"
-          className="fill-primary/10 stroke-primary"
           strokeWidth="1.5"
+          width="28"
+          x="2"
+          y="4"
         />
         {/* Left bracket */}
         <path
-          d="M8 10L12 16L8 22"
           className="stroke-primary"
-          strokeWidth="2"
+          d="M8 10L12 16L8 22"
           strokeLinecap="round"
           strokeLinejoin="round"
+          strokeWidth="2"
         />
         {/* Underscore cursor */}
         <path
-          d="M14 22H20"
           className="stroke-primary"
-          strokeWidth="2"
+          d="M14 22H20"
           strokeLinecap="round"
+          strokeWidth="2"
         />
         {/* Privacy dot indicator */}
-        <circle
-          cx="24"
-          cy="10"
-          r="3"
-          className="fill-primary"
-        />
+        <circle className="fill-primary" cx="24" cy="10" r="3" />
       </svg>
       {showText && (
         <span className={cn("font-medium tracking-tight", text)}>
@@ -67,45 +66,46 @@ export const Logo = ({ className, size = "md", showText = true }: LogoProps) => 
   );
 };
 
-export const LogoIcon = ({ className, size = 24 }: { className?: string; size?: number }) => {
+export const LogoIcon = ({
+  className,
+  size = 24,
+}: {
+  className?: string;
+  size?: number;
+}) => {
   return (
     <svg
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
       className={className}
+      fill="none"
+      height={size}
+      viewBox="0 0 32 32"
+      width={size}
+      xmlns="http://www.w3.org/2000/svg"
     >
       <rect
-        x="2"
-        y="4"
-        width="28"
+        className="fill-primary/10 stroke-primary"
         height="24"
         rx="4"
-        className="fill-primary/10 stroke-primary"
         strokeWidth="1.5"
+        width="28"
+        x="2"
+        y="4"
       />
       <path
-        d="M8 10L12 16L8 22"
         className="stroke-primary"
-        strokeWidth="2"
+        d="M8 10L12 16L8 22"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
-        d="M14 22H20"
         className="stroke-primary"
-        strokeWidth="2"
+        d="M14 22H20"
         strokeLinecap="round"
+        strokeWidth="2"
       />
-      <circle
-        cx="24"
-        cy="10"
-        r="3"
-        className="fill-primary"
-      />
+      <circle className="fill-primary" cx="24" cy="10" r="3" />
     </svg>
   );
 };

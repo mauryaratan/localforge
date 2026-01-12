@@ -65,13 +65,13 @@ export default function HomePage() {
       <div className="flex w-full max-w-3xl flex-col items-center gap-12">
         {/* Hero */}
         <div className="flex flex-col items-center gap-6 text-center">
-          <Logo size="lg" showText={false} />
+          <Logo showText={false} size="lg" />
 
           <div className="space-y-3">
             <h1 className="font-medium text-3xl tracking-tight md:text-4xl">
               LocalForge
             </h1>
-            <p className="max-w-lg text-muted-foreground text-base leading-relaxed">
+            <p className="max-w-lg text-base text-muted-foreground leading-relaxed">
               Developer utilities that respect your privacy.{" "}
               <span className="text-foreground">
                 Everything runs in your browser
@@ -81,7 +81,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <Badge variant="secondary" className="gap-1.5">
+            <Badge className="gap-1.5" variant="secondary">
               <span className="size-1.5 animate-pulse rounded-full bg-emerald-500" />
               Local-First
             </Badge>
@@ -105,21 +105,21 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center gap-2">
             {navItems.slice(0, 8).map((item) => (
               <Link
-                key={item.href}
-                href={item.href}
                 className="flex items-center gap-1.5 rounded-md border border-border/50 bg-card/50 px-3 py-1.5 text-xs transition-colors hover:border-primary/50 hover:bg-primary/5"
+                href={item.href}
+                key={item.href}
               >
                 <HugeiconsIcon
+                  className="text-primary"
                   icon={item.icon}
                   size={14}
-                  className="text-primary"
                 />
                 <span>{item.title}</span>
               </Link>
             ))}
             <Link
+              className="flex items-center gap-1.5 rounded-md border border-border/50 border-dashed px-3 py-1.5 text-muted-foreground text-xs transition-colors hover:border-primary/50 hover:text-foreground"
               href="/json-formatter"
-              className="flex items-center gap-1.5 rounded-md border border-dashed border-border/50 px-3 py-1.5 text-muted-foreground text-xs transition-colors hover:border-primary/50 hover:text-foreground"
             >
               +{navItems.length - 8} more
             </Link>

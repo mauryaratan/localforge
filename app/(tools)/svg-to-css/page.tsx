@@ -3,7 +3,6 @@
 import {
   Copy01Icon,
   Delete02Icon,
-  FileEditIcon,
   Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -12,13 +11,6 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -35,12 +27,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  type CssOutputFormat,
   convertSvgToCss,
+  type EncodingType,
   exampleLabels,
   exampleSvgs,
   formatBytes,
-  type CssOutputFormat,
-  type EncodingType,
 } from "@/lib/svg-css";
 
 const STORAGE_KEY = "devtools:svg-to-css:input";
@@ -58,7 +50,8 @@ const cssFormatLabels: Record<CssOutputFormat, string> = {
 const SvgToCssPage = () => {
   const [input, setInput] = useState("");
   const [encoding, setEncoding] = useState<EncodingType>("url");
-  const [outputFormat, setOutputFormat] = useState<CssOutputFormat>("backgroundImage");
+  const [outputFormat, setOutputFormat] =
+    useState<CssOutputFormat>("backgroundImage");
   const [previewBg, setPreviewBg] = useState<PreviewBackground>("checkered");
   const [copied, setCopied] = useState<Record<string, boolean>>({});
   const [isHydrated, setIsHydrated] = useState(false);
@@ -174,7 +167,7 @@ const SvgToCssPage = () => {
           <CardContent className="p-0">
             <Textarea
               aria-label="SVG input"
-              className="min-h-[200px] max-h-[400px] resize-y rounded-none border-0 field-sizing-fixed! font-mono text-xs leading-relaxed focus-visible:ring-0"
+              className="field-sizing-fixed! max-h-[400px] min-h-[200px] resize-y rounded-none border-0 font-mono text-xs leading-relaxed focus-visible:ring-0"
               onChange={(e) => setInput(e.target.value)}
               placeholder={`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">\n  <circle cx="50" cy="50" r="40" fill="#6366f1" />\n</svg>`}
               spellCheck={false}
@@ -193,7 +186,13 @@ const SvgToCssPage = () => {
                   </Badge>
                   {result.encodedSize > result.originalSize && (
                     <Badge variant="outline">
-                      +{Math.round(((result.encodedSize - result.originalSize) / result.originalSize) * 100)}%
+                      +
+                      {Math.round(
+                        ((result.encodedSize - result.originalSize) /
+                          result.originalSize) *
+                          100
+                      )}
+                      %
                     </Badge>
                   )}
                 </>
@@ -212,12 +211,12 @@ const SvgToCssPage = () => {
               <CardTitle>CSS Output</CardTitle>
               <div className="flex items-center gap-2">
                 <Select
-                  value={outputFormat}
                   onValueChange={(v) => setOutputFormat(v as CssOutputFormat)}
+                  value={outputFormat}
                 >
                   <SelectTrigger
                     aria-label="Output format"
-                    className="w-[180px] h-8 text-xs"
+                    className="h-8 w-[180px] text-xs"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -243,7 +242,7 @@ const SvgToCssPage = () => {
           <CardContent className="p-0">
             <Textarea
               aria-label="CSS output"
-              className="min-h-[120px] max-h-[300px] resize-y rounded-none border-0 field-sizing-fixed! font-mono text-xs leading-relaxed focus-visible:ring-0"
+              className="field-sizing-fixed! max-h-[300px] min-h-[120px] resize-y rounded-none border-0 font-mono text-xs leading-relaxed focus-visible:ring-0"
               placeholder="CSS output will appear here..."
               readOnly
               spellCheck={false}
@@ -341,8 +340,8 @@ const SvgToCssPage = () => {
           </CardHeader>
           <CardContent className="pt-4">
             <Tabs
-              value={encoding}
               onValueChange={(v) => setEncoding(v as EncodingType)}
+              value={encoding}
             >
               <TabsList className="w-full">
                 <TabsTrigger className="flex-1" value="url">
@@ -352,13 +351,13 @@ const SvgToCssPage = () => {
                   Base64
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="url" className="mt-3">
+              <TabsContent className="mt-3" value="url">
                 <p className="text-muted-foreground text-xs">
                   URL encoding produces smaller output and works in all modern
                   browsers. Recommended for most use cases.
                 </p>
               </TabsContent>
-              <TabsContent value="base64" className="mt-3">
+              <TabsContent className="mt-3" value="base64">
                 <p className="text-muted-foreground text-xs">
                   Base64 encoding provides better compatibility with legacy
                   browsers (IE9+) but produces larger output.
@@ -375,30 +374,30 @@ const SvgToCssPage = () => {
           </CardHeader>
           <CardContent className="pt-4">
             <div className="grid grid-cols-5 gap-2 lg:grid-cols-3">
-              {(Object.keys(exampleSvgs) as Array<keyof typeof exampleSvgs>).map(
-                (key) => (
-                  <Tooltip key={key}>
-                    <TooltipTrigger
-                      render={
-                        <button
-                          aria-label={`Load ${exampleLabels[key]} example`}
-                          className="cursor-pointer flex items-center justify-center rounded-md border bg-muted/50 p-2 transition-colors hover:bg-muted"
-                          onClick={() => handleLoadExample(key)}
-                          tabIndex={0}
-                          type="button"
-                        />
-                      }
-                    >
-                      <div
-                        className="size-6"
-                        // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - using trusted example SVGs
-                        dangerouslySetInnerHTML={{ __html: exampleSvgs[key] }}
+              {(
+                Object.keys(exampleSvgs) as Array<keyof typeof exampleSvgs>
+              ).map((key) => (
+                <Tooltip key={key}>
+                  <TooltipTrigger
+                    render={
+                      <button
+                        aria-label={`Load ${exampleLabels[key]} example`}
+                        className="flex cursor-pointer items-center justify-center rounded-md border bg-muted/50 p-2 transition-colors hover:bg-muted"
+                        onClick={() => handleLoadExample(key)}
+                        tabIndex={0}
+                        type="button"
                       />
-                    </TooltipTrigger>
-                    <TooltipContent>{exampleLabels[key]}</TooltipContent>
-                  </Tooltip>
-                )
-              )}
+                    }
+                  >
+                    <div
+                      className="size-6"
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - using trusted example SVGs
+                      dangerouslySetInnerHTML={{ __html: exampleSvgs[key] }}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>{exampleLabels[key]}</TooltipContent>
+                </Tooltip>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -419,7 +418,8 @@ const SvgToCssPage = () => {
               <li className="flex gap-2">
                 <span className="text-foreground">•</span>
                 <span>
-                  The xmlns attribute is required and will be added automatically
+                  The xmlns attribute is required and will be added
+                  automatically
                 </span>
               </li>
               <li className="flex gap-2">

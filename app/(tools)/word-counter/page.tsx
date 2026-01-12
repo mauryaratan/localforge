@@ -4,8 +4,8 @@ import {
   Copy01Icon,
   Delete02Icon,
   FileEditIcon,
-  Time01Icon,
   TextIcon,
+  Time01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -102,14 +102,14 @@ Speaking Time: ${formatTime(stats.speakingTimeSeconds)}`;
         {/* Stats Cards - Primary Stats */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard
+            highlight
             label="Words"
             value={stats.words.toLocaleString()}
-            highlight
           />
           <StatCard
+            highlight
             label="Characters"
             value={stats.characters.toLocaleString()}
-            highlight
           />
           <StatCard
             label="Characters (no spaces)"
@@ -128,14 +128,14 @@ Speaking Time: ${formatTime(stats.speakingTimeSeconds)}`;
             value={stats.paragraphs.toLocaleString()}
           />
           <StatCard
+            icon={Time01Icon}
             label="Reading Time"
             value={formatTime(stats.readingTimeSeconds)}
-            icon={Time01Icon}
           />
           <StatCard
+            icon={Time01Icon}
             label="Speaking Time"
             value={formatTime(stats.speakingTimeSeconds)}
-            icon={Time01Icon}
           />
         </div>
 
@@ -190,7 +190,7 @@ Speaking Time: ${formatTime(stats.speakingTimeSeconds)}`;
           <CardContent className="pt-4">
             <Textarea
               aria-label="Text input"
-              className="h-[320px] max-h-[500px] min-h-[200px] resize-y !field-sizing-fixed text-sm leading-relaxed"
+              className="!field-sizing-fixed h-[320px] max-h-[500px] min-h-[200px] resize-y text-sm leading-relaxed"
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type or paste your text here..."
               value={input}
@@ -246,8 +246,8 @@ Speaking Time: ${formatTime(stats.speakingTimeSeconds)}`;
                 <div className="flex flex-col gap-2">
                   {topWords.map(({ word, count }, index) => (
                     <div
-                      key={word}
                       className="flex items-center justify-between"
+                      key={word}
                     >
                       <div className="flex items-center gap-2">
                         <span className="w-5 text-muted-foreground text-xs">

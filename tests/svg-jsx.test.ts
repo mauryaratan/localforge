@@ -45,7 +45,9 @@ describe("convertAttributeName", () => {
     expect(convertAttributeName("stroke-width")).toBe("strokeWidth");
     expect(convertAttributeName("fill-rule")).toBe("fillRule");
     expect(convertAttributeName("clip-path")).toBe("clipPath");
-    expect(convertAttributeName("color-interpolation-filters")).toBe("colorInterpolationFilters");
+    expect(convertAttributeName("color-interpolation-filters")).toBe(
+      "colorInterpolationFilters"
+    );
   });
 
   it("should return unchanged for standard attributes", () => {
@@ -73,7 +75,10 @@ describe("parseStyleToJsx", () => {
   });
 
   it("should convert CSS properties to camelCase", () => {
-    const result = parseStyleToJsx("stroke-width: 2px; fill-opacity: 0.5;", false);
+    const result = parseStyleToJsx(
+      "stroke-width: 2px; fill-opacity: 0.5;",
+      false
+    );
     expect(result).toContain("strokeWidth:");
     expect(result).toContain("fillOpacity:");
   });
@@ -140,7 +145,10 @@ describe("convertAttributes", () => {
   };
 
   it("should convert hyphenated attributes to camelCase", () => {
-    const result = convertAttributes('stroke-width="2" fill-opacity="0.5"', defaultOptions);
+    const result = convertAttributes(
+      'stroke-width="2" fill-opacity="0.5"',
+      defaultOptions
+    );
     expect(result).toContain('strokeWidth="2"');
     expect(result).toContain('fillOpacity="0.5"');
   });
@@ -156,18 +164,25 @@ describe("convertAttributes", () => {
   });
 
   it("should use single quotes when option is set", () => {
-    const result = convertAttributes('fill="red"', { ...defaultOptions, singleQuotes: true });
+    const result = convertAttributes('fill="red"', {
+      ...defaultOptions,
+      singleQuotes: true,
+    });
     expect(result).toContain("fill='red'");
   });
 
   it("should skip xmlns:xlink", () => {
-    const result = convertAttributes('xmlns:xlink="http://www.w3.org/1999/xlink"', defaultOptions);
+    const result = convertAttributes(
+      'xmlns:xlink="http://www.w3.org/1999/xlink"',
+      defaultOptions
+    );
     expect(result).toBe("");
   });
 });
 
 describe("convertSvgToJsx", () => {
-  const validSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10" /></svg>';
+  const validSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10" /></svg>';
 
   it("should convert valid SVG successfully", () => {
     const result = convertSvgToJsx(validSvg);
@@ -211,13 +226,15 @@ describe("convertSvgToJsx", () => {
   });
 
   it("should remove comments", () => {
-    const svgWithComment = '<svg xmlns="http://www.w3.org/2000/svg"><!-- comment --><rect /></svg>';
+    const svgWithComment =
+      '<svg xmlns="http://www.w3.org/2000/svg"><!-- comment --><rect /></svg>';
     const result = convertSvgToJsx(svgWithComment);
     expect(result.output).not.toContain("<!-- comment -->");
   });
 
   it("should convert class to className", () => {
-    const svgWithClass = '<svg xmlns="http://www.w3.org/2000/svg" class="icon"><rect /></svg>';
+    const svgWithClass =
+      '<svg xmlns="http://www.w3.org/2000/svg" class="icon"><rect /></svg>';
     const result = convertSvgToJsx(svgWithClass);
     expect(result.output).toContain("className=");
     expect(result.output).not.toContain('class="');
@@ -230,7 +247,10 @@ describe("convertSvgToJsx", () => {
   });
 
   it("should use custom component name", () => {
-    const result = convertSvgToJsx(validSvg, { outputFormat: "component", componentName: "MyIcon" });
+    const result = convertSvgToJsx(validSvg, {
+      outputFormat: "component",
+      componentName: "MyIcon",
+    });
     expect(result.output).toContain("const MyIcon = (props) =>");
     expect(result.output).toContain("export default MyIcon");
   });
@@ -241,21 +261,28 @@ describe("convertSvgToJsx", () => {
   });
 
   it("should add React.memo wrapper when enabled", () => {
-    const result = convertSvgToJsx(validSvg, { outputFormat: "component", memo: true });
+    const result = convertSvgToJsx(validSvg, {
+      outputFormat: "component",
+      memo: true,
+    });
     expect(result.output).toContain("memo(");
     expect(result.output).toContain("import { memo }");
     expect(result.output).toContain(".displayName =");
   });
 
   it("should use single quotes when enabled", () => {
-    const result = convertSvgToJsx(validSvg, { outputFormat: "component", singleQuotes: true });
+    const result = convertSvgToJsx(validSvg, {
+      outputFormat: "component",
+      singleQuotes: true,
+    });
     // Check attribute quotes use single quotes
     expect(result.output).toContain("xmlns='");
     expect(result.output).toContain("strokeWidth='");
   });
 
   it("should convert inline style to JSX object", () => {
-    const svgWithStyle = '<svg xmlns="http://www.w3.org/2000/svg"><rect style="fill: red; stroke-width: 2px;" /></svg>';
+    const svgWithStyle =
+      '<svg xmlns="http://www.w3.org/2000/svg"><rect style="fill: red; stroke-width: 2px;" /></svg>';
     const result = convertSvgToJsx(svgWithStyle);
     expect(result.output).toContain("style={");
     expect(result.output).toContain("fill:");
@@ -263,7 +290,8 @@ describe("convertSvgToJsx", () => {
   });
 
   it("should convert xlink:href to xlinkHref", () => {
-    const svgWithXlink = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon" /></svg>';
+    const svgWithXlink =
+      '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon" /></svg>';
     const result = convertSvgToJsx(svgWithXlink);
     expect(result.output).toContain("xlinkHref=");
     expect(result.output).not.toContain("xlink:href=");
@@ -276,6 +304,6 @@ describe("formatBytes", () => {
     expect(formatBytes(100)).toBe("100 B");
     expect(formatBytes(1024)).toBe("1.00 KB");
     expect(formatBytes(1536)).toBe("1.50 KB");
-    expect(formatBytes(1048576)).toBe("1.00 MB");
+    expect(formatBytes(1_048_576)).toBe("1.00 MB");
   });
 });
