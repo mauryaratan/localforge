@@ -55,12 +55,22 @@ export const AppSidebar = () => {
         <span className="text-[10px] text-sidebar-foreground/50">
           Built by{" "}
           <a
-            className="underline"
+            className="text-primary underline"
             href="https://x.com/mauryaratan"
             rel="noopener noreferrer"
             target="_blank"
           >
             @mauryaratan
+          </a>
+          .<br />
+          Proudly{" "}
+          <a
+            className="text-primary underline"
+            href="https://github.com/mauryaratan/localforge"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Open Source
           </a>
         </span>
       </SidebarFooter>
