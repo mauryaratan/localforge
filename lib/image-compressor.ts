@@ -286,8 +286,11 @@ const pending = new Map<
 function getWorker(): Worker {
   if (!worker && typeof window !== "undefined") {
     // Build absolute URL for WASM file
-    const wasmUrl = new URL("/pixo-wasm/pixo_bg.wasm", window.location.origin)
-      .href;
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    const wasmUrl = new URL(
+      `${basePath}/pixo-wasm/pixo_bg.wasm`,
+      window.location.origin
+    ).href;
     const code = createWorkerCode(wasmUrl);
     const blob = new Blob([code], { type: "application/javascript" });
     const url = URL.createObjectURL(blob);
