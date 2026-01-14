@@ -11,6 +11,7 @@ import {
   Image01Icon,
   ImageCompositionIcon,
   Key01Icon,
+  LicenseIcon,
   Link01Icon,
   NoteEditIcon,
   PaintBoardIcon,
@@ -66,6 +67,11 @@ export const navItems: NavItem[] = [
     title: "Base64",
     href: "/base64",
     icon: Key01Icon,
+  },
+  {
+    title: "JWT",
+    href: "/jwt",
+    icon: LicenseIcon,
   },
   {
     title: "UUID / ULID",
