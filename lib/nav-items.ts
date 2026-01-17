@@ -23,6 +23,7 @@ import {
   StarIcon,
   TextAlignLeftIcon,
   TextIcon,
+  TextWrapIcon,
   Time01Icon,
 } from "@hugeicons/core-free-icons";
 
@@ -157,6 +158,11 @@ export const navItems: NavItem[] = [
     title: "Logo Maker",
     href: "/logo-maker",
     icon: PaintBrush01Icon,
+  },
+  {
+    title: "ASCII Art",
+    href: "/ascii-art",
+    icon: TextWrapIcon,
   },
 ];
 
