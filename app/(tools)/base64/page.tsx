@@ -210,9 +210,9 @@ const Base64Page = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_auto_1fr]">
+            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               {/* Plain Text */}
-              <div className="flex flex-col gap-2">
+              <div className="flex min-w-0 flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <label
                     className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
@@ -276,7 +276,7 @@ const Base64Page = () => {
               </div>
 
               {/* Encoded (Base64) */}
-              <div className="flex flex-col gap-2">
+              <div className="flex min-w-0 flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <label
                     className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
