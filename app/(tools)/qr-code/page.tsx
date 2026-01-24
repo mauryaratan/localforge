@@ -54,6 +54,8 @@ import {
   readQRCodeFromFile,
 } from "@/lib/qr-code";
 
+import { getStorageValue, setStorageValue } from "@/lib/utils";
+
 const STORAGE_KEY = "devtools:qr-code:input";
 
 const EXAMPLE_CONTENT = [
@@ -65,7 +67,8 @@ const EXAMPLE_CONTENT = [
 ];
 
 const QRCodePage = () => {
-  const [content, setContent] = useState("");
+  // Use lazy state initialization - function runs only once on initial render
+  const [content, setContent] = useState(() => getStorageValue(STORAGE_KEY));
   const [contentType, setContentType] = useState<QRContentType>("text");
   const [options, setOptions] = useState<QRGenerateOptions>(DEFAULT_OPTIONS);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -97,24 +100,17 @@ const QRCodePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  // Load from localStorage on mount
+  // Mark as hydrated on mount
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setContent(saved);
-    }
     setIsHydrated(true);
   }, []);
 
   // Save to localStorage when content changes
   useEffect(() => {
-    if (!isHydrated) return;
-
-    if (content) {
-      localStorage.setItem(STORAGE_KEY, content);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
+    if (!isHydrated) {
+      return;
     }
+    setStorageValue(STORAGE_KEY, content);
   }, [content, isHydrated]);
 
   // Generate QR code when inputs change

@@ -9,7 +9,6 @@ import {
   Loading03Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import JSZip from "jszip";
 import {
   type DragEvent,
   useCallback,
@@ -164,8 +163,12 @@ export default function FaviconMakerPage() {
   }, [appName, themeColor, bgColor]);
 
   const handleDownloadAll = useCallback(async () => {
-    if (!result) return;
+    if (!result) {
+      return;
+    }
 
+    // Dynamic import JSZip only when downloading
+    const { default: JSZip } = await import("jszip");
     const zip = new JSZip();
 
     // Add all favicons

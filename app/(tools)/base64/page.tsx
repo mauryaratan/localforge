@@ -20,6 +20,7 @@ import {
   decodeBase64,
   encodeBase64,
 } from "@/lib/base64";
+import { getStorageValue, setStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:base64:input";
 
@@ -32,24 +33,25 @@ const EXAMPLE_STRINGS = [
 ];
 
 const Base64Page = () => {
-  const [plainText, setPlainText] = useState("");
-  const [encodedText, setEncodedText] = useState("");
+  // Use lazy state initialization - function runs only once on initial render
+  const [plainText, setPlainText] = useState(() =>
+    getStorageValue(STORAGE_KEY)
+  );
+  const [encodedText, setEncodedText] = useState(() => {
+    const saved = getStorageValue(STORAGE_KEY);
+    if (!saved) {
+      return "";
+    }
+    const result = encodeBase64(saved, "standard");
+    return result.success ? result.data : "";
+  });
   const [lastEdited, setLastEdited] = useState<"plain" | "encoded">("plain");
   const [mode, setMode] = useState<Base64Mode>("standard");
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load from localStorage on mount
+  // Mark as hydrated on mount
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setPlainText(saved);
-      // Always use standard mode on initial load
-      const result = encodeBase64(saved, "standard");
-      if (result.success) {
-        setEncodedText(result.data);
-      }
-    }
     setIsHydrated(true);
   }, []);
 
@@ -58,12 +60,7 @@ const Base64Page = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (plainText) {
-      localStorage.setItem(STORAGE_KEY, plainText);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    setStorageValue(STORAGE_KEY, plainText);
   }, [plainText, isHydrated]);
 
   // Re-encode/decode when mode changes

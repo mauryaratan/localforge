@@ -20,36 +20,31 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { buildURL, type ParsedURL, parseURL } from "@/lib/url-parser";
+import { getStorageValue, setStorageValue } from "@/lib/utils";
 
 type CopiedState = Record<string, boolean>;
 
 const STORAGE_KEY = "devtools:url-parser:input";
 
 const URLParserPage = () => {
-  const [urlInput, setUrlInput] = useState("");
+  // Use lazy state initialization - function runs only once on initial render
+  const [urlInput, setUrlInput] = useState(() => getStorageValue(STORAGE_KEY));
   const [parsed, setParsed] = useState<ParsedURL | null>(null);
   const [copied, setCopied] = useState<CopiedState>({});
   const [showParams, setShowParams] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load from localStorage on mount
+  // Mark as hydrated on mount
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setUrlInput(saved);
-    }
     setIsHydrated(true);
   }, []);
 
   // Save to localStorage when input changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) return;
-
-    if (urlInput) {
-      localStorage.setItem(STORAGE_KEY, urlInput);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
+    if (!isHydrated) {
+      return;
     }
+    setStorageValue(STORAGE_KEY, urlInput);
   }, [urlInput, isHydrated]);
 
   // Parse URL when input changes

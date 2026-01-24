@@ -6,7 +6,6 @@ import {
   Loading03Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import JSZip from "jszip";
 import {
   type DragEvent,
   useCallback,
@@ -370,7 +369,9 @@ export default function ImageCompressorPage() {
     const onUp = () => setIsDraggingSlider(false);
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
-    window.addEventListener("touchmove", onMove);
+    // Use passive: true for touch events - enables immediate scrolling
+    // since we don't call preventDefault() here
+    window.addEventListener("touchmove", onMove, { passive: true });
     window.addEventListener("touchend", onUp);
     return () => {
       window.removeEventListener("mousemove", onMove);
@@ -408,11 +409,15 @@ export default function ImageCompressorPage() {
 
   const handleDownloadAll = useCallback(async () => {
     const completed = jobs.filter((j) => j.result);
-    if (completed.length === 0) return;
+    if (completed.length === 0) {
+      return;
+    }
     if (completed.length === 1) {
       handleDownload();
       return;
     }
+    // Dynamic import JSZip only when downloading multiple files
+    const { default: JSZip } = await import("jszip");
     const zip = new JSZip();
     const ext = globalOptions.format === "png" ? ".png" : ".jpg";
     for (const job of completed) {

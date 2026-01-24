@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@/components/analytics";
 import { AppSidebar } from "@/components/app-sidebar";
 import { CommandMenu } from "@/components/command-menu";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -114,7 +114,7 @@ export default function RootLayout({
           </SidebarProvider>
           <Toaster position="bottom-right" />
         </ThemeProvider>
-        {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true" && <Analytics />}
+        <Analytics />
       </body>
     </html>
   );

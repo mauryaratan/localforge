@@ -41,29 +41,23 @@ import {
   validateJson,
 } from "@/lib/json-formatter";
 
+import { getStorageValue, setStorageValue } from "@/lib/utils";
+
 const STORAGE_KEY_INPUT = "devtools:json-formatter:input";
 const STORAGE_KEY_PATH = "devtools:json-formatter:path";
 
 const JsonFormatterPage = () => {
-  const [input, setInput] = useState("");
-  const [pathQuery, setPathQuery] = useState("");
+  // Use lazy state initialization - function runs only once on initial render
+  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_INPUT));
+  const [pathQuery, setPathQuery] = useState(() => getStorageValue(STORAGE_KEY_PATH));
   const [pathResult, setPathResult] = useState<string>("");
   const [pathError, setPathError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
   const [indentSize, setIndentSize] = useState(2);
   const [activeTab, setActiveTab] = useState<string>("formatted");
 
-  // Load from localStorage on mount
+  // Mark as hydrated on mount
   useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY_INPUT);
-    const savedPath = localStorage.getItem(STORAGE_KEY_PATH);
-
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    if (savedPath) {
-      setPathQuery(savedPath);
-    }
     setIsHydrated(true);
   }, []);
 
@@ -72,18 +66,8 @@ const JsonFormatterPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (input) {
-      localStorage.setItem(STORAGE_KEY_INPUT, input);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_INPUT);
-    }
-
-    if (pathQuery) {
-      localStorage.setItem(STORAGE_KEY_PATH, pathQuery);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_PATH);
-    }
+    setStorageValue(STORAGE_KEY_INPUT, input);
+    setStorageValue(STORAGE_KEY_PATH, pathQuery);
   }, [input, pathQuery, isHydrated]);
 
   // Validation result

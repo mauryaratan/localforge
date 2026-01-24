@@ -33,32 +33,27 @@ import {
   parseColor,
   rgbToHex,
 } from "@/lib/color-converter";
+import { getStorageValue, setStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:color-converter:input";
 
 const ColorConverterPage = () => {
-  const [colorInput, setColorInput] = useState("");
+  // Use lazy state initialization - function runs only once on initial render
+  const [colorInput, setColorInput] = useState(() => getStorageValue(STORAGE_KEY));
   const [parsed, setParsed] = useState<ParsedColor | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load from localStorage on mount
+  // Mark as hydrated on mount
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setColorInput(saved);
-    }
     setIsHydrated(true);
   }, []);
 
   // Save to localStorage when input changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) return;
-
-    if (colorInput) {
-      localStorage.setItem(STORAGE_KEY, colorInput);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
+    if (!isHydrated) {
+      return;
     }
+    setStorageValue(STORAGE_KEY, colorInput);
   }, [colorInput, isHydrated]);
 
   // Parse color when input changes

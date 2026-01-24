@@ -20,20 +20,18 @@ import {
   type ParsedCron,
   parseCron,
 } from "@/lib/cron-parser";
+import { getStorageValue, setStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:cron-parser:input";
 
 const CronParserPage = () => {
-  const [cronInput, setCronInput] = useState("");
+  // Use lazy state initialization - function runs only once on initial render
+  const [cronInput, setCronInput] = useState(() => getStorageValue(STORAGE_KEY));
   const [parsed, setParsed] = useState<ParsedCron | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load from localStorage on mount
+  // Mark as hydrated on mount
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setCronInput(saved);
-    }
     setIsHydrated(true);
   }, []);
 
@@ -42,12 +40,7 @@ const CronParserPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (cronInput) {
-      localStorage.setItem(STORAGE_KEY, cronInput);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    setStorageValue(STORAGE_KEY, cronInput);
   }, [cronInput, isHydrated]);
 
   // Parse cron when input changes
