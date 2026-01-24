@@ -13,6 +13,7 @@ import {
   Key01Icon,
   LicenseIcon,
   Link01Icon,
+  LockIcon,
   NoteEditIcon,
   PaintBoardIcon,
   PaintBrush01Icon,
@@ -78,6 +79,11 @@ export const navItems: NavItem[] = [
     title: "UUID / ULID",
     href: "/uuid-generator",
     icon: FingerPrintIcon,
+  },
+  {
+    title: "Hash Generator",
+    href: "/hash-generator",
+    icon: LockIcon,
   },
   {
     title: "HTML Entities Encode/Decode",
