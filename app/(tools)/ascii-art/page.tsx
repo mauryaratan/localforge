@@ -47,8 +47,8 @@ import {
   isImageSupported,
   TEXT_FONT_LABELS,
   type TextFont,
-  textToAscii,
   type TextOptions,
+  textToAscii,
   WIDTH_PRESETS,
 } from "@/lib/ascii-art";
 
@@ -84,11 +84,13 @@ const AsciiArtPage = () => {
 
   // Text mode state
   const [textInput, setTextInput] = useState("HELLO");
-  const [textOptions, setTextOptions] = useState<TextOptions>(DEFAULT_TEXT_OPTIONS);
+  const [textOptions, setTextOptions] =
+    useState<TextOptions>(DEFAULT_TEXT_OPTIONS);
   const [textOutput, setTextOutput] = useState("");
 
   // Image mode state
-  const [imageOptions, setImageOptions] = useState<ConversionOptions>(DEFAULT_OPTIONS);
+  const [imageOptions, setImageOptions] =
+    useState<ConversionOptions>(DEFAULT_OPTIONS);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageOutput, setImageOutput] = useState<string>("");
@@ -305,7 +307,10 @@ const AsciiArtPage = () => {
   );
 
   const updateImageOption = useCallback(
-    <K extends keyof ConversionOptions>(key: K, value: ConversionOptions[K]) => {
+    <K extends keyof ConversionOptions>(
+      key: K,
+      value: ConversionOptions[K]
+    ) => {
       setImageOptions((prev) => ({ ...prev, [key]: value }));
     },
     []
@@ -396,7 +401,9 @@ const AsciiArtPage = () => {
 
                   {/* Font Selection */}
                   <div className="flex flex-col gap-2">
-                    <Label className="text-muted-foreground text-xs">Font</Label>
+                    <Label className="text-muted-foreground text-xs">
+                      Font
+                    </Label>
                     <Select
                       onValueChange={(v) =>
                         setTextOptions((prev) => ({
@@ -411,7 +418,11 @@ const AsciiArtPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {availableFonts.map((font) => (
-                          <SelectItem className="cursor-pointer" key={font} value={font}>
+                          <SelectItem
+                            className="cursor-pointer"
+                            key={font}
+                            value={font}
+                          >
                             {TEXT_FONT_LABELS[font]}
                           </SelectItem>
                         ))}
@@ -457,7 +468,59 @@ const AsciiArtPage = () => {
                   type="file"
                 />
 
-                {!imageFile ? (
+                {imageFile ? (
+                  <div className="flex flex-col gap-4 sm:flex-row">
+                    {/* Image Preview */}
+                    <div className="relative w-full shrink-0 overflow-hidden rounded-lg border bg-muted/30 sm:w-48">
+                      {imagePreview && (
+                        <img
+                          alt="Preview"
+                          className="h-full w-full object-contain"
+                          src={imagePreview}
+                        />
+                      )}
+                    </div>
+
+                    {/* File Info */}
+                    <div className="flex flex-1 flex-col justify-center gap-2">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] text-muted-foreground uppercase">
+                          File
+                        </span>
+                        <span className="truncate font-mono text-xs">
+                          {imageFile.name}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] text-muted-foreground uppercase">
+                          Size
+                        </span>
+                        <span className="font-mono text-xs">
+                          {(imageFile.size / 1024).toFixed(1)} KB
+                        </span>
+                      </div>
+                      {dimensions && (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[10px] text-muted-foreground uppercase">
+                            Output
+                          </span>
+                          <span className="font-mono text-xs">
+                            {dimensions.width} × {dimensions.height} chars
+                          </span>
+                        </div>
+                      )}
+                      <Button
+                        aria-label="Change image"
+                        className="mt-2 w-fit cursor-pointer"
+                        onClick={() => fileInputRef.current?.click()}
+                        size="sm"
+                        variant="outline"
+                      >
+                        Change Image
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
                   <div
                     aria-label="Drop zone for image"
                     className={`flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-8 transition-colors ${
@@ -494,58 +557,6 @@ const AsciiArtPage = () => {
                       <span className="mt-1 text-muted-foreground/70 text-xs">
                         You can also paste from clipboard
                       </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-4 sm:flex-row">
-                    {/* Image Preview */}
-                    <div className="relative w-full shrink-0 overflow-hidden rounded-lg border bg-muted/30 sm:w-48">
-                      {imagePreview && (
-                        <img
-                          alt="Preview"
-                          className="h-full w-full object-contain"
-                          src={imagePreview}
-                        />
-                      )}
-                    </div>
-
-                    {/* File Info */}
-                    <div className="flex flex-1 flex-col justify-center gap-2">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-muted-foreground text-[10px] uppercase">
-                          File
-                        </span>
-                        <span className="truncate font-mono text-xs">
-                          {imageFile.name}
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-muted-foreground text-[10px] uppercase">
-                          Size
-                        </span>
-                        <span className="font-mono text-xs">
-                          {(imageFile.size / 1024).toFixed(1)} KB
-                        </span>
-                      </div>
-                      {dimensions && (
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-muted-foreground text-[10px] uppercase">
-                            Output
-                          </span>
-                          <span className="font-mono text-xs">
-                            {dimensions.width} × {dimensions.height} chars
-                          </span>
-                        </div>
-                      )}
-                      <Button
-                        aria-label="Change image"
-                        className="mt-2 w-fit cursor-pointer"
-                        onClick={() => fileInputRef.current?.click()}
-                        size="sm"
-                        variant="outline"
-                      >
-                        Change Image
-                      </Button>
                     </div>
                   </div>
                 )}
@@ -608,7 +619,7 @@ const AsciiArtPage = () => {
             ) : currentOutput ? (
               <div className="relative">
                 <pre
-                  className="max-h-[500px] overflow-auto rounded-lg bg-[#0a0a0a] p-4 font-mono text-[8px] leading-[1.15] text-[#e0e0e0] sm:text-[10px]"
+                  className="max-h-[500px] overflow-auto rounded-lg bg-[#0a0a0a] p-4 font-mono text-[#e0e0e0] text-[8px] leading-[1.15] sm:text-[10px]"
                   ref={outputRef}
                   style={{
                     whiteSpace: "pre",
@@ -616,7 +627,8 @@ const AsciiArtPage = () => {
                       "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace",
                   }}
                 >
-                  {activeTab === "text" || imageOptions.colorMode === "monochrome" ? (
+                  {activeTab === "text" ||
+                  imageOptions.colorMode === "monochrome" ? (
                     currentOutput
                   ) : (
                     <span dangerouslySetInnerHTML={{ __html: htmlOutput }} />
@@ -706,11 +718,17 @@ const AsciiArtPage = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(CHARACTER_SET_LABELS).map(([key, label]) => (
-                      <SelectItem className="cursor-pointer" key={key} value={key}>
-                        {label}
-                      </SelectItem>
-                    ))}
+                    {Object.entries(CHARACTER_SET_LABELS).map(
+                      ([key, label]) => (
+                        <SelectItem
+                          className="cursor-pointer"
+                          key={key}
+                          value={key}
+                        >
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -730,7 +748,7 @@ const AsciiArtPage = () => {
                     placeholder="@#=-. "
                     value={imageOptions.customCharacters || ""}
                   />
-                  <p className="text-muted-foreground text-[10px]">
+                  <p className="text-[10px] text-muted-foreground">
                     Enter characters from darkest to lightest (end with space)
                   </p>
                 </div>
@@ -738,7 +756,9 @@ const AsciiArtPage = () => {
 
               {/* Color Mode */}
               <div className="flex flex-col gap-2">
-                <Label className="text-muted-foreground text-xs">Color Mode</Label>
+                <Label className="text-muted-foreground text-xs">
+                  Color Mode
+                </Label>
                 <Select
                   onValueChange={(v) =>
                     updateImageOption(
@@ -767,7 +787,10 @@ const AsciiArtPage = () => {
 
               {/* Invert Option */}
               <div className="flex items-center justify-between">
-                <Label className="text-muted-foreground text-xs" htmlFor="invert">
+                <Label
+                  className="text-muted-foreground text-xs"
+                  htmlFor="invert"
+                >
                   Invert Colors
                 </Label>
                 <Switch
@@ -782,7 +805,10 @@ const AsciiArtPage = () => {
 
               {/* Preserve Aspect Ratio */}
               <div className="flex items-center justify-between">
-                <Label className="text-muted-foreground text-xs" htmlFor="aspect">
+                <Label
+                  className="text-muted-foreground text-xs"
+                  htmlFor="aspect"
+                >
                   Preserve Aspect Ratio
                 </Label>
                 <Switch
@@ -841,39 +867,39 @@ const AsciiArtPage = () => {
             {activeTab === "text" ? (
               <div className="flex flex-col gap-2 text-[10px] text-muted-foreground">
                 <p>
-                  <strong className="text-foreground">Fonts</strong> - Try different
-                  fonts for unique styles
+                  <strong className="text-foreground">Fonts</strong> - Try
+                  different fonts for unique styles
                 </p>
                 <p>
-                  <strong className="text-foreground">Uppercase</strong> - Text is
-                  automatically converted to uppercase
+                  <strong className="text-foreground">Uppercase</strong> - Text
+                  is automatically converted to uppercase
                 </p>
                 <p>
-                  <strong className="text-foreground">Length</strong> - Shorter text
-                  works best for ASCII banners
+                  <strong className="text-foreground">Length</strong> - Shorter
+                  text works best for ASCII banners
                 </p>
                 <p>
-                  <strong className="text-foreground">Special chars</strong> - Some
-                  fonts support limited punctuation
+                  <strong className="text-foreground">Special chars</strong> -
+                  Some fonts support limited punctuation
                 </p>
               </div>
             ) : (
               <div className="flex flex-col gap-2 text-[10px] text-muted-foreground">
                 <p>
-                  <strong className="text-foreground">Width</strong> - Lower values
-                  for small previews, higher for detail
+                  <strong className="text-foreground">Width</strong> - Lower
+                  values for small previews, higher for detail
                 </p>
                 <p>
-                  <strong className="text-foreground">Characters</strong> - "Detailed"
-                  gives best gradation, "Blocks" for bold look
+                  <strong className="text-foreground">Characters</strong> -
+                  "Detailed" gives best gradation, "Blocks" for bold look
                 </p>
                 <p>
-                  <strong className="text-foreground">Invert</strong> - Toggle for
-                  light or dark backgrounds
+                  <strong className="text-foreground">Invert</strong> - Toggle
+                  for light or dark backgrounds
                 </p>
                 <p>
-                  <strong className="text-foreground">Performance</strong> - Monochrome
-                  mode is fastest for large images
+                  <strong className="text-foreground">Performance</strong> -
+                  Monochrome mode is fastest for large images
                 </p>
               </div>
             )}

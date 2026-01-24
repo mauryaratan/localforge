@@ -26,7 +26,9 @@ const STORAGE_KEY = "devtools:cron-parser:input";
 
 const CronParserPage = () => {
   // Use lazy state initialization - function runs only once on initial render
-  const [cronInput, setCronInput] = useState(() => getStorageValue(STORAGE_KEY));
+  const [cronInput, setCronInput] = useState(() =>
+    getStorageValue(STORAGE_KEY)
+  );
   const [parsed, setParsed] = useState<ParsedCron | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 

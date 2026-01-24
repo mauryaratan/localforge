@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
-  base64UrlEncode,
   base64UrlDecode,
+  base64UrlEncode,
   decodeJWT,
   encodeJWT,
-  verifyJWT,
-  validateJSON,
   formatClaimValue,
-  isTokenExpired,
   getExpirationInfo,
+  isTokenExpired,
   STANDARD_CLAIMS,
+  validateJSON,
+  verifyJWT,
 } from "@/lib/jwt";
 
 describe("base64UrlEncode", () => {
@@ -73,7 +73,7 @@ describe("decodeJWT", () => {
     expect(result.data.header.typ).toBe("JWT");
     expect(result.data.payload.sub).toBe("1234567890");
     expect(result.data.payload.name).toBe("John Doe");
-    expect(result.data.payload.iat).toBe(1516239022);
+    expect(result.data.payload.iat).toBe(1_516_239_022);
   });
 
   it("should return error for empty token", () => {
@@ -130,7 +130,7 @@ describe("decodeJWT", () => {
 describe("encodeJWT", () => {
   it("should encode a valid JWT with HS256", async () => {
     const header = { alg: "HS256" as const, typ: "JWT" };
-    const payload = { sub: "1234567890", name: "John Doe", iat: 1516239022 };
+    const payload = { sub: "1234567890", name: "John Doe", iat: 1_516_239_022 };
     const secret = "your-256-bit-secret";
 
     const result = await encodeJWT(header, payload, secret);
@@ -266,7 +266,9 @@ describe("validateJSON", () => {
   });
 
   it("should accept nested objects", () => {
-    const result = validateJSON('{"user": {"name": "John", "roles": ["admin"]}}');
+    const result = validateJSON(
+      '{"user": {"name": "John", "roles": ["admin"]}}'
+    );
     expect(result.success).toBe(true);
   });
 });

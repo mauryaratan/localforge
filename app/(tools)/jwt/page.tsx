@@ -9,14 +9,12 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -24,26 +22,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  DEFAULT_HEADER,
+  DEFAULT_PAYLOAD,
+  decodeJWT,
+  EXAMPLE_TOKENS,
+  encodeJWT,
+  formatClaimValue,
+  getExpirationInfo,
   type JWTAlgorithm,
   type JWTDecoded,
   type JWTHeader,
   type JWTPayload,
-  decodeJWT,
-  encodeJWT,
-  verifyJWT,
-  validateJSON,
-  formatClaimValue,
-  getExpirationInfo,
   STANDARD_CLAIMS,
-  EXAMPLE_TOKENS,
-  DEFAULT_HEADER,
-  DEFAULT_PAYLOAD,
+  validateJSON,
+  verifyJWT,
 } from "@/lib/jwt";
 
 const STORAGE_KEY = "devtools:jwt:input";
@@ -148,7 +148,7 @@ const JWTPage = () => {
 
   // Handle signature verification
   const handleVerify = useCallback(async () => {
-    if (!token || !secret) {
+    if (!(token && secret)) {
       setVerificationStatus("error");
       setVerificationError("Token and secret are required");
       return;
@@ -340,7 +340,7 @@ const JWTPage = () => {
                   </div>
                   <Textarea
                     aria-label="JWT token input"
-                    className={`min-h-[120px] resize-none font-mono text-xs break-all ${
+                    className={`min-h-[120px] resize-none break-all font-mono text-xs ${
                       decodeError
                         ? "border-destructive focus-visible:ring-destructive"
                         : ""
@@ -545,7 +545,7 @@ const JWTPage = () => {
                       <Button
                         aria-label="Verify signature"
                         className="cursor-pointer"
-                        disabled={!token || !secret}
+                        disabled={!(token && secret)}
                         onClick={handleVerify}
                         size="sm"
                         tabIndex={0}
@@ -608,15 +608,13 @@ const JWTPage = () => {
                       onValueChange={(v) =>
                         handleAlgorithmChange(v as JWTAlgorithm)
                       }
-                      value={
-                        (() => {
-                          try {
-                            return JSON.parse(headerInput).alg || "HS256";
-                          } catch {
-                            return "HS256";
-                          }
-                        })()
-                      }
+                      value={(() => {
+                        try {
+                          return JSON.parse(headerInput).alg || "HS256";
+                        } catch {
+                          return "HS256";
+                        }
+                      })()}
                     >
                       <SelectTrigger
                         aria-label="Select algorithm"
@@ -744,13 +742,14 @@ const JWTPage = () => {
               </CardHeader>
               <CardContent className="pt-4">
                 <div
-                  className={`min-h-[80px] rounded border bg-muted/30 p-3 font-mono text-xs break-all ${
+                  className={`min-h-[80px] break-all rounded border bg-muted/30 p-3 font-mono text-xs ${
                     encodedToken
                       ? ""
                       : "flex items-center justify-center text-muted-foreground"
                   }`}
                 >
-                  {encodedToken || "Enter header, payload, and secret to generate JWT"}
+                  {encodedToken ||
+                    "Enter header, payload, and secret to generate JWT"}
                 </div>
                 {encodedToken && (
                   <Button
@@ -829,7 +828,7 @@ const JWTPage = () => {
             <CardTitle>About JWT</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="space-y-2 text-xs text-muted-foreground">
+            <div className="space-y-2 text-muted-foreground text-xs">
               <p>
                 JSON Web Tokens are an open, industry standard{" "}
                 <a

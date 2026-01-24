@@ -39,7 +39,9 @@ const STORAGE_KEY = "devtools:color-converter:input";
 
 const ColorConverterPage = () => {
   // Use lazy state initialization - function runs only once on initial render
-  const [colorInput, setColorInput] = useState(() => getStorageValue(STORAGE_KEY));
+  const [colorInput, setColorInput] = useState(() =>
+    getStorageValue(STORAGE_KEY)
+  );
   const [parsed, setParsed] = useState<ParsedColor | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 

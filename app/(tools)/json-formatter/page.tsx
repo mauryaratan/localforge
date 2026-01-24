@@ -49,7 +49,9 @@ const STORAGE_KEY_PATH = "devtools:json-formatter:path";
 const JsonFormatterPage = () => {
   // Use lazy state initialization - function runs only once on initial render
   const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_INPUT));
-  const [pathQuery, setPathQuery] = useState(() => getStorageValue(STORAGE_KEY_PATH));
+  const [pathQuery, setPathQuery] = useState(() =>
+    getStorageValue(STORAGE_KEY_PATH)
+  );
   const [pathResult, setPathResult] = useState<string>("");
   const [pathError, setPathError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);

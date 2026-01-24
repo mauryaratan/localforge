@@ -60,7 +60,7 @@ export const base64UrlDecode = (input: string): string => {
 };
 
 export const decodeJWT = (token: string): JWTResult<JWTDecoded> => {
-  if (!token || !token.trim()) {
+  if (!(token && token.trim())) {
     return {
       success: false,
       data: {} as JWTDecoded,
@@ -285,7 +285,11 @@ export const validateJSON = (input: string): JWTResult<object> => {
 
   try {
     const parsed = JSON.parse(input);
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
       return {
         success: false,
         data: {},
@@ -354,7 +358,7 @@ export const getExpirationInfo = (
 
   if (expired) {
     const diff = now - expiresAt.getTime();
-    const minutes = Math.floor(diff / 60000);
+    const minutes = Math.floor(diff / 60_000);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
@@ -373,7 +377,7 @@ export const getExpirationInfo = (
   }
 
   const diff = expiresAt.getTime() - now;
-  const minutes = Math.floor(diff / 60000);
+  const minutes = Math.floor(diff / 60_000);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 

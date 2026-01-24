@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   brightnessToChar,
-  calculateBrightness,
   CHARACTER_SET_LABELS,
   CHARACTER_SETS,
+  calculateBrightness,
   DEFAULT_OPTIONS,
   DEFAULT_TEXT_OPTIONS,
   getAvailableFonts,

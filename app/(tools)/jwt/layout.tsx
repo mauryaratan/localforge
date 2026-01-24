@@ -29,7 +29,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "JWT Encoder & Decoder - LocalForge",
-    description: "Decode, verify, and generate JSON Web Tokens securely in your browser",
+    description:
+      "Decode, verify, and generate JSON Web Tokens securely in your browser",
   },
 };
 
