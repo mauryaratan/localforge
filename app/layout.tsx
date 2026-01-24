@@ -57,12 +57,21 @@ export const metadata: Metadata = {
     title: `${siteConfig.name} — Privacy-First Developer Utilities`,
     description: siteConfig.description,
     siteName: siteConfig.name,
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} — Privacy-First Developer Utilities`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${siteConfig.name} — Privacy-First Developer Utilities`,
     description: siteConfig.description,
     creator: "@localforge",
+    images: ["/og.jpg"],
   },
   robots: {
     index: true,
