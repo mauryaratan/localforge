@@ -17,7 +17,7 @@ When asked to add a tool:
 
 Each tool requires the following files:
 
-```
+```text
 /app/(tools)/[tool-name]/
   ├── layout.tsx        # Metadata & SEO configuration
   └── page.tsx          # Client component with UI and logic
@@ -103,8 +103,9 @@ const ToolNamePage = () => {
   // Memoize expensive computations
   const result = useMemo(() => {
     if (!input) return null;
-    // Process input here
-    return processedResult;
+    // TODO: Process input here
+    // Example: return processInput(input);
+    return input;
   }, [input]);
 
   const handleCopy = async (text: string) => {
@@ -150,7 +151,8 @@ const ToolNamePage = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleCopy(result)}
+              disabled={!result}
+              onClick={() => result && handleCopy(result)}
               className="cursor-pointer"
               aria-label="Copy output to clipboard"
             >
@@ -203,8 +205,9 @@ export function validateInput(input: string): { isValid: boolean; error?: string
 
 export function processInput(input: string): ToolResult {
   try {
-    // Processing logic here
-    return { success: true, data: result };
+    // TODO: Add processing logic here
+    const processed = input; // Replace with actual transformation
+    return { success: true, data: processed };
   } catch (error) {
     return {
       success: false,

@@ -28,7 +28,7 @@ describe("generateHash - MD5", () => {
   it("should hash unicode correctly", async () => {
     const result = await generateHash("café", "MD5");
     expect(result.success).toBe(true);
-    expect(result.hash).toBe("5eb63bbbe01eeed093cb22bb8f5acdc3");
+    expect(result.hash).toBe("07117fe4a1ebd544965dc19573183da2");
   });
 
   it("should produce 32-character hash", async () => {
