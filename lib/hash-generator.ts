@@ -30,9 +30,9 @@ const md5 = (input: string): string => {
       let charCode = str.charCodeAt(i);
       if (charCode < 0x80) {
         bytes.push(charCode);
-      } else if (charCode < 0x800) {
+      } else if (charCode < 0x8_00) {
         bytes.push(0xc0 | (charCode >> 6), 0x80 | (charCode & 0x3f));
-      } else if (charCode < 0xd800 || charCode >= 0xe000) {
+      } else if (charCode < 0xd8_00 || charCode >= 0xe0_00) {
         bytes.push(
           0xe0 | (charCode >> 12),
           0x80 | ((charCode >> 6) & 0x3f),
@@ -41,7 +41,8 @@ const md5 = (input: string): string => {
       } else {
         i++;
         charCode =
-          0x10000 + (((charCode & 0x3ff) << 10) | (str.charCodeAt(i) & 0x3ff));
+          0x1_00_00 +
+          (((charCode & 0x3_ff) << 10) | (str.charCodeAt(i) & 0x3_ff));
         bytes.push(
           0xf0 | (charCode >> 18),
           0x80 | ((charCode >> 12) & 0x3f),
@@ -57,10 +58,10 @@ const md5 = (input: string): string => {
   const len = bytes.length;
 
   // Initialize hash values
-  let a = 0x67452301;
-  let b = 0xefcdab89;
-  let c = 0x98badcfe;
-  let d = 0x10325476;
+  let a = 0x67_45_23_01;
+  let b = 0xef_cd_ab_89;
+  let c = 0x98_ba_dc_fe;
+  let d = 0x10_32_54_76;
 
   // Pre-processing: adding padding bits
   const paddedLen = ((len + 8) >>> 6) + 1;
@@ -83,7 +84,7 @@ const md5 = (input: string): string => {
   // Pre-computed constants
   const K = new Uint32Array(64);
   for (let i = 0; i < 64; i++) {
-    K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 0x100000000);
+    K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 0x1_00_00_00_00);
   }
 
   // Process each 512-bit block
@@ -116,7 +117,10 @@ const md5 = (input: string): string => {
       cc = bb;
       const rotateAmount = s[j];
       const sum = (aa + f + K[j] + words[i + g]) >>> 0;
-      bb = (bb + (((sum << rotateAmount) | (sum >>> (32 - rotateAmount))) >>> 0)) >>> 0;
+      bb =
+        (bb +
+          (((sum << rotateAmount) | (sum >>> (32 - rotateAmount))) >>> 0)) >>>
+        0;
       aa = temp;
     }
 
@@ -263,7 +267,5 @@ export const isValidHashFormat = (
   };
 
   const hexPattern = /^[a-f0-9]+$/i;
-  return (
-    hash.length === expectedLength[algorithm] && hexPattern.test(hash)
-  );
+  return hash.length === expectedLength[algorithm] && hexPattern.test(hash);
 };

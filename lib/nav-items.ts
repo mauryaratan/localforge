@@ -6,6 +6,7 @@ import {
   CodeSquareIcon,
   CommandIcon,
   DocumentCodeIcon,
+  FileSearchIcon,
   FingerPrintIcon,
   GridTableIcon,
   Image01Icon,
@@ -109,6 +110,11 @@ export const navItems: NavItem[] = [
     title: "JSON / CSV",
     href: "/json-csv",
     icon: GridTableIcon,
+  },
+  {
+    title: "JSON Diff",
+    href: "/json-diff",
+    icon: FileSearchIcon,
   },
   {
     title: "Color Converter",
