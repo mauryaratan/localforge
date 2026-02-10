@@ -85,9 +85,13 @@ export const buildURL = (parsed: ParsedURL): string => {
   if (!parsed.isValid) return "";
 
   try {
-    const url = new URL(parsed.origin);
+    // `origin` is "null" for valid URLs like file:, data:, mailto:, etc.
+    // Seed from href first so those protocols can still round-trip.
+    const seed = parsed.href || parsed.origin;
+    const url = new URL(seed);
     url.pathname = parsed.pathname;
     url.hash = parsed.hash;
+    url.search = "";
 
     parsed.searchParams.forEach(({ key, value }) => {
       if (key) {
@@ -95,12 +99,9 @@ export const buildURL = (parsed: ParsedURL): string => {
       }
     });
 
-    if (parsed.username) {
-      url.username = parsed.username;
-    }
-    if (parsed.password) {
-      url.password = parsed.password;
-    }
+    // Always set to support clearing previously parsed credentials.
+    url.username = parsed.username;
+    url.password = parsed.password;
 
     return url.href;
   } catch {

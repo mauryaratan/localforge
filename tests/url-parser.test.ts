@@ -150,6 +150,30 @@ describe("buildURL", () => {
     expect(built).toBe("https://user:pass@example.com/path");
   });
 
+  it("should support clearing username and password", () => {
+    const parsed = parseURL("https://user:pass@example.com/path");
+    parsed.username = "";
+    parsed.password = "";
+    const built = buildURL(parsed);
+
+    expect(built).toBe("https://example.com/path");
+  });
+
+  it("should build file URLs", () => {
+    const parsed = parseURL("file:///path/to/file.txt");
+    const built = buildURL(parsed);
+
+    expect(built).toBe("file:///path/to/file.txt");
+  });
+
+  it("should replace file URL query params without duplication", () => {
+    const parsed = parseURL("file:///path/to/file.txt?foo=bar");
+    parsed.searchParams = [{ key: "hello", value: "world" }];
+    const built = buildURL(parsed);
+
+    expect(built).toBe("file:///path/to/file.txt?hello=world");
+  });
+
   it("should skip empty search param keys", () => {
     const parsed = parseURL("https://example.com/path");
     parsed.searchParams = [
