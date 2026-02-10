@@ -108,6 +108,16 @@ describe("parseColor", () => {
     expect(result.error).toBe("Invalid color format");
   });
 
+  it("should reject malformed HEX values", () => {
+    expect(parseColor("#gg00ff").isValid).toBe(false);
+    expect(parseColor("#12").isValid).toBe(false);
+  });
+
+  it("should reject malformed RGB/HSL formats", () => {
+    expect(parseColor("rgb(1,2)").isValid).toBe(false);
+    expect(parseColor("hsl(120, 50)").isValid).toBe(false);
+  });
+
   it("should clamp RGB values above 255", () => {
     const result = parseColor("rgb(300, 50, 128)");
 
@@ -187,6 +197,11 @@ describe("hslToRgb", () => {
     expect(rgb.r).toBe(rgb.g);
     expect(rgb.g).toBe(rgb.b);
   });
+
+  it("should wrap hue values above 360 correctly", () => {
+    const rgb = hslToRgb({ h: 420, s: 100, l: 50 });
+    expect(rgb).toEqual({ r: 255, g: 255, b: 0 });
+  });
 });
 
 describe("rgbToHsv", () => {
@@ -210,6 +225,11 @@ describe("rgbToHsv", () => {
 
     expect(hsv.v).toBe(0);
   });
+
+  it("should convert pure green and pure blue to expected hues", () => {
+    expect(rgbToHsv({ r: 0, g: 255, b: 0 }).h).toBe(120);
+    expect(rgbToHsv({ r: 0, g: 0, b: 255 }).h).toBe(240);
+  });
 });
 
 describe("hsvToRgb", () => {
@@ -223,6 +243,29 @@ describe("hsvToRgb", () => {
     const rgb = hsvToRgb({ h: 120, s: 100, v: 100 });
 
     expect(rgb).toEqual({ r: 0, g: 255, b: 0 });
+  });
+
+  it("should cover all HSV hue sectors", () => {
+    expect(hsvToRgb({ h: 60, s: 100, v: 100 })).toEqual({
+      r: 255,
+      g: 255,
+      b: 0,
+    });
+    expect(hsvToRgb({ h: 180, s: 100, v: 100 })).toEqual({
+      r: 0,
+      g: 255,
+      b: 255,
+    });
+    expect(hsvToRgb({ h: 240, s: 100, v: 100 })).toEqual({
+      r: 0,
+      g: 0,
+      b: 255,
+    });
+    expect(hsvToRgb({ h: 300, s: 100, v: 100 })).toEqual({
+      r: 255,
+      g: 0,
+      b: 255,
+    });
   });
 });
 

@@ -300,6 +300,28 @@ describe("buildJsonTree", () => {
     const tree = buildJsonTree(undefined);
     expect(tree).toEqual([]);
   });
+
+  it("should build child nodes for arrays inside objects", () => {
+    const data = { values: [1, { nested: true }] };
+    const tree = buildJsonTree(data);
+
+    expect(tree[0].type).toBe("array");
+    expect(tree[0].children?.[0].key).toBe("[0]");
+    expect(tree[0].children?.[1].path).toBe("$.values[1]");
+  });
+
+  it("should build tree for primitive root values", () => {
+    const tree = buildJsonTree("hello");
+    expect(tree).toHaveLength(1);
+    expect(tree[0].key).toBe("value");
+    expect(tree[0].type).toBe("string");
+    expect(tree[0].path).toBe("$");
+  });
+
+  it("should coerce unsupported primitive-like values to string nodes", () => {
+    const symbolTree = buildJsonTree(Symbol("x"));
+    expect(symbolTree[0].type).toBe("string");
+  });
 });
 
 describe("getAllPaths", () => {

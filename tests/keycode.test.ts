@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   formatEventJson,
+  getActiveModifiers,
   getKeyDescription,
   getLocationDescription,
   getSimilarKeyCodes,
   getUnicodeChar,
   getUnicodeValue,
+  keyboardEventToInfo,
   type KeyEventInfo,
   keyCodeDescriptions,
   keyCodeTable,
@@ -163,6 +165,16 @@ describe("getSimilarKeyCodes", () => {
     const similar = getSimilarKeyCodes(8); // Backspace
     expect(similar).toEqual([]);
   });
+
+  it("should return navigation key group for PageUp/PageDown/Home/End/Insert/Delete", () => {
+    const similar = getSimilarKeyCodes(33); // PageUp
+    expect(similar).toContain(34);
+    expect(similar).toContain(35);
+    expect(similar).toContain(36);
+    expect(similar).toContain(45);
+    expect(similar).toContain(46);
+    expect(similar).not.toContain(33);
+  });
 });
 
 describe("formatEventJson", () => {
@@ -207,6 +219,40 @@ describe("formatEventJson", () => {
   });
 });
 
+describe("keyboardEventToInfo", () => {
+  it("should map keyboard event fields into info object", () => {
+    const event = {
+      key: "A",
+      code: "KeyA",
+      keyCode: 65,
+      which: 65,
+      location: 1,
+      charCode: 65,
+      repeat: true,
+      isComposing: false,
+      shiftKey: true,
+      ctrlKey: false,
+      altKey: true,
+      metaKey: false,
+    } as KeyboardEvent;
+
+    const before = Date.now();
+    const info = keyboardEventToInfo(event, "keydown");
+    const after = Date.now();
+
+    expect(info.key).toBe("A");
+    expect(info.code).toBe("KeyA");
+    expect(info.keyCode).toBe(65);
+    expect(info.location).toBe(1);
+    expect(info.repeat).toBe(true);
+    expect(info.shiftKey).toBe(true);
+    expect(info.altKey).toBe(true);
+    expect(info.eventType).toBe("keydown");
+    expect(info.timestamp).toBeGreaterThanOrEqual(before);
+    expect(info.timestamp).toBeLessThanOrEqual(after);
+  });
+});
+
 describe("keyCodeDescriptions", () => {
   it("should have descriptions for all number keys", () => {
     for (let i = 48; i <= 57; i++) {
@@ -247,6 +293,55 @@ describe("modifierSymbols", () => {
     expect(modifierSymbols.shift).toBe("⇧");
     expect(modifierSymbols.alt).toBe("⌥");
     expect(modifierSymbols.ctrl).toBe("⌃");
+  });
+});
+
+describe("getActiveModifiers", () => {
+  it("should return empty array when no modifier keys are active", () => {
+    const info: KeyEventInfo = {
+      key: "a",
+      code: "KeyA",
+      keyCode: 65,
+      which: 65,
+      location: 0,
+      charCode: 97,
+      repeat: false,
+      isComposing: false,
+      shiftKey: false,
+      ctrlKey: false,
+      altKey: false,
+      metaKey: false,
+      eventType: "keydown",
+      timestamp: Date.now(),
+    };
+
+    expect(getActiveModifiers(info)).toEqual([]);
+  });
+
+  it("should return symbols in expected order when modifiers are active", () => {
+    const info: KeyEventInfo = {
+      key: "a",
+      code: "KeyA",
+      keyCode: 65,
+      which: 65,
+      location: 0,
+      charCode: 97,
+      repeat: false,
+      isComposing: false,
+      shiftKey: true,
+      ctrlKey: true,
+      altKey: true,
+      metaKey: true,
+      eventType: "keydown",
+      timestamp: Date.now(),
+    };
+
+    expect(getActiveModifiers(info)).toEqual([
+      modifierSymbols.meta,
+      modifierSymbols.shift,
+      modifierSymbols.alt,
+      modifierSymbols.ctrl,
+    ]);
   });
 });
 
