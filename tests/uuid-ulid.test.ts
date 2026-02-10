@@ -99,13 +99,15 @@ describe("generateULID", () => {
     expect(ulid1).not.toBe(ulid2);
   });
 
-  it("should have consistent timestamp prefix within same millisecond", () => {
-    // ULIDs generated in the same millisecond share the same timestamp prefix (first 10 chars)
+  it("should have non-decreasing timestamp order", () => {
     const ulid1 = generateULID();
     const ulid2 = generateULID();
-    // The first 10 characters represent the timestamp
-    // Within the same millisecond, they should be the same
-    expect(ulid1.slice(0, 10)).toBe(ulid2.slice(0, 10));
+    const parsed1 = parseId(ulid1);
+    const parsed2 = parseId(ulid2);
+
+    expect(parsed1.timestamp).toBeDefined();
+    expect(parsed2.timestamp).toBeDefined();
+    expect(parsed2.timestamp).toBeGreaterThanOrEqual(parsed1.timestamp ?? 0);
   });
 });
 

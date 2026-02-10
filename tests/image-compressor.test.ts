@@ -1,38 +1,17 @@
 import { describe, expect, it } from "vitest";
+import {
+  ACCEPTED_MIME_TYPES,
+  detectAlpha,
+  formatBytes,
+  isFileSupported,
+} from "@/lib/image-compressor";
 
 // Pure utility function tests that don't require WASM
-// These functions are tested separately from WASM-dependent functions
-
-// Re-implement the utility functions locally for testing
-// This avoids the dynamic import issue with WASM modules
-
-const formatBytes = (bytes: number): string => {
-  if (!bytes) return "0 B";
-  const units = ["B", "KB", "MB", "GB"];
-  const exponent = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
-    units.length - 1
-  );
-  const value = bytes / 1024 ** exponent;
-  return `${value.toFixed(value >= 10 || value % 1 === 0 ? 0 : 1)} ${units[exponent]}`;
-};
+// These functions are tested directly from the module.
 
 const formatSavings = (delta: number): string => {
   const sign = delta >= 0 ? "-" : "+";
   return `${sign}${Math.abs(delta).toFixed(1)}%`;
-};
-
-const detectAlpha = (data: Uint8ClampedArray): boolean => {
-  for (let i = 3; i < data.length; i += 4) {
-    if (data[i] !== 255) return true;
-  }
-  return false;
-};
-
-const ACCEPTED_MIME_TYPES = ["image/png", "image/jpeg"];
-
-const isFileSupported = (file: File): boolean => {
-  return ACCEPTED_MIME_TYPES.includes(file.type);
 };
 
 const calculateResizeDimensions = (
@@ -167,6 +146,14 @@ describe("detectAlpha", () => {
   it("should return false for empty data", () => {
     const data = new Uint8ClampedArray([]);
     expect(detectAlpha(data)).toBe(false);
+  });
+
+  it("should detect transparency in large buffers", () => {
+    // Large payload (> 400k bytes) with a transparent pixel near the start.
+    // This protects against sampling-based false negatives.
+    const data = new Uint8ClampedArray(480_000).fill(255);
+    data[7] = 0;
+    expect(detectAlpha(data)).toBe(true);
   });
 });
 

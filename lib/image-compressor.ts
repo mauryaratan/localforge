@@ -375,10 +375,11 @@ export const resizeImage = (
 };
 
 export const detectAlpha = (data: Uint8ClampedArray): boolean => {
-  const len = data.length;
-  const step = len > 400_000 ? Math.floor(len / 40_000) * 4 : 4;
-  for (let i = 3; i < len; i += step) {
-    if (data[i] !== 255) return true;
+  // Check all alpha bytes to avoid false negatives on large images.
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] !== 255) {
+      return true;
+    }
   }
   return false;
 };
