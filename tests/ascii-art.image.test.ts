@@ -83,9 +83,27 @@ const buildOptions = (
   ...overrides,
 });
 
+const restoreOwnProperty = (
+  target: object,
+  propertyKey: string,
+  descriptor: PropertyDescriptor | undefined
+) => {
+  if (descriptor) {
+    Object.defineProperty(target, propertyKey, descriptor);
+    return;
+  }
+
+  Reflect.deleteProperty(target, propertyKey);
+};
+
 describe("ascii-art image pipeline", () => {
   const OriginalImage = globalThis.Image;
   const OriginalImageData = globalThis.ImageData;
+  const OriginalClipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, "clipboard");
+  const OriginalExecCommandDescriptor = Object.getOwnPropertyDescriptor(
+    document,
+    "execCommand"
+  );
 
   beforeEach(() => {
     MockImage.shouldError = false;
@@ -102,6 +120,8 @@ describe("ascii-art image pipeline", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    restoreOwnProperty(navigator, "clipboard", OriginalClipboardDescriptor);
+    restoreOwnProperty(document, "execCommand", OriginalExecCommandDescriptor);
     (globalThis as unknown as { Image: typeof Image }).Image = OriginalImage;
     (
       globalThis as unknown as {
