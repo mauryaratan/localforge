@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   formatJson,
   jsonToYaml,
@@ -195,6 +195,20 @@ describe("formatJson", () => {
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
   });
+
+  it("should handle stringify failures gracefully", () => {
+    const stringifySpy = vi
+      .spyOn(JSON, "stringify")
+      .mockImplementation(() => {
+        throw new Error("stringify failed");
+      });
+
+    const result = formatJson('{"name":"John"}');
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("stringify failed");
+
+    stringifySpy.mockRestore();
+  });
 });
 
 describe("minifyJson", () => {
@@ -221,6 +235,20 @@ describe("minifyJson", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
+  });
+
+  it("should handle stringify failures gracefully", () => {
+    const stringifySpy = vi
+      .spyOn(JSON, "stringify")
+      .mockImplementation(() => {
+        throw new Error("minify failed");
+      });
+
+    const result = minifyJson('{"name":"John"}');
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("minify failed");
+
+    stringifySpy.mockRestore();
   });
 });
 
@@ -280,6 +308,13 @@ disabled: false`;
 
     expect(result.isValid).toBe(true);
     expect(result.parsed).toEqual({ value: null });
+  });
+
+  it("should return error for invalid YAML", () => {
+    const result = validateYaml("foo: [1, 2");
+
+    expect(result.isValid).toBe(false);
+    expect(result.error).toBeDefined();
   });
 });
 
@@ -401,5 +436,19 @@ float: 3.14`;
     expect(result.success).toBe(true);
     const parsed = JSON.parse(result.output);
     expect(parsed.person).toEqual({ name: "John", age: 30 });
+  });
+
+  it("should handle stringify failures gracefully", () => {
+    const stringifySpy = vi
+      .spyOn(JSON, "stringify")
+      .mockImplementation(() => {
+        throw new Error("yaml stringify failed");
+      });
+
+    const result = yamlToJson("name: John");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("yaml stringify failed");
+
+    stringifySpy.mockRestore();
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildURL, parseURL } from "@/lib/url-parser";
+import { buildURL, encodeURLComponent, parseURL } from "@/lib/url-parser";
 
 describe("parseURL", () => {
   it("should parse a complete URL correctly", () => {
@@ -143,11 +143,56 @@ describe("buildURL", () => {
     expect(built).toBe("");
   });
 
+  it("should return empty string when parsed URL seed is malformed", () => {
+    const built = buildURL({
+      isValid: true,
+      error: "",
+      href: "not a url",
+      protocol: "",
+      hostname: "",
+      port: "",
+      pathname: "/",
+      search: "",
+      hash: "",
+      origin: "also not a url",
+      host: "",
+      username: "",
+      password: "",
+      searchParams: [],
+    });
+
+    expect(built).toBe("");
+  });
+
   it("should build URL with username and password", () => {
     const parsed = parseURL("https://user:pass@example.com/path");
     const built = buildURL(parsed);
 
     expect(built).toBe("https://user:pass@example.com/path");
+  });
+
+  it("should support clearing username and password", () => {
+    const parsed = parseURL("https://user:pass@example.com/path");
+    parsed.username = "";
+    parsed.password = "";
+    const built = buildURL(parsed);
+
+    expect(built).toBe("https://example.com/path");
+  });
+
+  it("should build file URLs", () => {
+    const parsed = parseURL("file:///path/to/file.txt");
+    const built = buildURL(parsed);
+
+    expect(built).toBe("file:///path/to/file.txt");
+  });
+
+  it("should replace file URL query params without duplication", () => {
+    const parsed = parseURL("file:///path/to/file.txt?foo=bar");
+    parsed.searchParams = [{ key: "hello", value: "world" }];
+    const built = buildURL(parsed);
+
+    expect(built).toBe("file:///path/to/file.txt?hello=world");
   });
 
   it("should skip empty search param keys", () => {
@@ -159,5 +204,12 @@ describe("buildURL", () => {
     const built = buildURL(parsed);
 
     expect(built).toBe("https://example.com/path?valid=param");
+  });
+});
+
+describe("encodeURLComponent", () => {
+  it("should return original value when URI encoding throws", () => {
+    const malformedSurrogate = "\uD800";
+    expect(encodeURLComponent(malformedSurrogate)).toBe(malformedSurrogate);
   });
 });

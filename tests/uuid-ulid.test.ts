@@ -99,13 +99,15 @@ describe("generateULID", () => {
     expect(ulid1).not.toBe(ulid2);
   });
 
-  it("should have consistent timestamp prefix within same millisecond", () => {
-    // ULIDs generated in the same millisecond share the same timestamp prefix (first 10 chars)
+  it("should have non-decreasing timestamp order", () => {
     const ulid1 = generateULID();
     const ulid2 = generateULID();
-    // The first 10 characters represent the timestamp
-    // Within the same millisecond, they should be the same
-    expect(ulid1.slice(0, 10)).toBe(ulid2.slice(0, 10));
+    const parsed1 = parseId(ulid1);
+    const parsed2 = parseId(ulid2);
+
+    expect(parsed1.timestamp).toBeDefined();
+    expect(parsed2.timestamp).toBeDefined();
+    expect(parsed2.timestamp).toBeGreaterThanOrEqual(parsed1.timestamp ?? 0);
   });
 });
 
@@ -225,6 +227,31 @@ describe("parseId", () => {
       expect(result.isValid).toBe(true);
       expect(result.value).toBe(uuid.toLowerCase());
     });
+
+    it("should parse non-v4/v7 UUIDs via generic branch", () => {
+      const uuidV1 = "550e8400-e29b-11d4-a716-446655440000";
+      const result = parseId(uuidV1);
+
+      expect(result.isValid).toBe(true);
+      expect(result.version).toBe(1);
+      expect(result.format).toBe("uuid-v4");
+    });
+
+    it("should classify Microsoft-reserved variant UUIDs", () => {
+      const uuid = "550e8400-e29b-41d4-c716-446655440000";
+      const result = parseId(uuid);
+
+      expect(result.isValid).toBe(true);
+      expect(result.variant).toBe("Microsoft (reserved)");
+    });
+
+    it("should classify future-reserved variant UUIDs", () => {
+      const uuid = "550e8400-e29b-41d4-e716-446655440000";
+      const result = parseId(uuid);
+
+      expect(result.isValid).toBe(true);
+      expect(result.variant).toBe("Future (reserved)");
+    });
   });
 
   describe("ULID parsing", () => {
@@ -253,6 +280,14 @@ describe("parseId", () => {
       expect(result.isValid).toBe(true);
       expect(result.format).toBe("ulid");
       expect(result.value).toBe(ulid.toUpperCase());
+    });
+
+    it("should mark regex-valid but timestamp-invalid ULIDs as invalid", () => {
+      const invalidTimestampUlid = "Z1ARZ3NDEKTSV4RRFFQ69G5FAV";
+      const result = parseId(invalidTimestampUlid);
+
+      expect(result.format).toBe("ulid");
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -366,6 +401,10 @@ describe("isValidUlid", () => {
   it("should handle ULID with spaces", () => {
     const ulid = `  ${generateULID()}  `;
     expect(isValidUlid(ulid)).toBe(true);
+  });
+
+  it("should reject regex-valid ULID with invalid timestamp range", () => {
+    expect(isValidUlid("Z1ARZ3NDEKTSV4RRFFQ69G5FAV")).toBe(false);
   });
 
   it("should return false for ULID with invalid characters", () => {

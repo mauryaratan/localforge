@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   generateAllHashes,
   generateHash,
@@ -74,6 +74,18 @@ describe("generateHash - SHA-256", () => {
   it("should produce 64-character hash", async () => {
     const result = await generateHash("test", "SHA-256");
     expect(result.hash.length).toBe(64);
+  });
+
+  it("should return error when crypto digest fails", async () => {
+    const digestSpy = vi
+      .spyOn(crypto.subtle, "digest")
+      .mockRejectedValueOnce(new Error("digest unavailable"));
+
+    const result = await generateHash("test", "SHA-256");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("digest unavailable");
+
+    digestSpy.mockRestore();
   });
 });
 
