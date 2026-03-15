@@ -263,10 +263,10 @@ const StringCaseConverterPage = () => {
 
 interface ConversionCardProps {
   caseType: CaseType;
-  label: string;
-  result: string;
   copied: boolean;
+  label: string;
   onCopy: () => void;
+  result: string;
 }
 
 const ConversionCard = ({

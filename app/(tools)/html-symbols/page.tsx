@@ -260,7 +260,7 @@ const HTMLSymbolsPage = () => {
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
               <p className="shrink-0 px-4 pt-4 text-muted-foreground text-xs">
                 {filteredSymbols.length} symbol
-                {filteredSymbols.length !== 1 ? "s" : ""} found
+                {filteredSymbols.length === 1 ? "" : "s"} found
               </p>
 
               {viewMode === "grid" ? (
@@ -285,9 +285,9 @@ const HTMLSymbolsPage = () => {
 };
 
 interface VirtualizedGridProps {
-  symbols: HTMLSymbol[];
   copied: CopiedState;
   onCopy: (text: string, key: string) => void;
+  symbols: HTMLSymbol[];
 }
 
 const VirtualizedGrid = ({ symbols, copied, onCopy }: VirtualizedGridProps) => {
@@ -371,9 +371,9 @@ const VirtualizedGrid = ({ symbols, copied, onCopy }: VirtualizedGridProps) => {
 };
 
 interface SymbolCardProps {
-  symbol: HTMLSymbol;
   copied: CopiedState;
   onCopy: (text: string, key: string) => void;
+  symbol: HTMLSymbol;
 }
 
 const SymbolCard = ({ symbol, copied, onCopy }: SymbolCardProps) => {
@@ -453,10 +453,10 @@ const SymbolCard = ({ symbol, copied, onCopy }: SymbolCardProps) => {
 };
 
 interface CopyRowProps {
-  label: string;
-  value: string;
   copied: boolean;
+  label: string;
   onCopy: () => void;
+  value: string;
 }
 
 const CopyRow = ({ label, value, copied, onCopy }: CopyRowProps) => {
@@ -480,9 +480,9 @@ const CopyRow = ({ label, value, copied, onCopy }: CopyRowProps) => {
 };
 
 interface VirtualizedTableProps {
-  symbols: HTMLSymbol[];
   copied: CopiedState;
   onCopy: (text: string, key: string) => void;
+  symbols: HTMLSymbol[];
 }
 
 const VirtualizedTable = ({
@@ -601,10 +601,10 @@ const VirtualizedTable = ({
 };
 
 interface CopyCellProps {
-  value: string;
+  children?: React.ReactNode;
   copied: boolean;
   onCopy: () => void;
-  children?: React.ReactNode;
+  value: string;
 }
 
 const CopyCell = ({ value, copied, onCopy, children }: CopyCellProps) => {

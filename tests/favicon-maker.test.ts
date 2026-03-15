@@ -1,3 +1,4 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: test-local regex literals are fine here
 import { describe, expect, it } from "vitest";
 
 // Pure utility function tests for favicon maker
@@ -5,7 +6,9 @@ import { describe, expect, it } from "vitest";
 
 // Re-implement utility functions locally for testing
 const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
+  if (bytes === 0) {
+    return "0 B";
+  }
   const units = ["B", "KB", "MB", "GB"];
   const exp = Math.min(
     Math.floor(Math.log(bytes) / Math.log(1024)),

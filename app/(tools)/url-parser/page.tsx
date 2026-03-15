@@ -9,7 +9,7 @@ import {
   Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +33,8 @@ const URLParserPage = () => {
   const [copied, setCopied] = useState<CopiedState>({});
   const [showParams, setShowParams] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
+  const searchParamKeysRef = useRef(new WeakMap<object, string>());
+  const searchParamKeyCountRef = useRef(0);
 
   // Mark as hydrated on mount
   useEffect(() => {
@@ -58,7 +60,9 @@ const URLParserPage = () => {
   }, [urlInput]);
 
   const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(text);
@@ -78,7 +82,9 @@ const URLParserPage = () => {
 
   const handleUpdateParam = useCallback(
     (index: number, field: "key" | "value", newValue: string) => {
-      if (!parsed) return;
+      if (!parsed) {
+        return;
+      }
 
       const newParams = [...parsed.searchParams];
       newParams[index] = { ...newParams[index], [field]: newValue };
@@ -92,7 +98,9 @@ const URLParserPage = () => {
 
   const handleRemoveParam = useCallback(
     (index: number) => {
-      if (!parsed) return;
+      if (!parsed) {
+        return;
+      }
 
       const newParams = parsed.searchParams.filter((_, i) => i !== index);
       const updated = { ...parsed, searchParams: newParams };
@@ -103,12 +111,28 @@ const URLParserPage = () => {
   );
 
   const handleAddParam = useCallback(() => {
-    if (!parsed) return;
+    if (!parsed) {
+      return;
+    }
 
     const newParams = [...parsed.searchParams, { key: "", value: "" }];
     const updated = { ...parsed, searchParams: newParams };
     setParsed(updated);
   }, [parsed]);
+
+  const getSearchParamKey = useCallback(
+    (param: ParsedURL["searchParams"][number]) => {
+      const existingKey = searchParamKeysRef.current.get(param);
+      if (existingKey) {
+        return existingKey;
+      }
+
+      const nextKey = `param-${searchParamKeyCountRef.current++}`;
+      searchParamKeysRef.current.set(param, nextKey);
+      return nextKey;
+    },
+    []
+  );
 
   const urlComponents = parsed?.isValid
     ? [
@@ -254,7 +278,7 @@ const URLParserPage = () => {
                   {parsed.searchParams.map((param, index) => (
                     <div
                       className="flex items-center gap-2 rounded-sm bg-muted/50 p-2"
-                      key={index}
+                      key={getSearchParamKey(param)}
                     >
                       <Input
                         aria-label={`Parameter ${index + 1} key`}
@@ -327,13 +351,13 @@ const URLParserPage = () => {
   );
 };
 
-type CopyButtonProps = {
-  text: string;
+interface CopyButtonProps {
   copied: boolean;
-  onCopy: () => void;
   label: string;
+  onCopy: () => void;
   size?: "icon-xs" | "icon-sm" | "icon";
-};
+  text: string;
+}
 
 const CopyButton = ({
   text,

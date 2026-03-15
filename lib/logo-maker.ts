@@ -2,32 +2,32 @@
 // Provides utilities for creating customizable logos with icons, text, and backgrounds
 
 export interface IconConfig {
-  type: "icon" | "text" | "image";
-  value: string; // Icon name, text content, or image data URL
-  size: number; // Percentage of container (10-100)
-  rotation: number; // Degrees (0-360)
-  borderWidth: number; // Pixels (0-20)
   borderColor: string; // Hex color
+  borderWidth: number; // Pixels (0-20)
   fillColor: string; // Hex color
   fillOpacity: number; // 0-100
+  rotation: number; // Degrees (0-360)
+  size: number; // Percentage of container (10-100)
+  type: "icon" | "text" | "image";
+  value: string; // Icon name, text content, or image data URL
 }
 
 export interface BackgroundConfig {
-  type: "solid" | "gradient";
   color: string; // Hex color (for solid) or start color (for gradient)
-  gradientEndColor?: string; // Hex color (for gradient)
   gradientAngle?: number; // Degrees (0-360)
-  radius: number; // Percentage (0-50, where 50 = circle)
-  padding: number; // Percentage (0-50)
+  gradientEndColor?: string; // Hex color (for gradient)
   innerShadow: boolean;
-  innerShadowIntensity: number; // 0-100
   innerShadowColor: string; // Hex color
+  innerShadowIntensity: number; // 0-100
+  padding: number; // Percentage (0-50)
+  radius: number; // Percentage (0-50, where 50 = circle)
+  type: "solid" | "gradient";
 }
 
 export interface LogoConfig {
+  background: BackgroundConfig;
   canvasSize: number;
   icon: IconConfig;
-  background: BackgroundConfig;
 }
 
 export const DEFAULT_ICON_CONFIG: IconConfig = {
@@ -58,6 +58,8 @@ export const DEFAULT_LOGO_CONFIG: LogoConfig = {
   icon: DEFAULT_ICON_CONFIG,
   background: DEFAULT_BACKGROUND_CONFIG,
 };
+
+const HEX_COLOR_REGEX = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 
 // Available icon categories and icons
 export const ICON_CATEGORIES = {
@@ -394,7 +396,7 @@ const escapeXml = (text: string): string => {
 /**
  * Converts SVG to PNG data URL at specified size
  */
-export const svgToPng = async (
+export const svgToPng = (
   svgString: string,
   outputSize: number
 ): Promise<string> => {
@@ -468,7 +470,7 @@ export const downloadPNG = async (
  * Validates hex color
  */
 export const isValidHexColor = (color: string): boolean => {
-  return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color);
+  return HEX_COLOR_REGEX.test(color);
 };
 
 /**

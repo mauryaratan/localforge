@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  type ConversionOptions,
   convertImageToAscii,
   copyAsciiToClipboard,
+  DEFAULT_OPTIONS,
   downloadAsciiArt,
   imageDataToAscii,
   imageDataToColoredHtml,
   loadImageFromDataUrl,
   loadImageFromFile,
   scaleImageData,
-  type ConversionOptions,
-  DEFAULT_OPTIONS,
 } from "@/lib/ascii-art";
 
 class MockImage {
@@ -45,13 +45,13 @@ class MockImageData {
   }
 }
 
-type CanvasContextMock = {
+interface CanvasContextMock {
   drawImage?: ReturnType<typeof vi.fn>;
   getImageData?: ReturnType<typeof vi.fn>;
-  putImageData?: ReturnType<typeof vi.fn>;
   imageSmoothingEnabled?: boolean;
   imageSmoothingQuality?: "low" | "medium" | "high";
-};
+  putImageData?: ReturnType<typeof vi.fn>;
+}
 
 const installCanvasMocks = (
   targetContext: CanvasContextMock | null,
@@ -99,7 +99,10 @@ const restoreOwnProperty = (
 describe("ascii-art image pipeline", () => {
   const OriginalImage = globalThis.Image;
   const OriginalImageData = globalThis.ImageData;
-  const OriginalClipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, "clipboard");
+  const OriginalClipboardDescriptor = Object.getOwnPropertyDescriptor(
+    navigator,
+    "clipboard"
+  );
   const OriginalExecCommandDescriptor = Object.getOwnPropertyDescriptor(
     document,
     "execCommand"
@@ -132,17 +135,16 @@ describe("ascii-art image pipeline", () => {
 
   it("loads image data from a file", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:file");
-    const revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const revokeSpy = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
 
     const ctx = {
       drawImage: vi.fn(),
       getImageData: vi.fn(
         () =>
           new ImageData(
-            new Uint8ClampedArray([
-              255, 255, 255, 255,
-              0, 0, 0, 255,
-            ]),
+            new Uint8ClampedArray([255, 255, 255, 255, 0, 0, 0, 255]),
             2,
             1
           )
@@ -161,20 +163,24 @@ describe("ascii-art image pipeline", () => {
 
   it("fails loading file when canvas context is unavailable", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:file");
-    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     installCanvasMocks(null, null);
 
     const file = new File(["x"], "image.png", { type: "image/png" });
-    await expect(loadImageFromFile(file)).rejects.toThrow("Could not get canvas context");
+    await expect(loadImageFromFile(file)).rejects.toThrow(
+      "Could not get canvas context"
+    );
   });
 
   it("fails loading file when image decode fails", async () => {
     MockImage.shouldError = true;
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:file");
-    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
 
     const file = new File(["x"], "image.png", { type: "image/png" });
-    await expect(loadImageFromFile(file)).rejects.toThrow("Failed to load image");
+    await expect(loadImageFromFile(file)).rejects.toThrow(
+      "Failed to load image"
+    );
   });
 
   it("loads image data from data URL", async () => {
@@ -193,9 +199,9 @@ describe("ascii-art image pipeline", () => {
 
   it("fails loading data URL when image decode fails", async () => {
     MockImage.shouldError = true;
-    await expect(loadImageFromDataUrl("data:image/png;base64,test")).rejects.toThrow(
-      "Failed to load image"
-    );
+    await expect(
+      loadImageFromDataUrl("data:image/png;base64,test")
+    ).rejects.toThrow("Failed to load image");
   });
 
   it("scales image data with preserved aspect ratio", () => {
@@ -203,7 +209,11 @@ describe("ascii-art image pipeline", () => {
       drawImage: vi.fn(),
       getImageData: vi.fn(
         (_x: number, _y: number, width: number, height: number) =>
-          new ImageData(new Uint8ClampedArray(width * height * 4).fill(255), width, height)
+          new ImageData(
+            new Uint8ClampedArray(width * height * 4).fill(255),
+            width,
+            height
+          )
       ),
       imageSmoothingEnabled: false,
       imageSmoothingQuality: "low" as const,
@@ -222,8 +232,14 @@ describe("ascii-art image pipeline", () => {
 
   it("throws when scaled canvas context cannot be created", () => {
     installCanvasMocks(null, null);
-    const src = new ImageData(new Uint8ClampedArray([255, 255, 255, 255]), 1, 1);
-    expect(() => scaleImageData(src, 4, true)).toThrow("Could not get canvas context");
+    const src = new ImageData(
+      new Uint8ClampedArray([255, 255, 255, 255]),
+      1,
+      1
+    );
+    expect(() => scaleImageData(src, 4, true)).toThrow(
+      "Could not get canvas context"
+    );
   });
 
   it("throws when temporary canvas context cannot be created", () => {
@@ -231,14 +247,22 @@ describe("ascii-art image pipeline", () => {
       drawImage: vi.fn(),
       getImageData: vi.fn(
         (_x: number, _y: number, width: number, height: number) =>
-          new ImageData(new Uint8ClampedArray(width * height * 4).fill(255), width, height)
+          new ImageData(
+            new Uint8ClampedArray(width * height * 4).fill(255),
+            width,
+            height
+          )
       ),
       imageSmoothingEnabled: false,
       imageSmoothingQuality: "low" as const,
     };
     installCanvasMocks(targetCtx, null);
 
-    const src = new ImageData(new Uint8ClampedArray([255, 255, 255, 255]), 1, 1);
+    const src = new ImageData(
+      new Uint8ClampedArray([255, 255, 255, 255]),
+      1,
+      1
+    );
     expect(() => scaleImageData(src, 4, true)).toThrow(
       "Could not get temp canvas context"
     );
@@ -251,8 +275,14 @@ describe("ascii-art image pipeline", () => {
         () =>
           new ImageData(
             new Uint8ClampedArray([
-              255, 255, 255, 255, // white -> lightest char
-              0, 0, 0, 255, // black -> darkest char
+              255,
+              255,
+              255,
+              255, // white -> lightest char
+              0,
+              0,
+              0,
+              255, // black -> darkest char
             ]),
             2,
             1
@@ -265,7 +295,10 @@ describe("ascii-art image pipeline", () => {
     installCanvasMocks(targetCtx, tempCtx);
 
     const src = new ImageData(new Uint8ClampedArray(2 * 4).fill(255), 2, 1);
-    const output = imageDataToAscii(src, buildOptions({ characterSet: "minimal" }));
+    const output = imageDataToAscii(
+      src,
+      buildOptions({ characterSet: "minimal" })
+    );
 
     expect(output).toHaveLength(2);
   });
@@ -276,10 +309,7 @@ describe("ascii-art image pipeline", () => {
       getImageData: vi.fn(
         () =>
           new ImageData(
-            new Uint8ClampedArray([
-              255, 0, 0, 255,
-              0, 255, 0, 255,
-            ]),
+            new Uint8ClampedArray([255, 0, 0, 255, 0, 255, 0, 255]),
             2,
             1
           )
@@ -291,7 +321,10 @@ describe("ascii-art image pipeline", () => {
     installCanvasMocks(targetCtx, tempCtx);
 
     const src = new ImageData(new Uint8ClampedArray(2 * 4).fill(255), 2, 1);
-    const colorHtml = imageDataToColoredHtml(src, buildOptions({ colorMode: "color" }));
+    const colorHtml = imageDataToColoredHtml(
+      src,
+      buildOptions({ colorMode: "color" })
+    );
     expect(colorHtml).toContain('<span style="color:rgb(');
     expect(colorHtml).toContain("</span>");
 
@@ -310,7 +343,7 @@ describe("ascii-art image pipeline", () => {
 
   it("converts file to full ASCII pipeline output", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:file");
-    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     const ctx = {
       drawImage: vi.fn(),
       getImageData: vi.fn(
@@ -335,23 +368,30 @@ describe("ascii-art image pipeline", () => {
     expect(monochrome.html).toBe(monochrome.ascii);
     expect(monochrome.dimensions.width).toBe(10);
 
-    const color = await convertImageToAscii(file, buildOptions({ colorMode: "color" }));
+    const color = await convertImageToAscii(
+      file,
+      buildOptions({ colorMode: "color" })
+    );
     expect(color.html).toContain("<span");
   });
 
   it("downloads ASCII output as a text file", () => {
     const clickSpy = vi.fn();
     const originalCreateElement = document.createElement.bind(document);
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      if (tagName === "a") {
-        const anchor = originalCreateElement("a");
-        Object.defineProperty(anchor, "click", { value: clickSpy });
-        return anchor;
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        if (tagName === "a") {
+          const anchor = originalCreateElement("a");
+          Object.defineProperty(anchor, "click", { value: clickSpy });
+          return anchor;
+        }
+        return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
       }
-      return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
-    });
+    );
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:ascii");
-    const revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const revokeSpy = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
 
     downloadAsciiArt("hello", "out.txt");
 

@@ -1,31 +1,31 @@
 export type JWTAlgorithm = "HS256" | "HS384" | "HS512";
 
-export type JWTHeader = {
+export interface JWTHeader {
   alg: JWTAlgorithm;
   typ: string;
   [key: string]: unknown;
-};
+}
 
-export type JWTPayload = {
+export interface JWTPayload {
   [key: string]: unknown;
-};
+}
 
-export type JWTDecoded = {
+export interface JWTDecoded {
   header: JWTHeader;
   payload: JWTPayload;
-  signature: string;
   rawParts: {
     header: string;
     payload: string;
     signature: string;
   };
-};
+  signature: string;
+}
 
-export type JWTResult<T> = {
-  success: boolean;
+export interface JWTResult<T> {
   data: T;
   error?: string;
-};
+  success: boolean;
+}
 
 export const STANDARD_CLAIMS: Record<string, string> = {
   iss: "Issuer",
@@ -37,6 +37,8 @@ export const STANDARD_CLAIMS: Record<string, string> = {
   jti: "JWT ID",
 };
 
+const BASE64_URL_PADDING_REGEX = /=+$/;
+
 export const base64UrlEncode = (input: string): string => {
   const utf8Bytes = new TextEncoder().encode(input);
   const binaryString = Array.from(utf8Bytes, (byte) =>
@@ -45,7 +47,7 @@ export const base64UrlEncode = (input: string): string => {
   return btoa(binaryString)
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
-    .replace(/=+$/, "");
+    .replace(BASE64_URL_PADDING_REGEX, "");
 };
 
 export const base64UrlDecode = (input: string): string => {
@@ -60,7 +62,7 @@ export const base64UrlDecode = (input: string): string => {
 };
 
 export const decodeJWT = (token: string): JWTResult<JWTDecoded> => {
-  if (!(token && token.trim())) {
+  if (!token?.trim()) {
     return {
       success: false,
       data: {} as JWTDecoded,
@@ -169,7 +171,7 @@ export const createSignature = async (
   return btoa(binaryString)
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
-    .replace(/=+$/, "");
+    .replace(BASE64_URL_PADDING_REGEX, "");
 };
 
 export const verifyJWT = async (

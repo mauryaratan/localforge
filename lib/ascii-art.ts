@@ -1,3 +1,4 @@
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: image conversion pipeline is intentionally centralized for readability
 // ASCII Art Generator
 // Converts images and text to ASCII art
 
@@ -19,9 +20,9 @@ export type TextFont =
   | "slant"
   | "small";
 
-export type TextOptions = {
+export interface TextOptions {
   font: TextFont;
-};
+}
 
 export const DEFAULT_TEXT_OPTIONS: TextOptions = {
   font: "standard",
@@ -45,10 +46,10 @@ export const TEXT_FONT_LABELS: Record<TextFont, string> = {
 // Embedded FIGlet font definitions (subset of characters for performance)
 // Each font has character maps for A-Z, a-z, 0-9, and common punctuation
 type FontChar = string[];
-type FontDef = {
-  height: number;
+interface FontDef {
   chars: Record<string, FontChar>;
-};
+  height: number;
+}
 
 // Standard FIGlet font
 const FONT_STANDARD: FontDef = {
@@ -1138,12 +1139,12 @@ const FONTS: Partial<Record<TextFont, FontDef>> = {
  * Convert a single line of text to ASCII art
  */
 const textLineToAscii = (text: string, font: FontDef): string[] => {
-  const lines: string[] = Array(font.height).fill("");
+  const lines: string[] = new Array(font.height).fill("");
   const upperText = text.toUpperCase();
 
   for (const char of upperText) {
     const charDef =
-      font.chars[char] || font.chars[" "] || Array(font.height).fill("   ");
+      font.chars[char] || font.chars[" "] || new Array(font.height).fill("   ");
     for (let i = 0; i < font.height; i++) {
       lines[i] += charDef[i] || "";
     }
@@ -1166,7 +1167,7 @@ export const textToAscii = (text: string, options: TextOptions): string => {
   for (const inputLine of inputLines) {
     if (inputLine.trim() === "") {
       // Empty line - add spacing between blocks
-      resultBlocks.push(Array(Math.ceil(font.height / 2)).fill(""));
+      resultBlocks.push(new Array(Math.ceil(font.height / 2)).fill(""));
     } else {
       resultBlocks.push(textLineToAscii(inputLine, font));
     }
@@ -1202,14 +1203,14 @@ export type CharacterSet =
 
 export type OutputFormat = "text" | "html";
 
-export type ConversionOptions = {
-  width: number;
+export interface ConversionOptions {
   characterSet: CharacterSet;
+  colorMode: "monochrome" | "grayscale" | "color";
   customCharacters?: string;
   invert: boolean;
   preserveAspectRatio: boolean;
-  colorMode: "monochrome" | "grayscale" | "color";
-};
+  width: number;
+}
 
 export const DEFAULT_OPTIONS: ConversionOptions = {
   width: 100,
@@ -1277,7 +1278,9 @@ export const brightnessToChar = (
   charSet: string,
   invert: boolean
 ): string => {
-  if (charSet.length === 0) return " ";
+  if (charSet.length === 0) {
+    return " ";
+  }
 
   // Normalize brightness to 0-1
   const normalizedBrightness = brightness / 255;
@@ -1302,8 +1305,12 @@ export const brightnessToChar = (
 export const rgbToAnsi256 = (r: number, g: number, b: number): number => {
   // Check for grayscale
   if (r === g && g === b) {
-    if (r < 8) return 16;
-    if (r > 248) return 231;
+    if (r < 8) {
+      return 16;
+    }
+    if (r > 248) {
+      return 231;
+    }
     return Math.round(((r - 8) / 247) * 24) + 232;
   }
 
@@ -1328,7 +1335,7 @@ export const getCharacterSet = (options: ConversionOptions): string => {
 /**
  * Load an image file and return ImageData
  */
-export const loadImageFromFile = async (
+export const loadImageFromFile = (
   file: File
 ): Promise<{ imageData: ImageData; width: number; height: number }> => {
   return new Promise((resolve, reject) => {
@@ -1366,7 +1373,7 @@ export const loadImageFromFile = async (
 /**
  * Load image from a data URL
  */
-export const loadImageFromDataUrl = async (
+export const loadImageFromDataUrl = (
   dataUrl: string
 ): Promise<{ imageData: ImageData; width: number; height: number }> => {
   return new Promise((resolve, reject) => {
@@ -1520,7 +1527,9 @@ export const imageDataToColoredHtml = (
       if (options.colorMode === "color") {
         const color = `rgb(${r},${g},${b})`;
         if (color !== lastColor) {
-          if (lastColor) line += "</span>";
+          if (lastColor) {
+            line += "</span>";
+          }
           line += `<span style="color:${color}">`;
           lastColor = color;
         }
@@ -1529,7 +1538,9 @@ export const imageDataToColoredHtml = (
         const gray = Math.round(brightness);
         const color = `rgb(${gray},${gray},${gray})`;
         if (color !== lastColor) {
-          if (lastColor) line += "</span>";
+          if (lastColor) {
+            line += "</span>";
+          }
           line += `<span style="color:${color}">`;
           lastColor = color;
         }
@@ -1539,7 +1550,9 @@ export const imageDataToColoredHtml = (
       }
     }
 
-    if (lastColor) line += "</span>";
+    if (lastColor) {
+      line += "</span>";
+    }
     lines.push(line);
   }
 

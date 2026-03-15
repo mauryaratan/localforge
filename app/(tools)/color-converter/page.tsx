@@ -69,7 +69,9 @@ const ColorConverterPage = () => {
   }, [colorInput]);
 
   const handleCopy = useCallback(async (text: string, label: string) => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(text);
@@ -188,9 +190,9 @@ const ColorConverterPage = () => {
             {parsed?.isValid && formats && (
               <div className="mt-3 flex items-center gap-3">
                 <div
-                  aria-label={`Color preview: ${formats.hex}`}
                   className="h-10 w-10 rounded border border-border shadow-sm"
                   style={{ backgroundColor: formats.hex }}
+                  title={`Color preview: ${formats.hex}`}
                 />
                 <Badge variant="default">Valid Color</Badge>
               </div>
@@ -371,10 +373,10 @@ const ColorConverterPage = () => {
   );
 };
 
-type WcagBadgeProps = {
+interface WcagBadgeProps {
   label: string;
   passed: boolean;
-};
+}
 
 const WcagBadge = ({ label, passed }: WcagBadgeProps) => (
   <Badge className="text-[10px]" variant={passed ? "default" : "secondary"}>
@@ -382,11 +384,11 @@ const WcagBadge = ({ label, passed }: WcagBadgeProps) => (
   </Badge>
 );
 
-type HarmonyPaletteProps = {
-  name: string;
+interface HarmonyPaletteProps {
   colors: HSL[];
+  name: string;
   onColorClick: (hex: string) => void;
-};
+}
 
 const HarmonyPalette = ({
   name,
@@ -397,10 +399,10 @@ const HarmonyPalette = ({
     <div className="flex flex-col gap-2">
       <span className="text-muted-foreground text-xs">{name}</span>
       <div className="flex gap-1">
-        {colors.map((hsl, index) => {
+        {colors.map((hsl) => {
           const hex = rgbToHex(hslToRgb(hsl));
           return (
-            <Tooltip key={index}>
+            <Tooltip key={`${name}-${hsl.h}-${hsl.s}-${hsl.l}`}>
               <TooltipTrigger
                 render={
                   <button

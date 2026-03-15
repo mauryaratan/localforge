@@ -1,17 +1,19 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: html parsing helpers intentionally keep regexes close to their transforms
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: validator logic is parser-oriented and easier to follow as a single routine
 /**
  * HTML Preview utilities
  * Provides helper functions for HTML validation, formatting, and statistics
  */
 
 export interface HtmlStats {
-  elements: number;
   characters: number;
-  lines: number;
-  hasHead: boolean;
+  elements: number;
   hasBody: boolean;
-  hasStyles: boolean;
+  hasHead: boolean;
   hasScripts: boolean;
+  hasStyles: boolean;
   images: number;
+  lines: number;
   links: number;
 }
 
@@ -71,9 +73,9 @@ export const getHtmlStats = (html: string): HtmlStats => {
  * Basic HTML validation
  */
 export interface HtmlValidationResult {
+  errors: string[];
   isValid: boolean;
   warnings: string[];
-  errors: string[];
 }
 
 export const validateHtml = (html: string): HtmlValidationResult => {
@@ -107,7 +109,8 @@ export const validateHtml = (html: string): HtmlValidationResult => {
   const tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9]*)[^>]*\/?>/g;
   let match: RegExpExecArray | null = null;
 
-  while ((match = tagRegex.exec(html)) !== null) {
+  match = tagRegex.exec(html);
+  while (match !== null) {
     const fullTag = match[0];
     const tagName = match[1].toLowerCase();
 
@@ -132,6 +135,8 @@ export const validateHtml = (html: string): HtmlValidationResult => {
       // Opening tag
       openingTags.push(tagName);
     }
+
+    match = tagRegex.exec(html);
   }
 
   // Unclosed tags
@@ -204,7 +209,7 @@ export const formatHtml = (html: string, indentSize = 2): string => {
 
     if (trimmed.startsWith("<!") || trimmed.startsWith("<?")) {
       // Doctype or XML declaration
-      formatted += trimmed + "\n";
+      formatted += `${trimmed}\n`;
       continue;
     }
 
@@ -215,7 +220,7 @@ export const formatHtml = (html: string, indentSize = 2): string => {
       if (tagName && inlineTags.has(tagName)) {
         formatted = formatted.trimEnd() + trimmed;
       } else {
-        formatted += indent.repeat(depth) + trimmed + "\n";
+        formatted += `${indent.repeat(depth) + trimmed}\n`;
       }
     } else if (trimmed.startsWith("<")) {
       // Opening tag or self-closing
@@ -226,7 +231,7 @@ export const formatHtml = (html: string, indentSize = 2): string => {
       if (tagName && inlineTags.has(tagName)) {
         formatted = formatted.trimEnd() + trimmed;
       } else {
-        formatted += indent.repeat(depth) + trimmed + "\n";
+        formatted += `${indent.repeat(depth) + trimmed}\n`;
       }
 
       if (!isSelfClosing && tagName && !selfClosing.has(tagName)) {
@@ -234,7 +239,7 @@ export const formatHtml = (html: string, indentSize = 2): string => {
       }
     } else {
       // Text content
-      formatted += indent.repeat(depth) + trimmed + "\n";
+      formatted += `${indent.repeat(depth) + trimmed}\n`;
     }
   }
 
@@ -267,7 +272,7 @@ export const createPreviewDocument = (
 ): string => {
   const hasHtmlTag = /<html[^>]*>/i.test(html);
   const hasBodyTag = /<body[^>]*>/i.test(html);
-  const hasHeadTag = /<head[^>]*>/i.test(html);
+  const _hasHeadTag = /<head[^>]*>/i.test(html);
 
   // If it's a complete document, inject our theme styles
   if (hasHtmlTag && hasBodyTag) {
@@ -344,9 +349,9 @@ const getThemeStyles = (isDarkMode: boolean): string => {
 export type ViewportPreset = "mobile" | "tablet" | "desktop";
 
 export interface ViewportSize {
-  width: number;
   height: number;
   label: string;
+  width: number;
 }
 
 export const viewportPresets: Record<ViewportPreset, ViewportSize> = {

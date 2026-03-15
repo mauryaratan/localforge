@@ -1,26 +1,27 @@
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: cron parsing is intentionally centralized to preserve rule ordering
 export interface CronField {
-  name: string;
-  value: string;
   description: string;
-  min: number;
-  max: number;
-  valid: boolean;
   error?: string;
+  max: number;
+  min: number;
+  name: string;
+  valid: boolean;
+  value: string;
 }
 
 export interface ParsedCron {
-  isValid: boolean;
+  description: string;
   error?: string;
   expression: string;
   fields: CronField[];
-  description: string;
+  isValid: boolean;
   nextRuns: Date[];
 }
 
 interface FieldConfig {
-  name: string;
-  min: number;
   max: number;
+  min: number;
+  name: string;
   names?: string[];
 }
 
@@ -243,7 +244,7 @@ const describeField = (value: string, config: FieldConfig): string => {
     (v, i) => i === 0 || v === values[i - 1] + 1
   );
   if (isConsecutive && values.length > 2) {
-    return `${formatValue(values[0])} through ${formatValue(values[values.length - 1])}`;
+    return `${formatValue(values[0])} through ${formatValue(values.at(-1))}`;
   }
 
   return values.map(formatValue).join(", ");
@@ -437,9 +438,9 @@ export const parseCron = (expression: string): ParsedCron => {
  * Common cron expression examples
  */
 export interface CronExample {
+  description: string;
   expression: string;
   label: string;
-  description: string;
 }
 
 export const CRON_EXAMPLES: CronExample[] = [

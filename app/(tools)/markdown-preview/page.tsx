@@ -274,25 +274,25 @@ const MarkdownPreviewPage = () => {
               {/* Stats */}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Badge variant="secondary">
-                  {stats.words} word{stats.words !== 1 ? "s" : ""}
+                  {stats.words} word{stats.words === 1 ? "" : "s"}
                 </Badge>
                 <Badge variant="secondary">
-                  {stats.characters} char{stats.characters !== 1 ? "s" : ""}
+                  {stats.characters} char{stats.characters === 1 ? "" : "s"}
                 </Badge>
                 {stats.headings > 0 && (
                   <Badge variant="outline">
-                    {stats.headings} heading{stats.headings !== 1 ? "s" : ""}
+                    {stats.headings} heading{stats.headings === 1 ? "" : "s"}
                   </Badge>
                 )}
                 {stats.codeBlocks > 0 && (
                   <Badge variant="outline">
                     {stats.codeBlocks} code block
-                    {stats.codeBlocks !== 1 ? "s" : ""}
+                    {stats.codeBlocks === 1 ? "" : "s"}
                   </Badge>
                 )}
                 {stats.links > 0 && (
                   <Badge variant="outline">
-                    {stats.links} link{stats.links !== 1 ? "s" : ""}
+                    {stats.links} link{stats.links === 1 ? "" : "s"}
                   </Badge>
                 )}
               </div>
@@ -337,10 +337,10 @@ const MarkdownPreviewPage = () => {
               </CardHeader>
               <CardContent className="pt-4">
                 <nav className="flex flex-col gap-1">
-                  {toc.map((item, index) => (
+                  {toc.map((item) => (
                     <TocLink
                       item={item}
-                      key={`${item.slug}-${index}`}
+                      key={`${item.slug}-${item.text}`}
                       onClick={handleScrollToHeading}
                     />
                   ))}

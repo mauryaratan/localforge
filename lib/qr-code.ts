@@ -1,3 +1,4 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: qr parsing helpers intentionally keep regexes adjacent to each content parser
 /**
  * QR Code generation and reading utilities
  * Uses EasyQRCodeJS for advanced customization
@@ -39,23 +40,23 @@ export const DOT_SCALE_OPTIONS: { value: DotScale; label: string }[] = [
   { value: 0.5, label: "Tiny (50%)" },
 ];
 
-export type QRGenerateOptions = {
-  errorCorrectionLevel: ErrorCorrectionLevel;
-  width: number;
-  quietZone: number;
-  foreground: string;
+export interface QRGenerateOptions {
   background: string;
   // Advanced styling
   dotScale: DotScale;
-  // Position pattern colors (corners)
-  positionOuterColor: string;
-  positionInnerColor: string;
+  errorCorrectionLevel: ErrorCorrectionLevel;
+  foreground: string;
+  logoBackgroundTransparent: boolean;
+  logoHeight: number;
   // Logo
   logoUrl: string | null;
   logoWidth: number;
-  logoHeight: number;
-  logoBackgroundTransparent: boolean;
-};
+  positionInnerColor: string;
+  // Position pattern colors (corners)
+  positionOuterColor: string;
+  quietZone: number;
+  width: number;
+}
 
 export const DEFAULT_OPTIONS: QRGenerateOptions = {
   errorCorrectionLevel: "M",
@@ -74,18 +75,18 @@ export const DEFAULT_OPTIONS: QRGenerateOptions = {
   logoBackgroundTransparent: true,
 };
 
-export type QRGenerateResult = {
-  success: boolean;
+export interface QRGenerateResult {
   dataUrl?: string;
   error?: string;
-};
-
-export type QRReadResult = {
   success: boolean;
-  data?: string;
+}
+
+export interface QRReadResult {
   contentType?: QRContentType;
+  data?: string;
   error?: string;
-};
+  success: boolean;
+}
 
 /**
  * Format content based on type for QR code encoding
@@ -102,7 +103,9 @@ export const formatQRContent = (
     body?: string;
   }
 ): string => {
-  if (!content.trim()) return "";
+  if (!content.trim()) {
+    return "";
+  }
 
   switch (type) {
     case "url":
@@ -145,8 +148,6 @@ export const formatQRContent = (
         : "";
       return `sms:${content.replace(/[^\d+]/g, "")}${smsBody}`;
     }
-
-    case "text":
     default:
       return content;
   }
@@ -245,7 +246,7 @@ export const generateQRCodeToElement = async (
 /**
  * Download QR code from element
  */
-export const downloadQRCodeFromElement = async (
+export const downloadQRCodeFromElement = (
   element: HTMLElement,
   filename = "qrcode"
 ): Promise<boolean> => {
@@ -274,11 +275,21 @@ export const downloadQRCodeFromElement = async (
 export const detectContentType = (data: string): QRContentType => {
   const lower = data.toLowerCase();
 
-  if (lower.startsWith("wifi:")) return "wifi";
-  if (lower.startsWith("mailto:")) return "email";
-  if (lower.startsWith("tel:")) return "phone";
-  if (lower.startsWith("sms:") || lower.startsWith("smsto:")) return "sms";
-  if (/^https?:\/\//i.test(data) || /^www\./i.test(data)) return "url";
+  if (lower.startsWith("wifi:")) {
+    return "wifi";
+  }
+  if (lower.startsWith("mailto:")) {
+    return "email";
+  }
+  if (lower.startsWith("tel:")) {
+    return "phone";
+  }
+  if (lower.startsWith("sms:") || lower.startsWith("smsto:")) {
+    return "sms";
+  }
+  if (/^https?:\/\//i.test(data) || /^www\./i.test(data)) {
+    return "url";
+  }
 
   return "text";
 };
@@ -294,14 +305,18 @@ export const parseWiFiData = (
   encryption: string;
   hidden: boolean;
 } | null => {
-  if (!data.toLowerCase().startsWith("wifi:")) return null;
+  if (!data.toLowerCase().startsWith("wifi:")) {
+    return null;
+  }
 
   const params: Record<string, string> = {};
   const regex = /([TSPH]):([^;]*)/g;
   let match: RegExpExecArray | null;
 
-  while ((match = regex.exec(data)) !== null) {
+  match = regex.exec(data);
+  while (match !== null) {
     params[match[1]] = match[2];
+    match = regex.exec(data);
   }
 
   return {
@@ -315,7 +330,7 @@ export const parseWiFiData = (
 /**
  * Read QR code from image file
  */
-export const readQRCodeFromFile = async (file: File): Promise<QRReadResult> => {
+export const readQRCodeFromFile = (file: File): Promise<QRReadResult> => {
   return new Promise((resolve) => {
     const reader = new FileReader();
 

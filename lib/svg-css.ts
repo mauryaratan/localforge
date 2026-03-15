@@ -1,3 +1,4 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: svg/css conversion rules intentionally keep regexes near each transform step
 export type EncodingType = "url" | "base64";
 
 export type CssOutputFormat =
@@ -7,14 +8,14 @@ export type CssOutputFormat =
   | "maskImage"
   | "listStyleImage";
 
-export type ConversionResult = {
-  isValid: boolean;
-  error?: string;
-  dataUri: string;
+export interface ConversionResult {
   css: Record<CssOutputFormat, string>;
-  originalSize: number;
+  dataUri: string;
   encodedSize: number;
-};
+  error?: string;
+  isValid: boolean;
+  originalSize: number;
+}
 
 /**
  * Ensures the SVG has the required xmlns attribute
@@ -212,7 +213,9 @@ export const decodeSvgFromDataUri = (dataUri: string): string => {
  * Format bytes to human-readable size
  */
 export const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
+  if (bytes === 0) {
+    return "0 B";
+  }
 
   const units = ["B", "KB", "MB"];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));

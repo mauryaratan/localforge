@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,9 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   type AllHashesResult,
-  type HashAlgorithm,
   generateAllHashes,
   getAlgorithmInfo,
+  type HashAlgorithm,
 } from "@/lib/hash-generator";
 import { getStorageValue, setStorageValue } from "@/lib/utils";
 
@@ -52,7 +52,9 @@ const HashGeneratorPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
     setStorageValue(STORAGE_KEY, input);
   }, [input, isHydrated]);
 
@@ -80,7 +82,9 @@ const HashGeneratorPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
     calculateHashes(input);
   }, [input, isHydrated, calculateHashes]);
 
@@ -89,7 +93,9 @@ const HashGeneratorPage = () => {
   };
 
   const handleCopy = async (text: string, label: string) => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(text);
@@ -100,7 +106,9 @@ const HashGeneratorPage = () => {
   };
 
   const handleCopyAll = async () => {
-    if (!input) return;
+    if (!input) {
+      return;
+    }
 
     const allHashes = `MD5: ${hashes.md5}
 SHA-1: ${hashes.sha1}
@@ -143,7 +151,9 @@ SHA-512: ${hashes.sha512}`;
   };
 
   const inputByteSize = useMemo(() => {
-    if (!input) return 0;
+    if (!input) {
+      return 0;
+    }
     return new TextEncoder().encode(input).length;
   }, [input]);
 
@@ -237,7 +247,7 @@ SHA-512: ${hashes.sha512}`;
                 const info = getAlgorithmInfo(algorithm);
 
                 return (
-                  <div key={algorithm} className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2" key={algorithm}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Label className="font-medium text-xs uppercase tracking-wider">
@@ -260,7 +270,7 @@ SHA-512: ${hashes.sha512}`;
                       </Button>
                     </div>
                     <div
-                      className={`rounded-md border bg-muted/30 px-3 py-2 font-mono text-xs break-all ${
+                      className={`break-all rounded-md border bg-muted/30 px-3 py-2 font-mono text-xs ${
                         isCalculating ? "opacity-50" : ""
                       }`}
                     >
@@ -287,7 +297,7 @@ SHA-512: ${hashes.sha512}`;
               {ALGORITHMS.map((algorithm) => {
                 const info = getAlgorithmInfo(algorithm);
                 return (
-                  <div key={algorithm} className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1" key={algorithm}>
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-xs">{algorithm}</span>
                       <span className="rounded bg-muted/50 px-1.5 py-0.5 font-mono text-[10px]">

@@ -12,11 +12,11 @@ import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { navItems } from "@/lib/nav-items";
 
-type FeatureCardProps = {
+interface FeatureCardProps {
+  description: string;
   icon: typeof ShieldKeyIcon;
   title: string;
-  description: string;
-};
+}
 
 const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
   <div className="flex flex-col gap-3 rounded-lg border border-border/50 bg-card/50 p-4 backdrop-blur-sm">

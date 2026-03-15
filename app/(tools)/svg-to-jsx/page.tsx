@@ -62,7 +62,9 @@ const SvgToJsxPage = () => {
 
   // Save to localStorage when input changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
 
     if (input) {
       localStorage.setItem(STORAGE_KEY, input);
@@ -73,7 +75,9 @@ const SvgToJsxPage = () => {
 
   // Convert SVG to JSX
   const result = useMemo(() => {
-    if (!input.trim()) return null;
+    if (!input.trim()) {
+      return null;
+    }
     return convertSvgToJsx(input, {
       outputFormat,
       componentName,
@@ -93,7 +97,9 @@ const SvgToJsxPage = () => {
   ]);
 
   const handleCopy = useCallback(async () => {
-    if (!result?.output) return;
+    if (!result?.output) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(result.output);
@@ -119,7 +125,6 @@ const SvgToJsxPage = () => {
         return "bg-white";
       case "black":
         return "bg-zinc-900";
-      case "checkered":
       default:
         return "bg-[repeating-conic-gradient(#8882_0_25%,transparent_0_50%)] bg-size-[16px_16px] dark:bg-[repeating-conic-gradient(#fff1_0_25%,transparent_0_50%)]";
     }
@@ -175,7 +180,7 @@ const SvgToJsxPage = () => {
             />
             {/* Stats */}
             <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
-              {result && result.isValid && (
+              {result?.isValid && (
                 <>
                   <Badge variant="default">Valid SVG</Badge>
                   <Badge variant="secondary">

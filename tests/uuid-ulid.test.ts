@@ -12,12 +12,17 @@ import {
   parseId,
 } from "@/lib/uuid-ulid";
 
+const UUID_V4_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_V7_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const GENERIC_UUID_REGEX = /^[0-9a-f-]{36}$/i;
+const ULID_REGEX = /^[0-9A-HJKMNP-TV-Z]{26}$/;
+
 describe("generateUUIDv4", () => {
   it("should generate a valid UUID v4", () => {
     const uuid = generateUUIDv4();
-    expect(uuid).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    );
+    expect(uuid).toMatch(UUID_V4_REGEX);
   });
 
   it("should generate unique UUIDs", () => {
@@ -41,9 +46,7 @@ describe("generateUUIDv4", () => {
 describe("generateUUIDv7", () => {
   it("should generate a valid UUID v7", () => {
     const uuid = generateUUIDv7();
-    expect(uuid).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    );
+    expect(uuid).toMatch(UUID_V7_REGEX);
   });
 
   it("should have version 7 in the correct position", () => {
@@ -78,14 +81,17 @@ describe("generateUUIDv7", () => {
 
     expect(time1).toBeDefined();
     expect(time2).toBeDefined();
-    expect(time2).toBeGreaterThanOrEqual(time1!);
+    if (time1 === undefined || time2 === undefined) {
+      throw new Error("UUID v7 timestamps should be defined");
+    }
+    expect(time2).toBeGreaterThanOrEqual(time1);
   });
 });
 
 describe("generateULID", () => {
   it("should generate a valid ULID", () => {
     const ulid = generateULID();
-    expect(ulid).toMatch(/^[0-9A-HJKMNP-TV-Z]{26}$/);
+    expect(ulid).toMatch(ULID_REGEX);
   });
 
   it("should generate 26-character strings", () => {
@@ -115,52 +121,52 @@ describe("generateIds", () => {
   it("should generate the requested number of UUIDs v4", () => {
     const ids = generateIds("uuid-v4", 5);
     expect(ids).toHaveLength(5);
-    ids.forEach((id) => {
+    for (const id of ids) {
       expect(id.format).toBe("uuid-v4");
-      expect(id.value).toMatch(/^[0-9a-f-]{36}$/i);
-    });
+      expect(id.value).toMatch(GENERIC_UUID_REGEX);
+    }
   });
 
   it("should generate the requested number of UUIDs v7", () => {
     const ids = generateIds("uuid-v7", 3);
     expect(ids).toHaveLength(3);
-    ids.forEach((id) => {
+    for (const id of ids) {
       expect(id.format).toBe("uuid-v7");
       expect(id.timestamp).toBeDefined();
       expect(id.timestampReadable).toBeDefined();
-    });
+    }
   });
 
   it("should generate the requested number of ULIDs", () => {
     const ids = generateIds("ulid", 4);
     expect(ids).toHaveLength(4);
-    ids.forEach((id) => {
+    for (const id of ids) {
       expect(id.format).toBe("ulid");
       expect(id.value).toHaveLength(26);
       expect(id.timestamp).toBeDefined();
-    });
+    }
   });
 
   it("should apply uppercase style to UUIDs", () => {
     const ids = generateIds("uuid-v4", 2, "uppercase");
-    ids.forEach((id) => {
+    for (const id of ids) {
       expect(id.value).toBe(id.value.toUpperCase());
-    });
+    }
   });
 
   it("should apply lowercase style to UUIDs", () => {
     const ids = generateIds("uuid-v4", 2, "lowercase");
-    ids.forEach((id) => {
+    for (const id of ids) {
       expect(id.value).toBe(id.value.toLowerCase());
-    });
+    }
   });
 
   it("should not affect ULID case (always uppercase)", () => {
     const ids = generateIds("ulid", 2, "lowercase");
-    ids.forEach((id) => {
+    for (const id of ids) {
       // ULID should maintain its original case
-      expect(id.value).toMatch(/^[0-9A-HJKMNP-TV-Z]{26}$/);
-    });
+      expect(id.value).toMatch(ULID_REGEX);
+    }
   });
 });
 
@@ -171,8 +177,11 @@ describe("extractUUIDv7Timestamp", () => {
     const now = Date.now();
 
     expect(timestamp).toBeDefined();
+    if (timestamp === undefined) {
+      throw new Error("UUID v7 timestamp should be defined");
+    }
     // Should be within 1 second of now
-    expect(Math.abs(now - timestamp!)).toBeLessThan(1000);
+    expect(Math.abs(now - timestamp)).toBeLessThan(1000);
   });
 
   it("should return undefined for invalid input", () => {

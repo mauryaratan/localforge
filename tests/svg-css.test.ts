@@ -1,3 +1,4 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: test-local regex literals are fine here
 import { describe, expect, it } from "vitest";
 import {
   base64EncodeSvg,

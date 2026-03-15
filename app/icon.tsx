@@ -17,6 +17,7 @@ export default function Icon() {
       width="32"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <title>LocalForge icon</title>
       {/* Background */}
       <rect
         fill="#0d9488"

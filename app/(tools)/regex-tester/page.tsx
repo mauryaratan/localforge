@@ -164,7 +164,7 @@ const RegexTesterPage = () => {
                   <Tooltip key={flag.key}>
                     <TooltipTrigger
                       render={
-                        <label className="flex cursor-pointer items-center gap-1.5">
+                        <div className="flex cursor-pointer items-center gap-1.5">
                           <Switch
                             aria-label={`Toggle ${flag.label} flag`}
                             checked={flags.includes(flag.key)}
@@ -174,7 +174,7 @@ const RegexTesterPage = () => {
                           <span className="font-medium text-xs">
                             {flag.label}
                           </span>
-                        </label>
+                        </div>
                       }
                     />
                     <TooltipContent>{flag.description}</TooltipContent>
@@ -231,7 +231,7 @@ const RegexTesterPage = () => {
             {result.isValid && pattern && (
               <div className="mt-3 flex items-center gap-2">
                 <Badge variant="default">
-                  {result.matchCount} match{result.matchCount !== 1 ? "es" : ""}
+                  {result.matchCount} match{result.matchCount === 1 ? "" : "es"}
                 </Badge>
                 {result.executionTime > 0 && (
                   <Badge variant="secondary">
@@ -400,7 +400,7 @@ const RegexTesterPage = () => {
                       {substitutionResult.isValid && (
                         <Badge variant="secondary">
                           {substitutionResult.replacementCount} replacement
-                          {substitutionResult.replacementCount !== 1 ? "s" : ""}
+                          {substitutionResult.replacementCount === 1 ? "" : "s"}
                         </Badge>
                       )}
                       <Button
@@ -507,8 +507,8 @@ const RegexTesterPage = () => {
 
 // Highlighted Text Component
 interface HighlightedTextProps {
-  text: string;
   matches: RegexMatch[];
+  text: string;
 }
 
 const HighlightedText = ({ text, matches }: HighlightedTextProps) => {
@@ -568,8 +568,8 @@ const HighlightedText = ({ text, matches }: HighlightedTextProps) => {
 
 // Match Detail Component
 interface MatchDetailProps {
-  match: RegexMatch;
   index: number;
+  match: RegexMatch;
   onCopy: (text: string, label: string) => void;
 }
 

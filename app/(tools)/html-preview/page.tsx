@@ -586,13 +586,13 @@ const HtmlPreviewPage = () => {
               {input.trim() && (
                 <>
                   <Badge variant="secondary">
-                    {stats.elements} element{stats.elements !== 1 ? "s" : ""}
+                    {stats.elements} element{stats.elements === 1 ? "" : "s"}
                   </Badge>
                   <Badge variant="secondary">
-                    {stats.characters} char{stats.characters !== 1 ? "s" : ""}
+                    {stats.characters} char{stats.characters === 1 ? "" : "s"}
                   </Badge>
                   <Badge variant="secondary">
-                    {stats.lines} line{stats.lines !== 1 ? "s" : ""}
+                    {stats.lines} line{stats.lines === 1 ? "" : "s"}
                   </Badge>
                   {stats.hasStyles && <Badge variant="outline">CSS</Badge>}
                   {stats.hasScripts && (
@@ -604,14 +604,14 @@ const HtmlPreviewPage = () => {
                         render={
                           <Badge className="cursor-help" variant="secondary">
                             {validation.warnings.length} warning
-                            {validation.warnings.length !== 1 ? "s" : ""}
+                            {validation.warnings.length === 1 ? "" : "s"}
                           </Badge>
                         }
                       />
                       <TooltipContent className="max-w-xs">
                         <ul className="list-disc pl-4 text-xs">
-                          {validation.warnings.slice(0, 5).map((w, i) => (
-                            <li key={i}>{w}</li>
+                          {validation.warnings.slice(0, 5).map((w) => (
+                            <li key={w}>{w}</li>
                           ))}
                         </ul>
                       </TooltipContent>
@@ -623,14 +623,14 @@ const HtmlPreviewPage = () => {
                         render={
                           <Badge className="cursor-help" variant="destructive">
                             {validation.errors.length} error
-                            {validation.errors.length !== 1 ? "s" : ""}
+                            {validation.errors.length === 1 ? "" : "s"}
                           </Badge>
                         }
                       />
                       <TooltipContent className="max-w-xs">
                         <ul className="list-disc pl-4 text-xs">
-                          {validation.errors.slice(0, 5).map((e, i) => (
-                            <li key={i}>{e}</li>
+                          {validation.errors.slice(0, 5).map((e) => (
+                            <li key={e}>{e}</li>
                           ))}
                         </ul>
                       </TooltipContent>

@@ -43,7 +43,9 @@ const WordCounterPage = () => {
 
   // Save to localStorage when input changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
 
     if (input) {
       localStorage.setItem(STORAGE_KEY, input);
@@ -317,10 +319,10 @@ Speaking Time: ${formatTime(stats.speakingTimeSeconds)}`;
 
 // Stat Card Component
 interface StatCardProps {
-  label: string;
-  value: string;
   highlight?: boolean;
   icon?: typeof Time01Icon;
+  label: string;
+  value: string;
 }
 
 const StatCard = ({ label, value, highlight, icon }: StatCardProps) => {

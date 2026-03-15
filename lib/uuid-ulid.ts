@@ -1,3 +1,5 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: id validators intentionally keep regexes adjacent to each parser
+// biome-ignore-all lint/suspicious/noBitwiseOperators: UUID/ULID generation relies on bitwise operations by design
 /**
  * UUID and ULID generation utilities
  * Supports UUID v4, UUID v7, and ULID formats
@@ -9,20 +11,20 @@ export type IdFormat = "uuid-v4" | "uuid-v7" | "ulid";
 export type UuidStyle = "lowercase" | "uppercase";
 
 export interface GeneratedId {
-  value: string;
   format: IdFormat;
   timestamp?: number;
   timestampReadable?: string;
+  value: string;
 }
 
 export interface ParsedId {
   format: IdFormat | "unknown";
-  value: string;
   isValid: boolean;
   timestamp?: number;
   timestampReadable?: string;
-  version?: number;
+  value: string;
   variant?: string;
+  version?: number;
 }
 
 /**
@@ -312,6 +314,13 @@ export const getFormatInfo = (
           "Lexicographically sortable identifier with millisecond timestamp.",
         length: 26,
         sortable: true,
+      };
+    default:
+      return {
+        name: "Unknown",
+        description: "Unknown identifier format.",
+        length: 0,
+        sortable: false,
       };
   }
 };

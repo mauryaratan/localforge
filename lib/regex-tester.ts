@@ -1,7 +1,7 @@
 export interface RegexFlag {
+  description: string;
   key: string;
   label: string;
-  description: string;
 }
 
 export const REGEX_FLAGS: RegexFlag[] = [
@@ -17,32 +17,32 @@ export const REGEX_FLAGS: RegexFlag[] = [
 ];
 
 export interface MatchGroup {
-  value: string;
   index: number;
   name?: string;
+  value: string;
 }
 
 export interface RegexMatch {
-  fullMatch: string;
-  index: number;
   endIndex: number;
+  fullMatch: string;
   groups: MatchGroup[];
+  index: number;
   namedGroups: Record<string, string>;
 }
 
 export interface RegexResult {
-  isValid: boolean;
   error?: string;
-  matches: RegexMatch[];
-  matchCount: number;
   executionTime: number;
+  isValid: boolean;
+  matchCount: number;
+  matches: RegexMatch[];
 }
 
 export interface SubstitutionResult {
-  isValid: boolean;
   error?: string;
-  result: string;
+  isValid: boolean;
   replacementCount: number;
+  result: string;
 }
 
 /**
@@ -221,11 +221,11 @@ export const escapeRegex = (str: string): string => {
 };
 
 export interface ExamplePattern {
+  description: string;
+  flags?: string;
   name: string;
   pattern: string;
-  description: string;
   testString: string;
-  flags?: string;
 }
 
 export const EXAMPLE_PATTERNS: ExamplePattern[] = [
@@ -303,13 +303,13 @@ export const EXAMPLE_PATTERNS: ExamplePattern[] = [
 ];
 
 export interface QuickRefItem {
-  token: string;
   description: string;
+  token: string;
 }
 
 export interface QuickRefCategory {
-  name: string;
   items: QuickRefItem[];
+  name: string;
 }
 
 export const QUICK_REFERENCE: QuickRefCategory[] = [

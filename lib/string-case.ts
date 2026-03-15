@@ -1,3 +1,4 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: string transform rules are clearer with regexes adjacent to each case
 export type CaseType =
   | "camelCase"
   | "PascalCase"
@@ -18,12 +19,12 @@ export type CaseType =
   | "UPPERFLATCASE"
   | "sWAP cASE";
 
-export type CaseInfo = {
-  type: CaseType;
-  label: string;
+export interface CaseInfo {
   description: string;
   example: string;
-};
+  label: string;
+  type: CaseType;
+}
 
 export const CASE_INFO: CaseInfo[] = [
   {
@@ -167,7 +168,9 @@ const TITLE_CASE_MINOR_WORDS = new Set([
  * Splits a string into words, handling various case formats
  */
 export const splitIntoWords = (input: string): string[] => {
-  if (!input.trim()) return [];
+  if (!input.trim()) {
+    return [];
+  }
 
   // Handle camelCase and PascalCase by inserting spaces before capitals
   const normalized = input
@@ -188,7 +191,9 @@ export const splitIntoWords = (input: string): string[] => {
  * Capitalizes the first letter of a word
  */
 const capitalize = (word: string): string => {
-  if (!word) return "";
+  if (!word) {
+    return "";
+  }
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 };
 
@@ -197,7 +202,9 @@ const capitalize = (word: string): string => {
  */
 export const toCamelCase = (input: string): string => {
   const words = splitIntoWords(input);
-  if (words.length === 0) return "";
+  if (words.length === 0) {
+    return "";
+  }
 
   return words
     .map((word, index) => (index === 0 ? word.toLowerCase() : capitalize(word)))
@@ -271,7 +278,9 @@ export const toCapitalizedCase = (input: string): string => {
  */
 export const toSentenceCase = (input: string): string => {
   const words = splitIntoWords(input);
-  if (words.length === 0) return "";
+  if (words.length === 0) {
+    return "";
+  }
 
   return words
     .map((word, index) => (index === 0 ? capitalize(word) : word.toLowerCase()))
@@ -283,7 +292,9 @@ export const toSentenceCase = (input: string): string => {
  */
 export const toTitleCase = (input: string): string => {
   const words = splitIntoWords(input);
-  if (words.length === 0) return "";
+  if (words.length === 0) {
+    return "";
+  }
 
   return words
     .map((word, index) => {
@@ -422,43 +433,69 @@ export const convertCase = (input: string, caseType: CaseType): string => {
  * Detects the most likely case format of the input string
  */
 export const detectCase = (input: string): CaseType | null => {
-  if (!input.trim()) return null;
+  if (!input.trim()) {
+    return null;
+  }
 
   // Check for snake_case
-  if (/^[a-z]+(_[a-z]+)+$/.test(input)) return "snake_case";
+  if (/^[a-z]+(_[a-z]+)+$/.test(input)) {
+    return "snake_case";
+  }
 
   // Check for CONSTANT_CASE
-  if (/^[A-Z]+(_[A-Z]+)+$/.test(input)) return "CONSTANT_CASE";
+  if (/^[A-Z]+(_[A-Z]+)+$/.test(input)) {
+    return "CONSTANT_CASE";
+  }
 
   // Check for kebab-case
-  if (/^[a-z]+(-[a-z]+)+$/.test(input)) return "kebab-case";
+  if (/^[a-z]+(-[a-z]+)+$/.test(input)) {
+    return "kebab-case";
+  }
 
   // Check for SCREAMING-KEBAB
-  if (/^[A-Z]+(-[A-Z]+)+$/.test(input)) return "SCREAMING-KEBAB";
+  if (/^[A-Z]+(-[A-Z]+)+$/.test(input)) {
+    return "SCREAMING-KEBAB";
+  }
 
   // Check for Train-Case
-  if (/^[A-Z][a-z]*(-[A-Z][a-z]*)+$/.test(input)) return "Train-Case";
+  if (/^[A-Z][a-z]*(-[A-Z][a-z]*)+$/.test(input)) {
+    return "Train-Case";
+  }
 
   // Check for dot.case
-  if (/^[a-z]+(\.[a-z]+)+$/.test(input)) return "dot.case";
+  if (/^[a-z]+(\.[a-z]+)+$/.test(input)) {
+    return "dot.case";
+  }
 
   // Check for path/case
-  if (/^[a-z]+(\/[a-z]+)+$/.test(input)) return "path/case";
+  if (/^[a-z]+(\/[a-z]+)+$/.test(input)) {
+    return "path/case";
+  }
 
   // Check for PascalCase
-  if (/^[A-Z][a-z]+([A-Z][a-z]+)+$/.test(input)) return "PascalCase";
+  if (/^[A-Z][a-z]+([A-Z][a-z]+)+$/.test(input)) {
+    return "PascalCase";
+  }
 
   // Check for camelCase
-  if (/^[a-z]+([A-Z][a-z]+)+$/.test(input)) return "camelCase";
+  if (/^[a-z]+([A-Z][a-z]+)+$/.test(input)) {
+    return "camelCase";
+  }
 
   // Check for all uppercase
-  if (/^[A-Z\s]+$/.test(input) && input.includes(" ")) return "UPPER CASE";
+  if (/^[A-Z\s]+$/.test(input) && input.includes(" ")) {
+    return "UPPER CASE";
+  }
 
   // Check for all lowercase
-  if (/^[a-z\s]+$/.test(input) && input.includes(" ")) return "lower case";
+  if (/^[a-z\s]+$/.test(input) && input.includes(" ")) {
+    return "lower case";
+  }
 
   // Check for Capitalized Case
-  if (/^([A-Z][a-z]*\s)+[A-Z][a-z]*$/.test(input)) return "Capitalized Case";
+  if (/^([A-Z][a-z]*\s)+[A-Z][a-z]*$/.test(input)) {
+    return "Capitalized Case";
+  }
 
   return null;
 };

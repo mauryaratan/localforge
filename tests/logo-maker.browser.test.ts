@@ -6,8 +6,8 @@ import {
   downloadSVG,
   imageToDataUrl,
   loadConfig,
-  saveConfig,
   STORAGE_KEY,
+  saveConfig,
   svgToPng,
 } from "@/lib/logo-maker";
 
@@ -96,17 +96,21 @@ describe("logo-maker browser helpers", () => {
     Object.defineProperty(canvas, "toDataURL", {
       value: vi.fn(() => "data:image/png;base64,png"),
     });
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      if (tagName === "canvas") {
-        return canvas;
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        if (tagName === "canvas") {
+          return canvas;
+        }
+        return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
       }
-      return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
-    });
+    );
 
     const createObjectUrlSpy = vi
       .spyOn(URL, "createObjectURL")
       .mockReturnValue("blob:svg");
-    const revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const revokeSpy = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
 
     const png = await svgToPng("<svg/>", 128);
     expect(png).toBe("data:image/png;base64,png");
@@ -122,12 +126,14 @@ describe("logo-maker browser helpers", () => {
     Object.defineProperty(canvas, "getContext", {
       value: vi.fn(() => null),
     });
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      if (tagName === "canvas") {
-        return canvas;
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        if (tagName === "canvas") {
+          return canvas;
+        }
+        return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
       }
-      return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
-    });
+    );
 
     await expect(svgToPng("<svg/>", 64)).rejects.toThrow(
       "Could not get canvas context"
@@ -145,14 +151,16 @@ describe("logo-maker browser helpers", () => {
     Object.defineProperty(canvas, "toDataURL", {
       value: vi.fn(() => "data:image/png;base64,png"),
     });
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      if (tagName === "canvas") {
-        return canvas;
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        if (tagName === "canvas") {
+          return canvas;
+        }
+        return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
       }
-      return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
-    });
+    );
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:svg");
-    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
 
     await expect(svgToPng("<svg/>", 64)).rejects.toThrow("Failed to load SVG");
   });
@@ -160,14 +168,16 @@ describe("logo-maker browser helpers", () => {
   it("creates and clicks a download link", () => {
     const clickSpy = vi.fn();
     const originalCreateElement = document.createElement.bind(document);
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      if (tagName === "a") {
-        const anchor = originalCreateElement("a");
-        Object.defineProperty(anchor, "click", { value: clickSpy });
-        return anchor;
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        if (tagName === "a") {
+          const anchor = originalCreateElement("a");
+          Object.defineProperty(anchor, "click", { value: clickSpy });
+          return anchor;
+        }
+        return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
       }
-      return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
-    });
+    );
 
     const appendSpy = vi.spyOn(document.body, "appendChild");
     const removeSpy = vi.spyOn(document.body, "removeChild");
@@ -182,17 +192,21 @@ describe("logo-maker browser helpers", () => {
   it("downloads SVG via object URL and revokes it", () => {
     const clickSpy = vi.fn();
     const originalCreateElement = document.createElement.bind(document);
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      if (tagName === "a") {
-        const anchor = originalCreateElement("a");
-        Object.defineProperty(anchor, "click", { value: clickSpy });
-        return anchor;
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        if (tagName === "a") {
+          const anchor = originalCreateElement("a");
+          Object.defineProperty(anchor, "click", { value: clickSpy });
+          return anchor;
+        }
+        return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
       }
-      return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
-    });
+    );
 
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:svg");
-    const revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const revokeSpy = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
 
     downloadSVG("<svg/>", "logo.svg");
 
@@ -212,20 +226,22 @@ describe("logo-maker browser helpers", () => {
     Object.defineProperty(canvas, "toDataURL", {
       value: vi.fn(() => "data:image/png;base64,png"),
     });
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      if (tagName === "canvas") {
-        return canvas;
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        if (tagName === "canvas") {
+          return canvas;
+        }
+        if (tagName === "a") {
+          const anchor = originalCreateElement("a");
+          Object.defineProperty(anchor, "click", { value: clickSpy });
+          return anchor;
+        }
+        return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
       }
-      if (tagName === "a") {
-        const anchor = originalCreateElement("a");
-        Object.defineProperty(anchor, "click", { value: clickSpy });
-        return anchor;
-      }
-      return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
-    });
+    );
 
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:svg");
-    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
 
     await downloadPNG("<svg/>", 128, "logo.png");
     expect(clickSpy).toHaveBeenCalledTimes(1);
@@ -233,7 +249,9 @@ describe("logo-maker browser helpers", () => {
 
   it("reads image files as data URLs", async () => {
     const file = new File(["data"], "logo.png", { type: "image/png" });
-    await expect(imageToDataUrl(file)).resolves.toBe("data:image/png;base64,file");
+    await expect(imageToDataUrl(file)).resolves.toBe(
+      "data:image/png;base64,file"
+    );
   });
 
   it("rejects when image file reading fails", async () => {

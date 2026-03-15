@@ -1,3 +1,4 @@
+// biome-ignore-all lint/complexity/noForEach: table-driven test declarations use forEach intentionally
 import { describe, expect, it } from "vitest";
 import { decodeURLComponent, encodeURLComponent } from "@/lib/url-parser";
 

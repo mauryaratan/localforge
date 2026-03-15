@@ -1,3 +1,4 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: base64 validation regexes are intentionally scoped near each conversion path
 /**
  * Base64 encoding/decoding utilities
  * Supports standard Base64 and URL-safe Base64 (Base64URL)
@@ -5,11 +6,11 @@
 
 export type Base64Mode = "standard" | "url-safe";
 
-export type Base64Result = {
-  success: boolean;
+export interface Base64Result {
   data: string;
   error?: string;
-};
+  success: boolean;
+}
 
 /**
  * Encode a string to Base64
@@ -85,7 +86,7 @@ export const decodeBase64 = (
     const decoded = new TextDecoder("utf-8").decode(bytes);
 
     return { success: true, data: decoded };
-  } catch (error) {
+  } catch (_error) {
     return {
       success: false,
       data: "",
@@ -104,14 +105,18 @@ export const isValidBase64 = (
   input: string,
   mode: Base64Mode = "standard"
 ): boolean => {
-  if (!input) return true;
+  if (!input) {
+    return true;
+  }
 
   const standardPattern = /^[A-Za-z0-9+/]*={0,2}$/;
   const urlSafePattern = /^[A-Za-z0-9_-]*$/;
 
   const pattern = mode === "url-safe" ? urlSafePattern : standardPattern;
 
-  if (!pattern.test(input)) return false;
+  if (!pattern.test(input)) {
+    return false;
+  }
 
   // Also verify it can be decoded
   const result = decodeBase64(input, mode);

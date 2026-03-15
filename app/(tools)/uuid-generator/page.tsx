@@ -7,7 +7,7 @@ import {
   Search01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,17 +29,24 @@ import {
 const STORAGE_KEY = "devtools:uuid-generator:settings";
 
 interface StoredSettings {
-  format: IdFormat;
   count: number;
+  format: IdFormat;
   style: UuidStyle;
   withHyphens: boolean;
 }
 
-const defaultSettings: StoredSettings = {
+const _defaultSettings: StoredSettings = {
   format: "uuid-v4",
   count: 1,
   style: "lowercase",
   withHyphens: true,
+};
+
+const applyUuidStyle = (value: string, style: UuidStyle) => {
+  if (style === "uppercase") {
+    return value.toUpperCase();
+  }
+  return value.toLowerCase();
 };
 
 const UuidGeneratorPage = () => {
@@ -71,22 +78,25 @@ const UuidGeneratorPage = () => {
 
   // Save settings to localStorage
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
     const settings: StoredSettings = { format, count, style, withHyphens };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, [format, count, style, withHyphens, isHydrated]);
 
-  // Generate initial IDs
-  useEffect(() => {
-    if (!isHydrated) return;
-    handleGenerate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrated]);
-
-  const handleGenerate = () => {
+  const handleGenerate = useCallback(() => {
     const ids = generateIds(format, count, style);
     setGeneratedIds(ids);
-  };
+  }, [count, format, style]);
+
+  // Generate initial IDs
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+    handleGenerate();
+  }, [isHydrated, handleGenerate]);
 
   const handleFormatChange = (newFormat: IdFormat) => {
     setFormat(newFormat);
@@ -104,15 +114,16 @@ const UuidGeneratorPage = () => {
     setStyle(newStyle);
     // Re-apply style to existing IDs
     setGeneratedIds((prev) =>
-      prev.map((id) => ({
-        ...id,
-        value:
-          id.format === "ulid"
-            ? id.value
-            : newStyle === "uppercase"
-              ? id.value.toUpperCase()
-              : id.value.toLowerCase(),
-      }))
+      prev.map((id) => {
+        if (id.format === "ulid") {
+          return id;
+        }
+
+        return {
+          ...id,
+          value: applyUuidStyle(id.value, newStyle),
+        };
+      })
     );
   };
 
@@ -121,7 +132,9 @@ const UuidGeneratorPage = () => {
     // Re-apply format to existing UUIDs
     setGeneratedIds((prev) =>
       prev.map((id) => {
-        if (id.format === "ulid") return id;
+        if (id.format === "ulid") {
+          return id;
+        }
         const clean = id.value.replace(/-/g, "");
         const formatted = checked
           ? [
@@ -367,10 +380,10 @@ const UuidGeneratorPage = () => {
               </p>
             ) : (
               <div className="flex flex-col gap-2">
-                {generatedIds.map((id, index) => (
+                {generatedIds.map((id) => (
                   <div
                     className="group flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 transition-colors hover:bg-muted/50"
-                    key={`${id.value}-${index}`}
+                    key={`${id.format}-${id.value}`}
                   >
                     <code className="flex-1 break-all font-mono text-xs">
                       {id.value}

@@ -3,10 +3,10 @@
  * Run with: node scripts/generate-icons.mjs
  */
 
-import { writeFileSync } from "fs";
-import { dirname, join } from "path";
+import { writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(__dirname, "..", "public");
@@ -105,8 +105,8 @@ async function generateIcons() {
 
   // Generate favicon.ico (multi-size ICO file)
   const faviconSizes = [16, 32, 48];
-  const faviconBuffers = await Promise.all(
-    faviconSizes.map(async (size) => {
+  const _faviconBuffers = await Promise.all(
+    faviconSizes.map((size) => {
       const svg = createFaviconSvg(size);
       return sharp(Buffer.from(svg)).resize(size, size).png().toBuffer();
     })

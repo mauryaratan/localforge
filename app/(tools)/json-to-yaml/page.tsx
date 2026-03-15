@@ -62,7 +62,9 @@ const JsonYamlPage = () => {
 
   // Save to localStorage when input/mode changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
 
     if (input) {
       localStorage.setItem(STORAGE_KEY_INPUT, input);
@@ -91,7 +93,9 @@ const JsonYamlPage = () => {
   }, [input, isJsonMode]);
 
   const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(text);
@@ -111,7 +115,9 @@ const JsonYamlPage = () => {
   }, []);
 
   const handleFormatJson = useCallback(() => {
-    if (!isJsonMode) return;
+    if (!isJsonMode) {
+      return;
+    }
     const result = formatJson(input);
     if (result.success) {
       setInput(result.output);
@@ -119,7 +125,9 @@ const JsonYamlPage = () => {
   }, [input, isJsonMode]);
 
   const handleMinifyJson = useCallback(() => {
-    if (!isJsonMode) return;
+    if (!isJsonMode) {
+      return;
+    }
     const result = minifyJson(input);
     if (result.success) {
       setInput(result.output);
@@ -128,7 +136,9 @@ const JsonYamlPage = () => {
 
   const handleModeChange = useCallback(
     (newMode: ConversionMode) => {
-      if (newMode === mode) return;
+      if (newMode === mode) {
+        return;
+      }
 
       // Use the current output as the new input (reverse conversion)
       if (output) {
@@ -145,11 +155,13 @@ const JsonYamlPage = () => {
     setInput(example);
   }, []);
 
-  const isValidInput = input.trim()
-    ? isJsonMode
+  let isValidInput: boolean | null = null;
+
+  if (input.trim()) {
+    isValidInput = isJsonMode
       ? validateJson(input).isValid
-      : validateYaml(input).isValid
-    : null;
+      : validateYaml(input).isValid;
+  }
 
   const examples = isJsonMode ? exampleJson : exampleYaml;
   const inputLabel = isJsonMode ? "JSON" : "YAML";
@@ -341,13 +353,13 @@ const JsonYamlPage = () => {
   );
 };
 
-type CopyButtonProps = {
-  text: string;
+interface CopyButtonProps {
   copied: boolean;
-  onCopy: () => void;
   label: string;
+  onCopy: () => void;
   size?: "icon-xs" | "icon-sm" | "icon";
-};
+  text: string;
+}
 
 const CopyButton = ({
   text,
@@ -378,10 +390,10 @@ const CopyButton = ({
   );
 };
 
-type ExampleButtonProps = {
+interface ExampleButtonProps {
   label: string;
   onClick: () => void;
-};
+}
 
 const ExampleButton = ({ label, onClick }: ExampleButtonProps) => {
   return (

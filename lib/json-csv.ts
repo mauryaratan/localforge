@@ -1,29 +1,29 @@
-export type ConversionResult = {
-  success: boolean;
-  output: string;
-  error?: string;
-  rowCount?: number;
+export interface ConversionResult {
   columnCount?: number;
-};
-
-export type ValidationResult = {
-  isValid: boolean;
   error?: string;
-  parsed?: unknown;
-};
+  output: string;
+  rowCount?: number;
+  success: boolean;
+}
 
-export type CsvOptions = {
+export interface ValidationResult {
+  error?: string;
+  isValid: boolean;
+  parsed?: unknown;
+}
+
+export interface CsvOptions {
   delimiter: string;
-  includeHeader: boolean;
   flattenNested: boolean;
-};
+  includeHeader: boolean;
+}
 
 export type JsonToCsvOptions = CsvOptions;
 
-export type CsvToJsonOptions = {
+export interface CsvToJsonOptions {
   delimiter: string;
   hasHeader: boolean;
-};
+}
 
 const DEFAULT_JSON_TO_CSV_OPTIONS: JsonToCsvOptions = {
   delimiter: ",",
@@ -35,6 +35,8 @@ const DEFAULT_CSV_TO_JSON_OPTIONS: CsvToJsonOptions = {
   delimiter: ",",
   hasHeader: true,
 };
+
+const CSV_LINE_SPLIT_REGEX = /\r?\n/;
 
 /**
  * Validates JSON string and returns parsed result
@@ -278,7 +280,7 @@ export const csvToJson = (
   }
 
   try {
-    const lines = csvString.trim().split(/\r?\n/);
+    const lines = csvString.trim().split(CSV_LINE_SPLIT_REGEX);
 
     if (lines.length === 0) {
       return { success: false, output: "", error: "CSV is empty" };
@@ -308,7 +310,9 @@ export const csvToJson = (
 
     for (let i = dataStartIndex; i < lines.length; i++) {
       const line = lines[i];
-      if (!line.trim()) continue; // Skip empty lines
+      if (!line.trim()) {
+        continue; // Skip empty lines
+      }
 
       const values = parseCsvLine(line, opts.delimiter);
       const obj: Record<string, unknown> = {};
@@ -340,14 +344,22 @@ export const csvToJson = (
  * Attempts to parse a string value into appropriate type
  */
 const parseValue = (value: string): unknown => {
-  if (value === "") return "";
+  if (value === "") {
+    return "";
+  }
 
   // Check for boolean
-  if (value.toLowerCase() === "true") return true;
-  if (value.toLowerCase() === "false") return false;
+  if (value.toLowerCase() === "true") {
+    return true;
+  }
+  if (value.toLowerCase() === "false") {
+    return false;
+  }
 
   // Check for null
-  if (value.toLowerCase() === "null") return null;
+  if (value.toLowerCase() === "null") {
+    return null;
+  }
 
   // Check for number
   const num = Number(value);
@@ -398,9 +410,11 @@ export const getCsvStats = (
   csvString: string,
   delimiter = ","
 ): { rows: number; columns: number } | null => {
-  if (!csvString.trim()) return null;
+  if (!csvString.trim()) {
+    return null;
+  }
 
-  const lines = csvString.trim().split(/\r?\n/);
+  const lines = csvString.trim().split(CSV_LINE_SPLIT_REGEX);
   const firstLine = parseCsvLine(lines[0], delimiter);
 
   return {
@@ -419,7 +433,9 @@ export const getJsonArrayStats = (
     const parsed = JSON.parse(jsonString);
     const items = Array.isArray(parsed) ? parsed : [parsed];
 
-    if (items.length === 0) return null;
+    if (items.length === 0) {
+      return null;
+    }
 
     const allKeys = new Set<string>();
     for (const item of items) {

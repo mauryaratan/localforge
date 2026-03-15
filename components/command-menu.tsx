@@ -1,3 +1,5 @@
+// biome-ignore-all lint/performance/noNamespaceImport: React namespace usage keeps hooks colocated and matches current component style
+
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";

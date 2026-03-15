@@ -67,7 +67,9 @@ const SvgToCssPage = () => {
 
   // Save to localStorage when input changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
 
     if (input) {
       localStorage.setItem(STORAGE_KEY, input);
@@ -78,12 +80,16 @@ const SvgToCssPage = () => {
 
   // Convert SVG to CSS
   const result = useMemo(() => {
-    if (!input.trim()) return null;
+    if (!input.trim()) {
+      return null;
+    }
     return convertSvgToCss(input, encoding);
   }, [input, encoding]);
 
   const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(text);
@@ -111,7 +117,6 @@ const SvgToCssPage = () => {
         return "bg-white";
       case "black":
         return "bg-zinc-900";
-      case "checkered":
       default:
         return "bg-[repeating-conic-gradient(#8882_0_25%,transparent_0_50%)] bg-size-[16px_16px] dark:bg-[repeating-conic-gradient(#fff1_0_25%,transparent_0_50%)]";
     }
@@ -175,7 +180,7 @@ const SvgToCssPage = () => {
             />
             {/* Stats */}
             <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
-              {result && result.isValid && (
+              {result?.isValid && (
                 <>
                   <Badge variant="default">Valid SVG</Badge>
                   <Badge variant="secondary">
@@ -442,12 +447,12 @@ const SvgToCssPage = () => {
   );
 };
 
-type CopyButtonProps = {
+interface CopyButtonProps {
   copied: boolean;
   disabled?: boolean;
-  onCopy: () => void;
   label: string;
-};
+  onCopy: () => void;
+}
 
 const CopyButton = ({ copied, disabled, onCopy, label }: CopyButtonProps) => {
   return (

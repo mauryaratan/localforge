@@ -1,3 +1,7 @@
+// biome-ignore-all lint/performance/noNamespaceImport: React namespace usage keeps Base UI wrapper code compact
+// biome-ignore-all lint/suspicious/noArrayIndexKey: slider thumbs are position-based and stable by index
+// biome-ignore-all lint/style/noNestedTernary: small value-normalization expression is still readable here
+
 "use client";
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";

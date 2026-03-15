@@ -1,3 +1,6 @@
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: this interactive tool keeps related UI state in one component intentionally
+// biome-ignore-all lint/style/noNestedTernary: status rendering stays readable in place here
+
 "use client";
 
 import {
@@ -104,7 +107,9 @@ const JWTPage = () => {
 
   // Save token to localStorage
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
 
     if (token) {
       localStorage.setItem(STORAGE_KEY, token);
@@ -115,7 +120,9 @@ const JWTPage = () => {
 
   // Save secret to localStorage
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
 
     if (secret) {
       localStorage.setItem(STORAGE_SECRET_KEY, secret);
@@ -217,10 +224,12 @@ const JWTPage = () => {
     if (isHydrated && encodeSecret) {
       handleEncode();
     }
-  }, [headerInput, payloadInput, encodeSecret, isHydrated, handleEncode]);
+  }, [encodeSecret, isHydrated, handleEncode]);
 
   const handleCopy = async (text: string, label: string) => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(text);
@@ -488,7 +497,7 @@ const JWTPage = () => {
                         );
                       })}
                     </div>
-                    {expirationInfo && expirationInfo.expiresAt && (
+                    {expirationInfo?.expiresAt && (
                       <div
                         className={`mt-3 flex items-center gap-2 rounded border p-2 text-xs ${
                           expirationInfo.expired

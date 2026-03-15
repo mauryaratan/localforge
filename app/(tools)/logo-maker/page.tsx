@@ -1,3 +1,7 @@
+// biome-ignore-all lint/performance/noImgElement: local svg/data previews should bypass Next image optimization
+// biome-ignore-all lint/correctness/useImageSize: local previews render inside fixed-size preview shells
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: this interactive tool keeps related UI state in one component intentionally
+
 "use client";
 
 import {
@@ -72,7 +76,9 @@ const LogoMakerPage = () => {
 
   // Save config when it changes
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
     saveConfig(config);
   }, [config, isHydrated]);
 
@@ -80,6 +86,10 @@ const LogoMakerPage = () => {
   const svgString = useMemo(() => {
     return generateLogoSVG(config);
   }, [config]);
+
+  const svgPreviewSrc = useMemo(() => {
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
+  }, [svgString]);
 
   // Update icon config
   const updateIcon = useCallback(
@@ -353,6 +363,7 @@ const LogoMakerPage = () => {
                                 }
                               >
                                 <svg
+                                  aria-hidden="true"
                                   className="h-4 w-4"
                                   fill="none"
                                   stroke="currentColor"
@@ -361,6 +372,7 @@ const LogoMakerPage = () => {
                                   strokeWidth={1.5}
                                   viewBox="0 0 24 24"
                                 >
+                                  <title>{iconName} icon</title>
                                   <path d={ICON_PATHS[iconName]} />
                                 </svg>
                               </TooltipTrigger>
@@ -962,10 +974,10 @@ const LogoMakerPage = () => {
                 backgroundPosition: "0 0, 0 6px, 6px -6px, -6px 0px",
               }}
             >
-              <div
-                className="h-full w-full [&>svg]:h-full [&>svg]:w-full"
-                // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG preview
-                dangerouslySetInnerHTML={{ __html: svgString }}
+              <img
+                alt="Logo preview"
+                className="h-full w-full"
+                src={svgPreviewSrc}
               />
             </div>
 
@@ -973,10 +985,10 @@ const LogoMakerPage = () => {
             <div className="flex items-end justify-center gap-3 border-t pt-3">
               {[16, 32, 48, 64].map((size) => (
                 <div className="flex flex-col items-center gap-0.5" key={size}>
-                  <div
-                    className="overflow-hidden rounded [&>svg]:h-full [&>svg]:w-full"
-                    dangerouslySetInnerHTML={{ __html: svgString }}
-                    // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG preview
+                  <img
+                    alt={`${size}px logo preview`}
+                    className="overflow-hidden rounded"
+                    src={svgPreviewSrc}
                     style={{ width: size, height: size }}
                   />
                   <span className="font-mono text-[8px] text-muted-foreground">
@@ -1128,6 +1140,7 @@ const LogoMakerPage = () => {
               }}
             >
               <svg
+                aria-hidden="true"
                 className="h-3.5 w-3.5"
                 fill="none"
                 stroke={preset.iconColor}
@@ -1136,6 +1149,7 @@ const LogoMakerPage = () => {
                 strokeWidth={1.5}
                 viewBox="0 0 24 24"
               >
+                <title>{preset.name} preset icon</title>
                 <path d={ICON_PATHS[preset.icon]} />
               </svg>
             </div>

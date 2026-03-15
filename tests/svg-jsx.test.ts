@@ -220,7 +220,7 @@ describe("convertSvgToJsx", () => {
   });
 
   it("should remove XML declaration", () => {
-    const svgWithXml = '<?xml version="1.0" encoding="UTF-8"?>' + validSvg;
+    const svgWithXml = `<?xml version="1.0" encoding="UTF-8"?>${validSvg}`;
     const result = convertSvgToJsx(svgWithXml);
     expect(result.output).not.toContain("<?xml");
   });

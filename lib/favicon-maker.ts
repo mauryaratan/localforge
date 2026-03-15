@@ -1,28 +1,28 @@
 // Favicon Maker utility functions
 // Generates favicons in multiple sizes for all platforms
 
-export type FaviconSize = {
-  name: string;
-  width: number;
-  height: number;
+export interface FaviconSize {
   format: "png" | "ico";
+  height: number;
+  name: string;
   purpose?: string;
-};
-
-export type GeneratedFavicon = {
-  name: string;
   width: number;
-  height: number;
-  blob: Blob;
-  url: string;
-  format: "png" | "ico";
-};
+}
 
-export type FaviconResult = {
+export interface GeneratedFavicon {
+  blob: Blob;
+  format: "png" | "ico";
+  height: number;
+  name: string;
+  url: string;
+  width: number;
+}
+
+export interface FaviconResult {
   favicons: GeneratedFavicon[];
-  manifest: string;
   htmlCode: string;
-};
+  manifest: string;
+}
 
 // Standard favicon sizes for all platforms
 export const FAVICON_SIZES: FaviconSize[] = [
@@ -78,7 +78,9 @@ export const decodeImageFile = async (
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) throw new Error("Failed to get canvas context");
+  if (!ctx) {
+    throw new Error("Failed to get canvas context");
+  }
   ctx.drawImage(bitmap, 0, 0);
   bitmap.close();
   const imageData = ctx.getImageData(0, 0, width, height);
@@ -88,7 +90,7 @@ export const decodeImageFile = async (
 /**
  * Resize an image to target dimensions using canvas
  */
-export const resizeImage = async (
+export const resizeImage = (
   source: ImageBitmap | HTMLImageElement | HTMLCanvasElement,
   width: number,
   height: number
@@ -97,7 +99,9 @@ export const resizeImage = async (
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) throw new Error("Failed to get canvas context");
+  if (!ctx) {
+    throw new Error("Failed to get canvas context");
+  }
 
   // Enable high-quality image scaling
   ctx.imageSmoothingEnabled = true;
@@ -114,8 +118,11 @@ export const canvasToPngBlob = (canvas: HTMLCanvasElement): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
-        if (blob) resolve(blob);
-        else reject(new Error("Failed to convert canvas to PNG"));
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Failed to convert canvas to PNG"));
+        }
       },
       "image/png",
       1.0
@@ -308,7 +315,9 @@ export const isFileSupported = (file: File): boolean => {
  * Format file size in human-readable format
  */
 export const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
+  if (bytes === 0) {
+    return "0 B";
+  }
   const units = ["B", "KB", "MB", "GB"];
   const exp = Math.min(
     Math.floor(Math.log(bytes) / Math.log(1024)),
@@ -342,9 +351,11 @@ export const fileToBase64 = (file: File): Promise<string> => {
 /**
  * Convert base64 data URL to File
  */
+const DATA_URL_MIME_REGEX = /:(.*?);/;
+
 export const base64ToFile = (base64: string, filename: string): File => {
   const [meta, data] = base64.split(",");
-  const mimeMatch = meta.match(/:(.*?);/);
+  const mimeMatch = meta.match(DATA_URL_MIME_REGEX);
   const mime = mimeMatch ? mimeMatch[1] : "image/png";
   const binary = atob(data);
   const array = new Uint8Array(binary.length);

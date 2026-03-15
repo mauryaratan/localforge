@@ -29,9 +29,9 @@ import {
 } from "@hugeicons/core-free-icons";
 
 export interface NavItem {
-  title: string;
   href: string;
   icon: typeof CodeSquareIcon;
+  title: string;
 }
 
 export const navItems: NavItem[] = [

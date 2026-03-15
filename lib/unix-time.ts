@@ -1,3 +1,5 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: time parsing helpers intentionally keep regexes adjacent to each parser
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: date/time parsing paths are clearer grouped by format
 /**
  * Unix Time Converter Utilities
  * Handles conversion between Unix timestamps and human-readable dates
@@ -11,63 +13,63 @@ export type TimestampUnit =
 export type TimezoneMode = "local" | "utc";
 
 export interface ConversionResult {
-  success: boolean;
-  timestamp?: number;
   date?: Date;
+  error?: string;
   formatted?: FormattedDate;
   relative?: string;
-  error?: string;
+  success: boolean;
+  timestamp?: number;
 }
 
 export interface FormattedDate {
-  iso: string;
-  isoDate: string;
-  rfc2822: string;
-  localeDate: string;
-  localeTime: string;
-  localeFull: string;
-  // Additional formats
-  usDate: string; // MM/DD/YYYY
-  euDate: string; // DD-MM-YYYY
-  shortDateTime: string; // MM-DD-YYYY HH:mm
-  shortTime: string; // Jan 21, 4:27 PM
-  monthYear: string; // January 1970
-  year: number;
-  month: number;
   day: number;
-  hour: number;
-  minute: number;
-  second: number;
-  millisecond: number;
   dayOfWeek: string;
   dayOfYear: number;
+  euDate: string; // DD-MM-YYYY
+  hour: number;
+  iso: string;
+  isoDate: string;
+  localeDate: string;
+  localeFull: string;
+  localeTime: string;
+  millisecond: number;
+  minute: number;
+  month: number;
+  monthYear: string; // January 1970
+  rfc2822: string;
+  second: number;
+  shortDateTime: string; // MM-DD-YYYY HH:mm
+  shortTime: string; // Jan 21, 4:27 PM
+  // Additional formats
+  usDate: string; // MM/DD/YYYY
   weekNumber: number;
+  year: number;
 }
 
 export interface DetailedRelativeTime {
-  years: number;
-  months: number;
   days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  isPast: boolean;
   formatted: string;
+  hours: number;
+  isPast: boolean;
+  minutes: number;
+  months: number;
+  seconds: number;
   simple: string;
+  years: number;
 }
 
 export type InputFormat = "auto" | "seconds" | "milliseconds" | "iso8601";
 
 export interface TimezoneResult {
-  timezone: string;
   formatted: string;
   offset: string;
+  timezone: string;
 }
 
 export interface TimestampInfo {
-  unit: TimestampUnit;
   digits: number;
   label: string;
+  unit: TimestampUnit;
 }
 
 /**
@@ -589,7 +591,7 @@ export const getDetailedRelativeTime = (date: Date): DetailedRelativeTime => {
  */
 export const parseTimestampExpression = (
   input: string,
-  unit: TimestampUnit = "seconds"
+  _unit: TimestampUnit = "seconds"
 ): { success: boolean; value?: number; error?: string } => {
   const trimmed = input.trim().toLowerCase();
 
@@ -623,7 +625,6 @@ export const parseTimestampExpression = (
 
   try {
     // Use Function constructor for safe math evaluation (no access to global scope)
-    // biome-ignore lint/security/noGlobalEval: Safe evaluation of numeric expression only
     const result = new Function(`"use strict"; return (${expression})`)();
 
     if (
@@ -772,8 +773,6 @@ export const parseInput = (
       }
       return { success: true, timestamp: fromMilliseconds(num, unit) };
     }
-
-    case "auto":
     default: {
       // Try expression parsing first (handles "now", math operators)
       const exprResult = parseTimestampExpression(trimmed, unit);

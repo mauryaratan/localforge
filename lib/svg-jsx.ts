@@ -1,21 +1,23 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: svg/jsx conversion rules intentionally keep regexes near each transform step
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: conversion pipeline is easier to maintain as a single routine
 export type OutputFormat = "jsx" | "component" | "componentTs";
 
-export type ConversionOptions = {
-  outputFormat: OutputFormat;
+export interface ConversionOptions {
+  cleanupIds: boolean;
   componentName: string;
   memo: boolean;
-  spreadProps: boolean;
+  outputFormat: OutputFormat;
   singleQuotes: boolean;
-  cleanupIds: boolean;
-};
+  spreadProps: boolean;
+}
 
-export type ConversionResult = {
-  isValid: boolean;
+export interface ConversionResult {
   error?: string;
-  output: string;
+  isValid: boolean;
   originalSize: number;
+  output: string;
   outputSize: number;
-};
+}
 
 const defaultOptions: ConversionOptions = {
   outputFormat: "jsx",
@@ -154,7 +156,9 @@ export const parseStyleToJsx = (
   styleStr: string,
   singleQuotes: boolean
 ): string => {
-  if (!styleStr.trim()) return "{}";
+  if (!styleStr.trim()) {
+    return "{}";
+  }
 
   const quote = singleQuotes ? "'" : '"';
   const styles = styleStr.split(";").filter((s) => s.trim());
@@ -162,12 +166,16 @@ export const parseStyleToJsx = (
 
   for (const style of styles) {
     const colonIndex = style.indexOf(":");
-    if (colonIndex === -1) continue;
+    if (colonIndex === -1) {
+      continue;
+    }
 
     const prop = style.slice(0, colonIndex).trim();
     const value = style.slice(colonIndex + 1).trim();
 
-    if (!(prop && value)) continue;
+    if (!(prop && value)) {
+      continue;
+    }
 
     // Convert CSS property to camelCase
     const jsxProp = toCamelCase(prop);
@@ -239,7 +247,9 @@ export const convertAttributes = (
   options: ConversionOptions,
   idPrefix?: string
 ): string => {
-  if (!attributesStr.trim()) return "";
+  if (!attributesStr.trim()) {
+    return "";
+  }
 
   const quote = options.singleQuotes ? "'" : '"';
   const result: string[] = [];
@@ -249,7 +259,11 @@ export const convertAttributes = (
     /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'))?/g;
   let match: RegExpExecArray | null;
 
-  while ((match = attrRegex.exec(attributesStr)) !== null) {
+  for (;;) {
+    match = attrRegex.exec(attributesStr);
+    if (match === null) {
+      break;
+    }
     const [, attrName, doubleValue, singleValue] = match;
     const value = doubleValue ?? singleValue ?? "";
 
@@ -350,7 +364,7 @@ export const convertSvgToJsx = (
   // Process all tags with attributes
   result = result.replace(
     /<([a-zA-Z][a-zA-Z0-9]*)((?:\s+[a-zA-Z_:][-a-zA-Z0-9_:.]*(?:\s*=\s*(?:"[^"]*"|'[^']*'))?)*)\s*(\/?)>/g,
-    (match, tagName, attrs, selfClosing) => {
+    (_match, tagName, attrs, selfClosing) => {
       const convertedAttrs = convertAttributes(attrs, opts, idPrefix);
       const space = convertedAttrs ? " " : "";
       return `<${tagName}${space}${convertedAttrs}${selfClosing ? " /" : ""}>`;
@@ -436,7 +450,9 @@ export default ${componentName};`;
  * Format bytes to human-readable size
  */
 export const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
+  if (bytes === 0) {
+    return "0 B";
+  }
 
   const units = ["B", "KB", "MB"];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));

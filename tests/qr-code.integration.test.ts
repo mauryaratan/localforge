@@ -84,7 +84,9 @@ describe("qr-code integration", () => {
   beforeEach(() => {
     easyQrCtorMock.mockReset();
     jsQrMock.mockReset();
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(
+      () => undefined
+    );
     MockFileReader.shouldError = false;
     MockImage.shouldError = false;
     MockFileReader.mockResult = "data:image/png;base64,mock";
@@ -142,11 +144,17 @@ describe("qr-code integration", () => {
         logoBackgroundTransparent: false,
       });
 
-      expect(result).toEqual({ success: true, dataUrl: "data:image/png;base64,ok" });
+      expect(result).toEqual({
+        success: true,
+        dataUrl: "data:image/png;base64,ok",
+      });
       expect(element.innerHTML).toBe("");
       expect(easyQrCtorMock).toHaveBeenCalledTimes(1);
 
-      const options = easyQrCtorMock.mock.calls[0][1] as Record<string, unknown>;
+      const options = easyQrCtorMock.mock.calls[0][1] as Record<
+        string,
+        unknown
+      >;
       expect(options.text).toBe("hello");
       expect(options.width).toBe(320);
       expect(options.height).toBe(320);
@@ -171,7 +179,10 @@ describe("qr-code integration", () => {
       const element = document.createElement("div");
 
       const result = await generateQRCodeToElement(element, "hello");
-      expect(result).toEqual({ success: false, error: "Failed to generate QR code" });
+      expect(result).toEqual({
+        success: false,
+        error: "Failed to generate QR code",
+      });
     });
 
     it("returns error when QR constructor throws", async () => {
@@ -299,7 +310,9 @@ describe("qr-code integration", () => {
     it("resolves with file reader result", async () => {
       MockFileReader.mockResult = "data:image/png;base64,xyz";
       const file = new File(["x"], "logo.png", { type: "image/png" });
-      await expect(fileToDataUrl(file)).resolves.toBe("data:image/png;base64,xyz");
+      await expect(fileToDataUrl(file)).resolves.toBe(
+        "data:image/png;base64,xyz"
+      );
     });
 
     it("rejects on reader error", async () => {

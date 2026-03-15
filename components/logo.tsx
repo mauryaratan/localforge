@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
-type LogoProps = {
+interface LogoProps {
   className?: string;
-  size?: "sm" | "md" | "lg";
   showText?: boolean;
-};
+  size?: "sm" | "md" | "lg";
+}
 
 export const Logo = ({
   className,

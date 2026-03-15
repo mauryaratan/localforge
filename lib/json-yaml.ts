@@ -1,16 +1,16 @@
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-export type ConversionResult = {
-  success: boolean;
+export interface ConversionResult {
+  error?: string;
   output: string;
-  error?: string;
-};
+  success: boolean;
+}
 
-export type ValidationResult = {
-  isValid: boolean;
+export interface ValidationResult {
   error?: string;
+  isValid: boolean;
   parsed?: unknown;
-};
+}
 
 export type JsonValidationResult = ValidationResult;
 

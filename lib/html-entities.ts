@@ -145,20 +145,20 @@ export const namedEntitiesReverse: Record<string, string> = Object.fromEntries(
 export type EncodingMode = "named" | "decimal" | "hexadecimal";
 
 export interface EncodeOptions {
-  mode: EncodingMode;
   encodeAll: boolean; // Encode all characters or just special ones
+  mode: EncodingMode;
 }
 
 export interface DecodeResult {
   decoded: string;
-  isValid: boolean;
   error?: string;
+  isValid: boolean;
 }
 
 export interface EncodeResult {
   encoded: string;
-  isValid: boolean;
   error?: string;
+  isValid: boolean;
 }
 
 // Unicode max code point constant
@@ -261,7 +261,7 @@ export const decodeHTMLEntities = (text: string): DecodeResult => {
     // Decode named entities
     decoded = decoded.replace(NAMED_ENTITY_REGEX, (match) => {
       const char = namedEntitiesReverse[match];
-      return char !== undefined ? char : match;
+      return char === undefined ? match : char;
     });
 
     // Decode decimal entities (&#123;)
@@ -323,10 +323,10 @@ export const containsHTMLEntities = (text: string): boolean => {
  * Get information about HTML entities in text
  */
 export interface EntityInfo {
-  entity: string;
   decoded: string;
-  type: "named" | "decimal" | "hexadecimal";
+  entity: string;
   position: number;
+  type: "named" | "decimal" | "hexadecimal";
 }
 
 export const findEntities = (text: string): EntityInfo[] => {

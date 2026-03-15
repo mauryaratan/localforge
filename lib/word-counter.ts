@@ -1,23 +1,24 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: counting helpers intentionally keep regexes adjacent to each metric
 /**
  * Word Counter utility functions
  * Provides text analysis including word count, character count, reading time, etc.
  */
 
 export interface WordCountStats {
-  words: number;
-  uniqueWords: number;
+  avgSentenceLength: number;
+  avgWordLength: number;
   characters: number;
   charactersNoSpaces: number;
-  sentences: number;
-  paragraphs: number;
-  pages: number;
   lines: number;
-  avgWordLength: number;
-  avgSentenceLength: number;
   longestSentenceWords: number;
-  shortestSentenceWords: number;
+  pages: number;
+  paragraphs: number;
   readingTimeSeconds: number;
+  sentences: number;
+  shortestSentenceWords: number;
   speakingTimeSeconds: number;
+  uniqueWords: number;
+  words: number;
 }
 
 // Average reading speed (words per minute)
@@ -33,7 +34,9 @@ const WORDS_PER_PAGE = 275;
  * Count words in text
  */
 export const countWords = (text: string): number => {
-  if (!text.trim()) return 0;
+  if (!text.trim()) {
+    return 0;
+  }
 
   // Split by whitespace and filter out empty strings
   const words = text.trim().split(/\s+/).filter(Boolean);
@@ -44,7 +47,9 @@ export const countWords = (text: string): number => {
  * Get unique words from text
  */
 export const getUniqueWords = (text: string): string[] => {
-  if (!text.trim()) return [];
+  if (!text.trim()) {
+    return [];
+  }
 
   const words = text
     .toLowerCase()
@@ -74,7 +79,9 @@ export const countCharactersNoSpaces = (text: string): number => {
  * Count sentences in text
  */
 export const countSentences = (text: string): number => {
-  if (!text.trim()) return 0;
+  if (!text.trim()) {
+    return 0;
+  }
 
   // Match sentence-ending punctuation followed by space or end of string
   // Handles common abbreviations and edge cases
@@ -90,7 +97,9 @@ export const countSentences = (text: string): number => {
  * Get individual sentences from text
  */
 export const getSentences = (text: string): string[] => {
-  if (!text.trim()) return [];
+  if (!text.trim()) {
+    return [];
+  }
 
   // Split by sentence-ending punctuation, keeping non-empty sentences
   return text
@@ -103,7 +112,9 @@ export const getSentences = (text: string): string[] => {
  * Count paragraphs in text
  */
 export const countParagraphs = (text: string): number => {
-  if (!text.trim()) return 0;
+  if (!text.trim()) {
+    return 0;
+  }
 
   // Split by two or more newlines (paragraph breaks)
   const paragraphs = text
@@ -123,7 +134,9 @@ export const countParagraphs = (text: string): number => {
  * Count lines in text
  */
 export const countLines = (text: string): number => {
-  if (!text) return 0;
+  if (!text) {
+    return 0;
+  }
 
   return text.split("\n").length;
 };
@@ -138,7 +151,9 @@ export const calculateAvgWordLength = (text: string): number => {
     .filter(Boolean)
     .map((w) => w.replace(/[^\w]/g, ""));
 
-  if (words.length === 0) return 0;
+  if (words.length === 0) {
+    return 0;
+  }
 
   const totalLength = words.reduce((sum, word) => sum + word.length, 0);
   return totalLength / words.length;
@@ -149,7 +164,9 @@ export const calculateAvgWordLength = (text: string): number => {
  */
 export const calculateAvgSentenceLength = (text: string): number => {
   const sentences = getSentences(text);
-  if (sentences.length === 0) return 0;
+  if (sentences.length === 0) {
+    return 0;
+  }
 
   const totalWords = sentences.reduce(
     (sum, sentence) => sum + countWords(sentence),
@@ -163,7 +180,9 @@ export const calculateAvgSentenceLength = (text: string): number => {
  */
 export const getLongestSentenceWords = (text: string): number => {
   const sentences = getSentences(text);
-  if (sentences.length === 0) return 0;
+  if (sentences.length === 0) {
+    return 0;
+  }
 
   return Math.max(...sentences.map((s) => countWords(s)));
 };
@@ -173,7 +192,9 @@ export const getLongestSentenceWords = (text: string): number => {
  */
 export const getShortestSentenceWords = (text: string): number => {
   const sentences = getSentences(text);
-  if (sentences.length === 0) return 0;
+  if (sentences.length === 0) {
+    return 0;
+  }
 
   return Math.min(...sentences.map((s) => countWords(s)));
 };
@@ -182,7 +203,9 @@ export const getShortestSentenceWords = (text: string): number => {
  * Calculate reading time in seconds
  */
 export const calculateReadingTime = (wordCount: number): number => {
-  if (wordCount === 0) return 0;
+  if (wordCount === 0) {
+    return 0;
+  }
   return Math.ceil((wordCount / READING_WPM) * 60);
 };
 
@@ -190,7 +213,9 @@ export const calculateReadingTime = (wordCount: number): number => {
  * Calculate speaking time in seconds
  */
 export const calculateSpeakingTime = (wordCount: number): number => {
-  if (wordCount === 0) return 0;
+  if (wordCount === 0) {
+    return 0;
+  }
   return Math.ceil((wordCount / SPEAKING_WPM) * 60);
 };
 
@@ -198,7 +223,9 @@ export const calculateSpeakingTime = (wordCount: number): number => {
  * Calculate page count
  */
 export const calculatePages = (wordCount: number): number => {
-  if (wordCount === 0) return 0;
+  if (wordCount === 0) {
+    return 0;
+  }
   return Math.ceil(wordCount / WORDS_PER_PAGE);
 };
 
@@ -206,7 +233,9 @@ export const calculatePages = (wordCount: number): number => {
  * Format seconds to MM:SS string
  */
 export const formatTime = (seconds: number): string => {
-  if (seconds === 0) return "0:00";
+  if (seconds === 0) {
+    return "0:00";
+  }
 
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -217,13 +246,19 @@ export const formatTime = (seconds: number): string => {
  * Format seconds to human-readable string
  */
 export const formatTimeReadable = (seconds: number): string => {
-  if (seconds === 0) return "0 sec";
+  if (seconds === 0) {
+    return "0 sec";
+  }
 
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
 
-  if (mins === 0) return `${secs} sec`;
-  if (secs === 0) return `${mins} min`;
+  if (mins === 0) {
+    return `${secs} sec`;
+  }
+  if (secs === 0) {
+    return `${mins} min`;
+  }
   return `${mins} min ${secs} sec`;
 };
 
@@ -260,7 +295,9 @@ export const getTopWords = (
   text: string,
   limit = 10
 ): { word: string; count: number }[] => {
-  if (!text.trim()) return [];
+  if (!text.trim()) {
+    return [];
+  }
 
   const words = text
     .toLowerCase()

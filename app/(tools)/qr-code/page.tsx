@@ -1,3 +1,8 @@
+// biome-ignore-all lint/performance/noImgElement: local QR previews should bypass Next image optimization
+// biome-ignore-all lint/correctness/useImageSize: local previews render inside fixed-size preview shells
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: this interactive tool keeps related UI state in one component intentionally
+// biome-ignore-all lint/style/noNestedTernary: status/option rendering is compact enough to read in place
+
 "use client";
 
 import {
@@ -124,7 +129,9 @@ const QRCodePage = () => {
     }
 
     const generateQR = async () => {
-      if (!qrContainerRef.current) return;
+      if (!qrContainerRef.current) {
+        return;
+      }
 
       setIsGenerating(true);
       setError(null);
@@ -162,7 +169,9 @@ const QRCodePage = () => {
   ]);
 
   const handleDownload = useCallback(async () => {
-    if (!qrContainerRef.current) return;
+    if (!qrContainerRef.current) {
+      return;
+    }
 
     const success = await downloadQRCodeFromElement(
       qrContainerRef.current,
@@ -185,7 +194,9 @@ const QRCodePage = () => {
   }, []);
 
   const handleCopyContent = useCallback(async () => {
-    if (!decodedContent) return;
+    if (!decodedContent) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(decodedContent);
@@ -256,7 +267,9 @@ const QRCodePage = () => {
   const handleLogoUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (!file) return;
+      if (!file) {
+        return;
+      }
 
       if (!file.type.startsWith("image/")) {
         toast.error("Please select an image file");
@@ -635,11 +648,12 @@ const QRCodePage = () => {
                       </Label>
                       <Select
                         onValueChange={(v) => {
-                          if (v)
+                          if (v) {
                             updateOption(
                               "dotScale",
                               Number.parseFloat(v) as DotScale
                             );
+                          }
                         }}
                         value={String(options.dotScale)}
                       >
@@ -1027,7 +1041,7 @@ const QRCodePage = () => {
                     ref={fileInputRef}
                     type="file"
                   />
-                  <div
+                  <button
                     aria-label="Drop zone for QR code image"
                     className={`flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-8 transition-colors ${
                       isDragOver
@@ -1038,13 +1052,7 @@ const QRCodePage = () => {
                     onDragLeave={handleDragLeave}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        fileInputRef.current?.click();
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
+                    type="button"
                   >
                     <div className="rounded-full bg-muted p-4">
                       <HugeiconsIcon
@@ -1061,7 +1069,7 @@ const QRCodePage = () => {
                         Supports PNG, JPG, GIF, WebP
                       </span>
                     </div>
-                  </div>
+                  </button>
 
                   {isReading && (
                     <div className="mt-4 text-center text-muted-foreground text-sm">

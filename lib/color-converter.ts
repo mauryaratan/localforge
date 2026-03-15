@@ -1,26 +1,44 @@
-export type RGB = { r: number; g: number; b: number };
+// biome-ignore-all lint/performance/useTopLevelRegex: color parsing helpers intentionally keep regexes adjacent to each format
+export interface RGB {
+  b: number;
+  g: number;
+  r: number;
+}
 export type RGBA = RGB & { a: number };
-export type HSL = { h: number; s: number; l: number };
+export interface HSL {
+  h: number;
+  l: number;
+  s: number;
+}
 export type HSLA = HSL & { a: number };
-export type HSV = { h: number; s: number; v: number };
-export type CMYK = { c: number; m: number; y: number; k: number };
+export interface HSV {
+  h: number;
+  s: number;
+  v: number;
+}
+export interface CMYK {
+  c: number;
+  k: number;
+  m: number;
+  y: number;
+}
 
-export type ColorFormats = {
+export interface ColorFormats {
+  cmyk: CMYK;
   hex: string;
   hex8: string;
-  rgb: RGB;
-  rgba: RGBA;
   hsl: HSL;
   hsla: HSLA;
   hsv: HSV;
-  cmyk: CMYK;
-};
+  rgb: RGB;
+  rgba: RGBA;
+}
 
-export type ParsedColor = {
-  isValid: boolean;
+export interface ParsedColor {
   error?: string;
   formats: ColorFormats | null;
-};
+  isValid: boolean;
+}
 
 // Clamp value between min and max
 const clamp = (value: number, min: number, max: number): number =>
@@ -34,7 +52,9 @@ const round = (value: number, decimals = 2): number =>
 const parseHex = (hex: string): RGBA | null => {
   const cleanHex = hex.replace("#", "");
 
-  if (!/^[0-9A-Fa-f]+$/.test(cleanHex)) return null;
+  if (!/^[0-9A-Fa-f]+$/.test(cleanHex)) {
+    return null;
+  }
 
   let r: number;
   let g: number;
@@ -72,7 +92,9 @@ const parseRgb = (input: string): RGBA | null => {
     /rgba?\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([\d.]+))?\s*\)/i
   );
 
-  if (!rgbaMatch) return null;
+  if (!rgbaMatch) {
+    return null;
+  }
 
   const r = clamp(Number.parseInt(rgbaMatch[1], 10), 0, 255);
   const g = clamp(Number.parseInt(rgbaMatch[2], 10), 0, 255);
@@ -88,7 +110,9 @@ const parseHsl = (input: string): RGBA | null => {
     /hsla?\s*\(\s*([\d.]+)\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)%?\s*(?:,\s*([\d.]+))?\s*\)/i
   );
 
-  if (!hslaMatch) return null;
+  if (!hslaMatch) {
+    return null;
+  }
 
   const h = Number.parseFloat(hslaMatch[1]) % 360;
   const s = clamp(Number.parseFloat(hslaMatch[2]), 0, 100) / 100;
@@ -126,6 +150,8 @@ export const rgbToHsl = (rgb: RGB): HSL => {
     case b:
       h = ((r - g) / d + 4) / 6;
       break;
+    default:
+      break;
   }
 
   return { h: round(h * 360), s: round(s * 100), l: round(l * 100) };
@@ -144,11 +170,21 @@ export const hslToRgb = (hsl: HSL): RGB => {
 
   const hue2rgb = (p: number, q: number, t: number): number => {
     let adjustedT = t;
-    if (adjustedT < 0) adjustedT += 1;
-    if (adjustedT > 1) adjustedT -= 1;
-    if (adjustedT < 1 / 6) return p + (q - p) * 6 * adjustedT;
-    if (adjustedT < 1 / 2) return q;
-    if (adjustedT < 2 / 3) return p + (q - p) * (2 / 3 - adjustedT) * 6;
+    if (adjustedT < 0) {
+      adjustedT += 1;
+    }
+    if (adjustedT > 1) {
+      adjustedT -= 1;
+    }
+    if (adjustedT < 1 / 6) {
+      return p + (q - p) * 6 * adjustedT;
+    }
+    if (adjustedT < 1 / 2) {
+      return q;
+    }
+    if (adjustedT < 2 / 3) {
+      return p + (q - p) * (2 / 3 - adjustedT) * 6;
+    }
     return p;
   };
 
@@ -189,6 +225,8 @@ export const rgbToHsv = (rgb: RGB): HSV => {
       break;
     case b:
       h = ((r - g) / d + 4) / 6;
+      break;
+    default:
       break;
   }
 

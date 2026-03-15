@@ -1,25 +1,25 @@
 // Keycode utility functions and data
 
 export interface KeyEventInfo {
-  key: string;
-  code: string;
-  keyCode: number;
-  which: number;
-  location: number;
-  charCode: number;
-  repeat: boolean;
-  isComposing: boolean;
-  shiftKey: boolean;
-  ctrlKey: boolean;
   altKey: boolean;
-  metaKey: boolean;
+  charCode: number;
+  code: string;
+  ctrlKey: boolean;
   eventType: "keydown" | "keyup" | "keypress";
+  isComposing: boolean;
+  key: string;
+  keyCode: number;
+  location: number;
+  metaKey: boolean;
+  repeat: boolean;
+  shiftKey: boolean;
   timestamp: number;
+  which: number;
 }
 
 export interface KeyDescription {
-  name: string;
   description: string;
+  name: string;
 }
 
 // Key location descriptions

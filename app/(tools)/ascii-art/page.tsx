@@ -1,3 +1,7 @@
+// biome-ignore-all lint/performance/noImgElement: local blob previews should bypass Next image optimization
+// biome-ignore-all lint/correctness/useImageSize: local blob previews render inside fixed-size containers
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: this interactive tool keeps related UI state in one component intentionally
+
 "use client";
 
 import {
@@ -12,6 +16,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   type DragEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -79,6 +84,9 @@ const EXAMPLE_TEXT = [
   { label: "Code Block", value: "DEV\nTOOLS" },
 ];
 
+const FILE_EXTENSION_REGEX = /\.[^.]+$/;
+const NEWLINE_REGEX = /\n/g;
+
 const AsciiArtPage = () => {
   const [activeTab, setActiveTab] = useState<"text" | "image">("text");
 
@@ -135,17 +143,23 @@ const AsciiArtPage = () => {
 
   // Save to localStorage
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
     localStorage.setItem(TAB_STORAGE_KEY, activeTab);
   }, [activeTab, isHydrated]);
 
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
     localStorage.setItem(TEXT_STORAGE_KEY, textInput);
   }, [textInput, isHydrated]);
 
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
     localStorage.setItem(IMAGE_STORAGE_KEY, JSON.stringify(imageOptions));
   }, [imageOptions, isHydrated]);
 
@@ -189,6 +203,10 @@ const AsciiArtPage = () => {
   }, [imageFile, imageOptions]);
 
   const currentOutput = activeTab === "text" ? textOutput : imageOutput;
+  const colorizedAsciiOutput = (
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: htmlOutput is generated locally from escaped ASCII content
+    <span dangerouslySetInnerHTML={{ __html: htmlOutput }} />
+  );
 
   const handleFileSelect = useCallback((file: File) => {
     if (!isImageSupported(file)) {
@@ -201,7 +219,9 @@ const AsciiArtPage = () => {
     // Create preview URL
     const url = URL.createObjectURL(file);
     setImagePreview((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
+      if (prev) {
+        URL.revokeObjectURL(prev);
+      }
       return url;
     });
   }, []);
@@ -209,7 +229,9 @@ const AsciiArtPage = () => {
   const handleFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) handleFileSelect(file);
+      if (file) {
+        handleFileSelect(file);
+      }
     },
     [handleFileSelect]
   );
@@ -231,7 +253,9 @@ const AsciiArtPage = () => {
       e.preventDefault();
       setIsDragging(false);
       const file = e.dataTransfer.files[0];
-      if (file) handleFileSelect(file);
+      if (file) {
+        handleFileSelect(file);
+      }
     },
     [handleFileSelect]
   );
@@ -239,7 +263,9 @@ const AsciiArtPage = () => {
   // Handle paste from clipboard
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
-      if (activeTab !== "image") return;
+      if (activeTab !== "image") {
+        return;
+      }
       const files = Array.from(e.clipboardData?.files ?? []);
       const imgFile = files.find((f) => f.type.startsWith("image/"));
       if (imgFile) {
@@ -252,7 +278,9 @@ const AsciiArtPage = () => {
   }, [handleFileSelect, activeTab]);
 
   const handleCopy = useCallback(async () => {
-    if (!currentOutput) return;
+    if (!currentOutput) {
+      return;
+    }
 
     const success = await copyAsciiToClipboard(currentOutput);
     if (success) {
@@ -265,11 +293,14 @@ const AsciiArtPage = () => {
   }, [currentOutput]);
 
   const handleDownload = useCallback(() => {
-    if (!currentOutput) return;
+    if (!currentOutput) {
+      return;
+    }
     const filename =
       activeTab === "text"
         ? "ascii-text.txt"
-        : imageFile?.name.replace(/\.[^.]+$/, "-ascii.txt") || "ascii-art.txt";
+        : imageFile?.name.replace(FILE_EXTENSION_REGEX, "-ascii.txt") ||
+          "ascii-art.txt";
     downloadAsciiArt(currentOutput, filename);
     toast.success("Downloaded");
   }, [currentOutput, activeTab, imageFile]);
@@ -318,16 +349,61 @@ const AsciiArtPage = () => {
 
   // Memoize stats
   const lineCount = useMemo(() => {
-    if (!currentOutput) return 0;
+    if (!currentOutput) {
+      return 0;
+    }
     return currentOutput.split("\n").length;
   }, [currentOutput]);
 
   const charCount = useMemo(() => {
-    if (!currentOutput) return 0;
-    return currentOutput.replace(/\n/g, "").length;
+    if (!currentOutput) {
+      return 0;
+    }
+    return currentOutput.replace(NEWLINE_REGEX, "").length;
   }, [currentOutput]);
 
   const availableFonts = getAvailableFonts();
+  const shouldRenderHtmlOutput =
+    activeTab !== "text" && imageOptions.colorMode !== "monochrome";
+  let outputContent: ReactNode;
+
+  if (activeTab === "image" && isConverting) {
+    outputContent = (
+      <div className="flex min-h-[300px] items-center justify-center text-muted-foreground text-sm">
+        Converting...
+      </div>
+    );
+  } else if (currentOutput) {
+    outputContent = (
+      <div className="relative">
+        <pre
+          className="max-h-[500px] overflow-auto rounded-lg bg-[#0a0a0a] p-4 font-mono text-[#e0e0e0] text-[8px] leading-[1.15] sm:text-[10px]"
+          ref={outputRef}
+          style={{
+            whiteSpace: "pre",
+            fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace",
+          }}
+        >
+          {shouldRenderHtmlOutput ? colorizedAsciiOutput : currentOutput}
+        </pre>
+      </div>
+    );
+  } else {
+    outputContent = (
+      <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 text-muted-foreground">
+        <HugeiconsIcon
+          icon={activeTab === "text" ? TextIcon : ImageUploadIcon}
+          size={48}
+          strokeWidth={1}
+        />
+        <span className="text-xs">
+          {activeTab === "text"
+            ? "Enter text to generate ASCII art"
+            : "Upload an image to see ASCII art"}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex max-w-7xl flex-col gap-6 xl:flex-row xl:items-start">
@@ -521,7 +597,7 @@ const AsciiArtPage = () => {
                     </div>
                   </div>
                 ) : (
-                  <div
+                  <button
                     aria-label="Drop zone for image"
                     className={`flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-8 transition-colors ${
                       isDragging
@@ -532,13 +608,7 @@ const AsciiArtPage = () => {
                     onDragLeave={handleDragLeave}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        fileInputRef.current?.click();
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
+                    type="button"
                   >
                     <div className="rounded-full bg-muted p-4">
                       <HugeiconsIcon
@@ -558,7 +628,7 @@ const AsciiArtPage = () => {
                         You can also paste from clipboard
                       </span>
                     </div>
-                  </div>
+                  </button>
                 )}
               </CardContent>
             </Card>
@@ -611,45 +681,7 @@ const AsciiArtPage = () => {
               )}
             </div>
           </CardHeader>
-          <CardContent className="pt-4">
-            {activeTab === "image" && isConverting ? (
-              <div className="flex min-h-[300px] items-center justify-center text-muted-foreground text-sm">
-                Converting...
-              </div>
-            ) : currentOutput ? (
-              <div className="relative">
-                <pre
-                  className="max-h-[500px] overflow-auto rounded-lg bg-[#0a0a0a] p-4 font-mono text-[#e0e0e0] text-[8px] leading-[1.15] sm:text-[10px]"
-                  ref={outputRef}
-                  style={{
-                    whiteSpace: "pre",
-                    fontFamily:
-                      "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace",
-                  }}
-                >
-                  {activeTab === "text" ||
-                  imageOptions.colorMode === "monochrome" ? (
-                    currentOutput
-                  ) : (
-                    <span dangerouslySetInnerHTML={{ __html: htmlOutput }} />
-                  )}
-                </pre>
-              </div>
-            ) : (
-              <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 text-muted-foreground">
-                <HugeiconsIcon
-                  icon={activeTab === "text" ? TextIcon : ImageUploadIcon}
-                  size={48}
-                  strokeWidth={1}
-                />
-                <span className="text-xs">
-                  {activeTab === "text"
-                    ? "Enter text to generate ASCII art"
-                    : "Upload an image to see ASCII art"}
-                </span>
-              </div>
-            )}
-          </CardContent>
+          <CardContent className="pt-4">{outputContent}</CardContent>
         </Card>
       </div>
 

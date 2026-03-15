@@ -1,3 +1,5 @@
+// biome-ignore-all lint/performance/noNamespaceImport: React namespace usage keeps hook state/effects compact in this utility
+
 "use client";
 
 import * as React from "react";

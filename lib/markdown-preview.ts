@@ -1,19 +1,20 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: markdown parsing helpers intentionally keep regexes close to their transforms
 /**
  * Markdown Preview utilities
  * Provides helper functions for markdown statistics and example content
  */
 
 export interface MarkdownStats {
-  characters: number;
-  words: number;
-  lines: number;
-  paragraphs: number;
-  headings: number;
-  codeBlocks: number;
-  links: number;
-  images: number;
-  lists: number;
   blockquotes: number;
+  characters: number;
+  codeBlocks: number;
+  headings: number;
+  images: number;
+  lines: number;
+  links: number;
+  lists: number;
+  paragraphs: number;
+  words: number;
 }
 
 /**
@@ -116,8 +117,8 @@ export const hasMarkdownSyntax = (content: string): boolean => {
  */
 export interface TocItem {
   level: number;
-  text: string;
   slug: string;
+  text: string;
 }
 
 export const extractTableOfContents = (markdown: string): TocItem[] => {

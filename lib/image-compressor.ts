@@ -5,39 +5,35 @@ export type EncodeFormat = "png" | "jpeg";
 export type PresetLevel = 0 | 1 | 2;
 export type ResizeAlgorithm = "nearest" | "bilinear" | "lanczos3";
 
-export type ResizeOptions = {
-  width: number;
-  height: number;
+export interface ResizeOptions {
   algorithm?: ResizeAlgorithm;
+  height: number;
   maintainAspectRatio?: boolean;
-};
+  width: number;
+}
 
-export type CompressOptions = {
+export interface CompressOptions {
   format: EncodeFormat;
+  hasAlpha?: boolean;
+  lossy?: boolean;
+  preset?: PresetLevel;
   quality?: number;
   subsampling420?: boolean;
-  hasAlpha?: boolean;
-  preset?: PresetLevel;
-  lossy?: boolean;
-};
+}
 
-export type CompressResult = {
+export interface CompressResult {
   blob: Blob;
   elapsedMs: number;
-};
+}
 
-export type ImageJob = {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  width: number;
-  height: number;
-  hasAlpha: boolean;
-  originalUrl: string;
-  imageData: ImageData;
-  status: "idle" | "compressing" | "done" | "error";
+export interface ImageJob {
   error?: string;
+  hasAlpha: boolean;
+  height: number;
+  id: string;
+  imageData: ImageData;
+  name: string;
+  originalUrl: string;
   result?: {
     blob: Blob;
     url: string;
@@ -47,7 +43,11 @@ export type ImageJob = {
     width: number;
     height: number;
   };
-};
+  size: number;
+  status: "idle" | "compressing" | "done" | "error";
+  type: string;
+  width: number;
+}
 
 // Worker code as string - WASM_URL placeholder will be replaced
 const createWorkerCode = (wasmUrl: string) => `
@@ -322,12 +322,17 @@ function getWorker(): Worker {
 
     worker.onerror = (err) => {
       console.error("Worker error:", err);
-      pending.forEach(({ reject }) => reject(new Error("Worker crashed")));
+      for (const { reject } of pending.values()) {
+        reject(new Error("Worker crashed"));
+      }
       pending.clear();
       worker = null;
     };
   }
-  return worker!;
+  if (!worker) {
+    throw new Error("Failed to create image worker");
+  }
+  return worker;
 }
 
 export const compressImage = (
@@ -397,7 +402,11 @@ export const decodeFile = async (
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) {
+    bitmap.close();
+    throw new Error("Failed to create canvas context");
+  }
   ctx.drawImage(bitmap, 0, 0);
   bitmap.close();
   const imageData = ctx.getImageData(0, 0, width, height);
@@ -405,7 +414,9 @@ export const decodeFile = async (
 };
 
 export const formatBytes = (b: number): string => {
-  if (!b) return "0 B";
+  if (!b) {
+    return "0 B";
+  }
   const u = ["B", "KB", "MB", "GB"];
   const e = Math.min(Math.floor(Math.log(b) / Math.log(1024)), u.length - 1);
   const v = b / 1024 ** e;

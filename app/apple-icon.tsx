@@ -28,6 +28,7 @@ export default function AppleIcon() {
         width="120"
         xmlns="http://www.w3.org/2000/svg"
       >
+        <title>LocalForge apple icon</title>
         {/* Background */}
         <rect
           fill="#14b8a6"

@@ -1,3 +1,5 @@
+// biome-ignore-all lint/performance/noNamespaceImport: React namespace usage keeps context APIs and hooks aligned in this wrapper
+
 "use client";
 
 import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";

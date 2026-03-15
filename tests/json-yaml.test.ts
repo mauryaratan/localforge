@@ -197,11 +197,9 @@ describe("formatJson", () => {
   });
 
   it("should handle stringify failures gracefully", () => {
-    const stringifySpy = vi
-      .spyOn(JSON, "stringify")
-      .mockImplementation(() => {
-        throw new Error("stringify failed");
-      });
+    const stringifySpy = vi.spyOn(JSON, "stringify").mockImplementation(() => {
+      throw new Error("stringify failed");
+    });
 
     const result = formatJson('{"name":"John"}');
     expect(result.success).toBe(false);
@@ -238,11 +236,9 @@ describe("minifyJson", () => {
   });
 
   it("should handle stringify failures gracefully", () => {
-    const stringifySpy = vi
-      .spyOn(JSON, "stringify")
-      .mockImplementation(() => {
-        throw new Error("minify failed");
-      });
+    const stringifySpy = vi.spyOn(JSON, "stringify").mockImplementation(() => {
+      throw new Error("minify failed");
+    });
 
     const result = minifyJson('{"name":"John"}');
     expect(result.success).toBe(false);
@@ -439,11 +435,9 @@ float: 3.14`;
   });
 
   it("should handle stringify failures gracefully", () => {
-    const stringifySpy = vi
-      .spyOn(JSON, "stringify")
-      .mockImplementation(() => {
-        throw new Error("yaml stringify failed");
-      });
+    const stringifySpy = vi.spyOn(JSON, "stringify").mockImplementation(() => {
+      throw new Error("yaml stringify failed");
+    });
 
     const result = yamlToJson("name: John");
     expect(result.success).toBe(false);

@@ -1,3 +1,5 @@
+// biome-ignore-all lint/complexity/noExcessiveCognitiveComplexity: this interactive tool keeps related UI state in one component intentionally
+
 "use client";
 
 import {
@@ -46,6 +48,21 @@ type ConversionMode = "json-to-csv" | "csv-to-json";
 const STORAGE_KEY_INPUT = "devtools:json-csv:input";
 const STORAGE_KEY_MODE = "devtools:json-csv:mode";
 
+const getDelimiterLabel = (delimiter: string) => {
+  switch (delimiter) {
+    case "\t":
+      return "Tab";
+    case ",":
+      return "Comma";
+    case ";":
+      return "Semicolon";
+    case "|":
+      return "Pipe";
+    default:
+      return delimiter;
+  }
+};
+
 const JsonCsvPage = () => {
   const [mode, setMode] = useState<ConversionMode>("json-to-csv");
   const [input, setInput] = useState("");
@@ -84,7 +101,9 @@ const JsonCsvPage = () => {
 
   // Save to localStorage when input/mode changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
 
     if (input) {
       localStorage.setItem(STORAGE_KEY_INPUT, input);
@@ -149,7 +168,9 @@ const JsonCsvPage = () => {
   }, [input, isJsonMode]);
 
   const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(text);
@@ -172,7 +193,9 @@ const JsonCsvPage = () => {
 
   const handleModeChange = useCallback(
     (newMode: ConversionMode) => {
-      if (newMode === mode) return;
+      if (newMode === mode) {
+        return;
+      }
 
       // Use the current output as the new input (reverse conversion)
       if (output) {
@@ -190,7 +213,9 @@ const JsonCsvPage = () => {
   }, []);
 
   const handleDownload = useCallback(() => {
-    if (!output) return;
+    if (!output) {
+      return;
+    }
 
     const extension = isJsonMode ? "csv" : "json";
     const mimeType = isJsonMode ? "text/csv" : "application/json";
@@ -206,14 +231,18 @@ const JsonCsvPage = () => {
   }, [output, isJsonMode]);
 
   const isValidInput = useMemo(() => {
-    if (!input.trim()) return null;
+    if (!input.trim()) {
+      return null;
+    }
     return isJsonMode
       ? validateJson(input).isValid
       : validateCsv(input).isValid;
   }, [input, isJsonMode]);
 
   const inputStats = useMemo(() => {
-    if (!(input.trim() && isValidInput)) return null;
+    if (!(input.trim() && isValidInput)) {
+      return null;
+    }
     return isJsonMode
       ? getJsonArrayStats(input)
       : getCsvStats(input, delimiter);
@@ -548,15 +577,7 @@ const JsonCsvPage = () => {
                   <p>
                     Delimiter:{" "}
                     <code className="rounded bg-muted px-1">
-                      {delimiter === "\t"
-                        ? "Tab"
-                        : delimiter === ","
-                          ? "Comma"
-                          : delimiter === ";"
-                            ? "Semicolon"
-                            : delimiter === "|"
-                              ? "Pipe"
-                              : delimiter}
+                      {getDelimiterLabel(delimiter)}
                     </code>
                   </p>
                 </div>
@@ -569,13 +590,13 @@ const JsonCsvPage = () => {
   );
 };
 
-type CopyButtonProps = {
-  text: string;
+interface CopyButtonProps {
   copied: boolean;
-  onCopy: () => void;
   label: string;
+  onCopy: () => void;
   size?: "icon-xs" | "icon-sm" | "icon";
-};
+  text: string;
+}
 
 const CopyButton = ({
   text,
@@ -606,10 +627,10 @@ const CopyButton = ({
   );
 };
 
-type ExampleButtonProps = {
+interface ExampleButtonProps {
   label: string;
   onClick: () => void;
-};
+}
 
 const ExampleButton = ({ label, onClick }: ExampleButtonProps) => {
   return (

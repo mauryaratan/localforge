@@ -1,19 +1,19 @@
-export type ParsedURL = {
-  isValid: boolean;
+export interface ParsedURL {
   error?: string;
-  href: string;
-  protocol: string;
-  hostname: string;
-  port: string;
-  pathname: string;
-  search: string;
   hash: string;
-  origin: string;
   host: string;
-  username: string;
+  hostname: string;
+  href: string;
+  isValid: boolean;
+  origin: string;
   password: string;
+  pathname: string;
+  port: string;
+  protocol: string;
+  search: string;
   searchParams: Array<{ key: string; value: string }>;
-};
+  username: string;
+}
 
 export const parseURL = (urlString: string): ParsedURL => {
   const emptyResult: ParsedURL = {
@@ -82,7 +82,9 @@ export const decodeURLComponent = (value: string): string => {
 };
 
 export const buildURL = (parsed: ParsedURL): string => {
-  if (!parsed.isValid) return "";
+  if (!parsed.isValid) {
+    return "";
+  }
 
   try {
     // `origin` is "null" for valid URLs like file:, data:, mailto:, etc.
@@ -93,11 +95,11 @@ export const buildURL = (parsed: ParsedURL): string => {
     url.hash = parsed.hash;
     url.search = "";
 
-    parsed.searchParams.forEach(({ key, value }) => {
+    for (const { key, value } of parsed.searchParams) {
       if (key) {
         url.searchParams.append(key, value);
       }
-    });
+    }
 
     // Always set to support clearing previously parsed credentials.
     url.username = parsed.username;

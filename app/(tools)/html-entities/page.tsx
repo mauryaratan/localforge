@@ -377,10 +377,10 @@ const HTMLEntitiesPage = () => {
 };
 
 interface CopyButtonProps {
-  text: string;
   copied: boolean;
-  onCopy: () => void;
   label: string;
+  onCopy: () => void;
+  text: string;
 }
 
 const CopyButton = ({ text, copied, onCopy, label }: CopyButtonProps) => {

@@ -44,7 +44,9 @@ const URLEncoderPage = () => {
 
   // Save to localStorage when decoded text changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated) {
+      return;
+    }
 
     if (decodedText) {
       localStorage.setItem(STORAGE_KEY, decodedText);
@@ -66,7 +68,9 @@ const URLEncoderPage = () => {
   };
 
   const handleCopy = async (text: string, key: string) => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(text);
@@ -236,12 +240,12 @@ const URLEncoderPage = () => {
   );
 };
 
-type CopyButtonProps = {
-  text: string;
+interface CopyButtonProps {
   copied: boolean;
-  onCopy: () => void;
   label: string;
-};
+  onCopy: () => void;
+  text: string;
+}
 
 const CopyButton = ({ text, copied, onCopy, label }: CopyButtonProps) => {
   return (

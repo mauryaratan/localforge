@@ -89,15 +89,15 @@ const saveToCache = async (symbols: HTMLSymbol[]): Promise<void> => {
 };
 
 export interface HTMLSymbol {
-  entity: string; // e.g., "&amp;"
+  category: SymbolCategory;
   character: string; // e.g., "&"
   codepoints: number[];
-  name: string; // e.g., "Ampersand"
-  unicode: string; // e.g., "U+0026"
+  cssCode: string; // e.g., "\0026"
+  entity: string; // e.g., "&amp;"
   hexCode: string; // e.g., "&#x26;"
   htmlCode: string; // e.g., "&#38;"
-  cssCode: string; // e.g., "\0026"
-  category: SymbolCategory;
+  name: string; // e.g., "Ampersand"
+  unicode: string; // e.g., "U+0026"
 }
 
 export type SymbolCategory =
@@ -112,9 +112,9 @@ export type SymbolCategory =
   | "greek";
 
 export interface CategoryInfo {
+  icon: string;
   id: SymbolCategory;
   label: string;
-  icon: string;
 }
 
 export const categories: CategoryInfo[] = [
@@ -415,8 +415,8 @@ const formatCssCode = (codepoint: number): string => {
 };
 
 interface RawEntityData {
-  codepoints: number[];
   characters: string;
+  codepoints: number[];
 }
 
 /**
@@ -598,9 +598,9 @@ export const getEntities = async (): Promise<HTMLSymbol[]> => {
 const revalidateInBackground = (): void => {
   // Use requestIdleCallback if available, otherwise setTimeout
   const scheduleWork =
-    typeof requestIdleCallback !== "undefined"
-      ? requestIdleCallback
-      : (cb: () => void) => setTimeout(cb, 1000);
+    typeof requestIdleCallback === "undefined"
+      ? (cb: () => void) => setTimeout(cb, 1000)
+      : requestIdleCallback;
 
   scheduleWork(async () => {
     try {

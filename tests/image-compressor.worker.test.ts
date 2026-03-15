@@ -5,13 +5,18 @@ class WorkerMock {
 
   onmessage: ((event: MessageEvent) => void) | null = null;
   onerror: ((event: ErrorEvent) => void) | null = null;
-  posted: Array<Record<string, unknown>> = [];
+  posted: Record<string, unknown>[] = [];
+  url: string;
 
-  constructor(public url: string) {
+  constructor(url: string) {
+    this.url = url;
     WorkerMock.instances.push(this);
   }
 
-  postMessage(message: Record<string, unknown>, _transfer?: Transferable[]): void {
+  postMessage(
+    message: Record<string, unknown>,
+    _transfer?: Transferable[]
+  ): void {
     this.posted.push(message);
   }
 
@@ -42,11 +47,11 @@ describe("image-compressor worker integration", () => {
   beforeEach(() => {
     WorkerMock.instances = [];
     vi.resetModules();
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
     vi.stubGlobal("Worker", WorkerMock as unknown as typeof Worker);
     vi.stubGlobal("ImageData", MockImageData as unknown as typeof ImageData);
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:worker");
-    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -61,7 +66,11 @@ describe("image-compressor worker integration", () => {
 
   it("compresses image data through worker messaging", async () => {
     const { compressImage } = await import("@/lib/image-compressor");
-    const imageData = new ImageData(new Uint8ClampedArray([10, 20, 30, 255]), 1, 1);
+    const imageData = new ImageData(
+      new Uint8ClampedArray([10, 20, 30, 255]),
+      1,
+      1
+    );
 
     const promise = compressImage(imageData, { format: "png" });
     const worker = WorkerMock.instances[0];
@@ -83,7 +92,11 @@ describe("image-compressor worker integration", () => {
 
   it("resizes image data through worker messaging", async () => {
     const { resizeImage } = await import("@/lib/image-compressor");
-    const imageData = new ImageData(new Uint8ClampedArray([10, 20, 30, 255]), 1, 1);
+    const imageData = new ImageData(
+      new Uint8ClampedArray([10, 20, 30, 255]),
+      1,
+      1
+    );
 
     const promise = resizeImage(imageData, {
       width: 2,
@@ -92,9 +105,8 @@ describe("image-compressor worker integration", () => {
     });
     const worker = WorkerMock.instances[0];
     const posted = worker.posted[0];
-    const outBuffer = new Uint8ClampedArray([
-      255, 0, 0, 255, 0, 0, 255, 255,
-    ]).buffer;
+    const outBuffer = new Uint8ClampedArray([255, 0, 0, 255, 0, 0, 255, 255])
+      .buffer;
 
     worker.emitMessage({
       id: posted.id as string,
@@ -111,7 +123,11 @@ describe("image-compressor worker integration", () => {
 
   it("rejects when worker reports operation error", async () => {
     const { compressImage } = await import("@/lib/image-compressor");
-    const imageData = new ImageData(new Uint8ClampedArray([1, 2, 3, 255]), 1, 1);
+    const imageData = new ImageData(
+      new Uint8ClampedArray([1, 2, 3, 255]),
+      1,
+      1
+    );
     const promise = compressImage(imageData, { format: "jpeg", quality: 80 });
 
     const worker = WorkerMock.instances[0];
@@ -127,7 +143,11 @@ describe("image-compressor worker integration", () => {
 
   it("rejects pending jobs when worker crashes", async () => {
     const { resizeImage } = await import("@/lib/image-compressor");
-    const imageData = new ImageData(new Uint8ClampedArray([1, 2, 3, 255]), 1, 1);
+    const imageData = new ImageData(
+      new Uint8ClampedArray([1, 2, 3, 255]),
+      1,
+      1
+    );
     const promise = resizeImage(imageData, { width: 1, height: 1 });
 
     const worker = WorkerMock.instances[0];
@@ -140,7 +160,10 @@ describe("image-compressor worker integration", () => {
     const { decodeFile } = await import("@/lib/image-compressor");
     const bitmap = { width: 2, height: 1, close: vi.fn() };
 
-    vi.stubGlobal("createImageBitmap", vi.fn(async () => bitmap));
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => bitmap)
+    );
 
     const ctx = {
       drawImage: vi.fn(),
@@ -148,8 +171,14 @@ describe("image-compressor worker integration", () => {
         () =>
           new ImageData(
             new Uint8ClampedArray([
-              0, 0, 0, 255, // opaque
-              0, 0, 0, 128, // transparent
+              0,
+              0,
+              0,
+              255, // opaque
+              0,
+              0,
+              0,
+              128, // transparent
             ]),
             2,
             1
@@ -164,12 +193,14 @@ describe("image-compressor worker integration", () => {
     } as unknown as HTMLCanvasElement;
 
     const originalCreateElement = document.createElement.bind(document);
-    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
-      if (tagName === "canvas") {
-        return canvas as unknown as HTMLElement;
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName: string) => {
+        if (tagName === "canvas") {
+          return canvas as unknown as HTMLElement;
+        }
+        return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
       }
-      return originalCreateElement(tagName as keyof HTMLElementTagNameMap);
-    });
+    );
 
     const file = new File(["x"], "input.png", { type: "image/png" });
     const result = await decodeFile(file);

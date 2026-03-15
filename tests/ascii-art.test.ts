@@ -1,3 +1,5 @@
+// biome-ignore-all lint/performance/useTopLevelRegex: test-local regex literals are fine here
+// biome-ignore-all lint/complexity/noForEach: table-driven test declarations use forEach intentionally
 import { describe, expect, it } from "vitest";
 import {
   brightnessToChar,

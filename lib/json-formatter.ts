@@ -1,33 +1,33 @@
 export interface JsonValidationResult {
-  isValid: boolean;
   error?: string;
   errorPosition?: {
     line: number;
     column: number;
   };
+  isValid: boolean;
   parsed?: unknown;
 }
 
 export interface JsonFormatResult {
-  success: boolean;
-  output: string;
   error?: string;
+  output: string;
+  success: boolean;
 }
 
 export interface JsonPathResult {
-  success: boolean;
-  result: unknown;
-  matchCount: number;
   error?: string;
+  matchCount: number;
+  result: unknown;
+  success: boolean;
 }
 
 export interface TreeNode {
-  key: string;
-  value: unknown;
-  type: "object" | "array" | "string" | "number" | "boolean" | "null";
-  path: string;
   children?: TreeNode[];
   isExpanded?: boolean;
+  key: string;
+  path: string;
+  type: "object" | "array" | "string" | "number" | "boolean" | "null";
+  value: unknown;
 }
 
 // Top-level regex patterns for performance

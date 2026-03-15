@@ -435,7 +435,7 @@ const KeycodePage = () => {
             {history.length > 0 ? (
               <ScrollArea className="h-[180px]">
                 <div className="flex flex-wrap gap-2 pr-3">
-                  {history.map((item, index) => (
+                  {history.map((item) => (
                     <button
                       aria-label={`View ${item.key} key info`}
                       className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border font-mono text-sm tabular-nums transition-all hover:bg-muted ${
@@ -443,7 +443,7 @@ const KeycodePage = () => {
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-background"
                       }`}
-                      key={`${item.timestamp}-${index}`}
+                      key={`${item.timestamp}-${item.key}`}
                       onClick={() => handleHistoryClick(item)}
                       tabIndex={0}
                       type="button"
@@ -506,9 +506,9 @@ const KeycodePage = () => {
 
 // Modifier Key Component
 interface ModifierKeyProps {
-  symbol: string;
-  label: string;
   active: boolean;
+  label: string;
+  symbol: string;
 }
 
 const ModifierKey = ({ symbol, label, active }: ModifierKeyProps) => {

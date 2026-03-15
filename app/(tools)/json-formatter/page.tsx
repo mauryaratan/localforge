@@ -579,18 +579,18 @@ const JsonFormatterPage = () => {
 
 // Tree View Component
 interface TreeViewProps {
-  nodes: TreeNode[];
   depth?: number;
+  nodes: TreeNode[];
   onCopy: (text: string, label: string) => void;
 }
 
 const TreeView = ({ nodes, depth = 0, onCopy }: TreeViewProps) => {
   return (
     <div className="flex flex-col">
-      {nodes.map((node, index) => (
+      {nodes.map((node) => (
         <TreeNodeItem
           depth={depth}
-          key={`${node.path}-${index}`}
+          key={node.path}
           node={node}
           onCopy={onCopy}
         />
@@ -600,8 +600,8 @@ const TreeView = ({ nodes, depth = 0, onCopy }: TreeViewProps) => {
 };
 
 interface TreeNodeItemProps {
-  node: TreeNode;
   depth: number;
+  node: TreeNode;
   onCopy: (text: string, label: string) => void;
 }
 

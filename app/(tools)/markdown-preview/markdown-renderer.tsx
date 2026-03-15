@@ -1,3 +1,6 @@
+// biome-ignore-all lint/performance/noImgElement: rendered markdown images can be arbitrary remote/data sources and should pass through unchanged
+// biome-ignore-all lint/correctness/useImageSize: rendered markdown content may not provide intrinsic dimensions
+
 "use client";
 
 import ReactMarkdown from "react-markdown";

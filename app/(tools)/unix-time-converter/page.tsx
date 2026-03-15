@@ -59,12 +59,12 @@ const FORMAT_OPTIONS: { value: InputFormat; label: string }[] = [
   { value: "iso8601", label: "ISO 8601" },
 ];
 
-type CurrentTimestamps = {
-  seconds: number;
-  milliseconds: number;
+interface CurrentTimestamps {
   microseconds: number;
+  milliseconds: number;
   nanoseconds: number;
-};
+  seconds: number;
+}
 
 const UnixTimeConverterPage = () => {
   // Initialize with null to avoid hydration mismatch - timestamps differ between server/client
@@ -1013,8 +1013,8 @@ const UnixTimeConverterPage = () => {
 
 interface CurrentTimeCardProps {
   label: string;
-  value: number | null;
   onCopy: () => void;
+  value: number | null;
 }
 
 const CurrentTimeCard = ({ label, value, onCopy }: CurrentTimeCardProps) => {
@@ -1031,7 +1031,7 @@ const CurrentTimeCard = ({ label, value, onCopy }: CurrentTimeCardProps) => {
         {label}
       </span>
       <span className="break-all font-mono text-xs">
-        {value !== null ? value : "—"}
+        {value === null ? "—" : value}
       </span>
       <span className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
         <HugeiconsIcon
@@ -1046,8 +1046,8 @@ const CurrentTimeCard = ({ label, value, onCopy }: CurrentTimeCardProps) => {
 
 interface DateOutputRowProps {
   label: string;
-  value: string;
   onCopy: () => void;
+  value: string;
 }
 
 const DateOutputRow = ({ label, value, onCopy }: DateOutputRowProps) => {
@@ -1076,8 +1076,8 @@ const DateOutputRow = ({ label, value, onCopy }: DateOutputRowProps) => {
 
 interface FormatRowProps {
   label: string;
-  value: string;
   onCopy: () => void;
+  value: string;
 }
 
 const FormatRow = ({ label, value, onCopy }: FormatRowProps) => {
@@ -1103,8 +1103,8 @@ const FormatRow = ({ label, value, onCopy }: FormatRowProps) => {
 };
 
 interface ReferenceGroupProps {
-  label: string;
   children: React.ReactNode;
+  label: string;
 }
 
 const ReferenceGroup = ({ label, children }: ReferenceGroupProps) => {
@@ -1120,8 +1120,8 @@ const ReferenceGroup = ({ label, children }: ReferenceGroupProps) => {
 
 interface ReferenceItemProps {
   label: string;
-  value: number;
   onClick: (value: number) => void;
+  value: number;
 }
 
 const ReferenceItem = ({ label, value, onClick }: ReferenceItemProps) => {
@@ -1151,7 +1151,7 @@ const formatNumber = (n: number): string => {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-const ConstantRow = ({ label, value }: ConstantRowProps) => {
+const _ConstantRow = ({ label, value }: ConstantRowProps) => {
   return (
     <div className="flex items-center justify-between rounded px-2 py-1 transition-colors hover:bg-muted/30">
       <span className="text-muted-foreground">{label}</span>

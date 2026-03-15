@@ -3,15 +3,15 @@ import {
   clearCache,
   fetchEntities,
   getEntities,
-  parseEntitiesJson,
   type HTMLSymbol,
+  parseEntitiesJson,
 } from "@/lib/html-symbols";
 
-type CachedRecord = {
+interface CachedRecord {
   id: string;
   symbols: HTMLSymbol[];
   timestamp: number;
-};
+}
 
 const entitiesFixture = {
   "&amp;": { codepoints: [38], characters: "&" },
@@ -35,9 +35,12 @@ const createIndexedDbMock = (store: Map<string, CachedRecord>) => ({
               get: (id: string) => {
                 const req = {} as IDBRequest;
                 queueMicrotask(() => {
-                  (req as unknown as { result: CachedRecord | undefined }).result =
-                    store.get(id);
-                  req.onsuccess?.(new Event("success") as Event & { target: IDBRequest });
+                  (
+                    req as unknown as { result: CachedRecord | undefined }
+                  ).result = store.get(id);
+                  req.onsuccess?.(
+                    new Event("success") as Event & { target: IDBRequest }
+                  );
                   tx.oncomplete?.();
                 });
                 return req;
@@ -46,7 +49,9 @@ const createIndexedDbMock = (store: Map<string, CachedRecord>) => ({
                 const req = {} as IDBRequest;
                 queueMicrotask(() => {
                   store.set(value.id, value);
-                  req.onsuccess?.(new Event("success") as Event & { target: IDBRequest });
+                  req.onsuccess?.(
+                    new Event("success") as Event & { target: IDBRequest }
+                  );
                   tx.oncomplete?.();
                 });
                 return req;
@@ -55,7 +60,9 @@ const createIndexedDbMock = (store: Map<string, CachedRecord>) => ({
                 const req = {} as IDBRequest;
                 queueMicrotask(() => {
                   store.delete(id);
-                  req.onsuccess?.(new Event("success") as Event & { target: IDBRequest });
+                  req.onsuccess?.(
+                    new Event("success") as Event & { target: IDBRequest }
+                  );
                   tx.oncomplete?.();
                 });
                 return req;
@@ -68,8 +75,12 @@ const createIndexedDbMock = (store: Map<string, CachedRecord>) => ({
       } as unknown as IDBDatabase;
 
       (request as unknown as { result: IDBDatabase }).result = db;
-      request.onupgradeneeded?.({ target: { result: db } } as unknown as IDBVersionChangeEvent);
-      request.onsuccess?.(new Event("success") as Event & { target: IDBRequest });
+      request.onupgradeneeded?.({
+        target: { result: db },
+      } as unknown as IDBVersionChangeEvent);
+      request.onsuccess?.(
+        new Event("success") as Event & { target: IDBRequest }
+      );
     });
     return request;
   }),
@@ -81,7 +92,10 @@ describe("html-symbols cache and fetch paths", () => {
   beforeEach(() => {
     vi.resetModules();
     cacheStore = new Map();
-    vi.stubGlobal("indexedDB", createIndexedDbMock(cacheStore) as unknown as IDBFactory);
+    vi.stubGlobal(
+      "indexedDB",
+      createIndexedDbMock(cacheStore) as unknown as IDBFactory
+    );
     vi.stubGlobal("fetch", vi.fn());
   });
 
@@ -107,7 +121,9 @@ describe("html-symbols cache and fetch paths", () => {
       status: 503,
     } as Response);
 
-    await expect(fetchEntities()).rejects.toThrow("Failed to fetch entities: 503");
+    await expect(fetchEntities()).rejects.toThrow(
+      "Failed to fetch entities: 503"
+    );
   });
 
   it("returns fresh cached symbols without fetching", async () => {
@@ -177,14 +193,11 @@ describe("html-symbols cache and fetch paths", () => {
   });
 
   it("falls back to network fetch when cache access fails", async () => {
-    vi.stubGlobal(
-      "indexedDB",
-      {
-        open: () => {
-          throw new Error("indexedDB unavailable");
-        },
-      } as unknown as IDBFactory
-    );
+    vi.stubGlobal("indexedDB", {
+      open: () => {
+        throw new Error("indexedDB unavailable");
+      },
+    } as unknown as IDBFactory);
 
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
