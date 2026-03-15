@@ -29,6 +29,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useCopiedState } from "@/hooks/use-copied-state";
 import {
   csvToJson,
   delimiterOptions,
@@ -43,7 +44,6 @@ import {
 } from "@/lib/json-csv";
 import { scheduleStorageValue } from "@/lib/utils";
 
-type CopiedState = Record<string, boolean>;
 type ConversionMode = "json-to-csv" | "csv-to-json";
 
 const STORAGE_KEY_INPUT = "devtools:json-csv:input";
@@ -69,7 +69,7 @@ const JsonCsvPage = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<CopiedState>({});
+  const { copied, handleCopy } = useCopiedState();
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Options for JSON to CSV
@@ -162,22 +162,6 @@ const JsonCsvPage = () => {
       setDelimiter(detected);
     }
   }, [input, isJsonMode]);
-
-  const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
-    } catch {
-      // Clipboard API failed
-    }
-  }, []);
 
   const handleClearInput = useCallback(() => {
     setInput("");

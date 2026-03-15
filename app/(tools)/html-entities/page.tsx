@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useCopiedState } from "@/hooks/use-copied-state";
 import {
   commonEntities,
   decodeHTMLEntities,
@@ -24,14 +25,12 @@ import {
 } from "@/lib/html-entities";
 import { scheduleStorageValue } from "@/lib/utils";
 
-type CopiedState = Record<string, boolean>;
-
 const STORAGE_KEY = "devtools:html-entities:input";
 
 const HTMLEntitiesPage = () => {
   const [decodedText, setDecodedText] = useState("");
   const [encodedText, setEncodedText] = useState("");
-  const [copied, setCopied] = useState<CopiedState>({});
+  const { copied, handleCopy } = useCopiedState();
   const [lastEdited, setLastEdited] = useState<"decoded" | "encoded">(
     "decoded"
   );
@@ -113,22 +112,6 @@ const HTMLEntitiesPage = () => {
         encodeAll: checked,
       });
       setEncodedText(result.encoded);
-    }
-  };
-
-  const handleCopy = async (text: string, key: string) => {
-    if (!text) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
-    } catch {
-      // Clipboard API failed
     }
   };
 

@@ -16,6 +16,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useCopiedState } from "@/hooks/use-copied-state";
 import {
   CASE_INFO,
   type CaseType,
@@ -25,8 +26,6 @@ import {
   getWordCount,
 } from "@/lib/string-case";
 import { scheduleStorageValue } from "@/lib/utils";
-
-type CopiedState = Record<string, boolean>;
 
 const STORAGE_KEY = "devtools:string-case:input";
 
@@ -43,7 +42,7 @@ const EXAMPLE_INPUTS = [
 
 const StringCaseConverterPage = () => {
   const [input, setInput] = useState("");
-  const [copied, setCopied] = useState<CopiedState>({});
+  const { copied, handleCopy } = useCopiedState();
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage on mount
@@ -62,22 +61,6 @@ const StringCaseConverterPage = () => {
     }
     scheduleStorageValue(STORAGE_KEY, input);
   }, [input, isHydrated]);
-
-  const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
-    } catch {
-      // Clipboard API failed
-    }
-  }, []);
 
   const handleClearInput = useCallback(() => {
     setInput("");

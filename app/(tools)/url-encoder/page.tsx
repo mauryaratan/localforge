@@ -8,17 +8,16 @@ import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { useCopiedState } from "@/hooks/use-copied-state";
 import { decodeURLComponent, encodeURLComponent } from "@/lib/url-parser";
 import { scheduleStorageValue } from "@/lib/utils";
-
-type CopiedState = Record<string, boolean>;
 
 const STORAGE_KEY = "devtools:url-encoder:input";
 
 const URLEncoderPage = () => {
   const [decodedText, setDecodedText] = useState("");
   const [encodedText, setEncodedText] = useState("");
-  const [copied, setCopied] = useState<CopiedState>({});
+  const { copied, handleCopy } = useCopiedState();
   const [lastEdited, setLastEdited] = useState<"decoded" | "encoded">(
     "decoded"
   );
@@ -52,22 +51,6 @@ const URLEncoderPage = () => {
     setEncodedText(value);
     setDecodedText(decodeURLComponent(value));
     setLastEdited("encoded");
-  };
-
-  const handleCopy = async (text: string, key: string) => {
-    if (!text) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
-    } catch {
-      // Clipboard API failed
-    }
   };
 
   const handleClear = () => {

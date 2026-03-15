@@ -13,10 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useCopiedState } from "@/hooks/use-copied-state";
 import { buildURL, type ParsedURL, parseURL } from "@/lib/url-parser";
 import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
-
-type CopiedState = Record<string, boolean>;
 
 const STORAGE_KEY = "devtools:url-parser:input";
 
@@ -24,7 +23,7 @@ const URLParserPage = () => {
   // Use lazy state initialization - function runs only once on initial render
   const [urlInput, setUrlInput] = useState(() => getStorageValue(STORAGE_KEY));
   const [parsed, setParsed] = useState<ParsedURL | null>(null);
-  const [copied, setCopied] = useState<CopiedState>({});
+  const { copied, handleCopy } = useCopiedState();
   const [showParams, setShowParams] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
   const searchParamKeysRef = useRef(new WeakMap<object, string>());
@@ -52,22 +51,6 @@ const URLParserPage = () => {
       setParsed(null);
     }
   }, [urlInput]);
-
-  const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
-    } catch {
-      // Clipboard API failed
-    }
-  }, []);
 
   const handleClearInput = useCallback(() => {
     setUrlInput("");

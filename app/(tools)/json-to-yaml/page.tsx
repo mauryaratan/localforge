@@ -19,6 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useCopiedState } from "@/hooks/use-copied-state";
 import {
   exampleJson,
   exampleYaml,
@@ -31,7 +32,6 @@ import {
 } from "@/lib/json-yaml";
 import { scheduleStorageValue } from "@/lib/utils";
 
-type CopiedState = Record<string, boolean>;
 type ConversionMode = "json-to-yaml" | "yaml-to-json";
 
 const STORAGE_KEY_INPUT = "devtools:json-yaml:input";
@@ -42,7 +42,7 @@ const JsonYamlPage = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<CopiedState>({});
+  const { copied, handleCopy } = useCopiedState();
   const [isHydrated, setIsHydrated] = useState(false);
 
   const isJsonMode = mode === "json-to-yaml";
@@ -87,22 +87,6 @@ const JsonYamlPage = () => {
       setError(result.error || "Conversion failed");
     }
   }, [input, isJsonMode]);
-
-  const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
-    } catch {
-      // Clipboard API failed
-    }
-  }, []);
 
   const handleClearInput = useCallback(() => {
     setInput("");

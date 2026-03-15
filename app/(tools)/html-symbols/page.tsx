@@ -18,6 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useCopiedState } from "@/hooks/use-copied-state";
 import {
   categories,
   filterByCategory,
@@ -30,7 +31,6 @@ import {
 import { scheduleStorageValue } from "@/lib/utils";
 
 type ViewMode = "grid" | "table";
-type CopiedState = Record<string, boolean>;
 
 const STORAGE_KEY = "devtools:html-symbols:search";
 const VIEW_MODE_KEY = "devtools:html-symbols:view";
@@ -47,7 +47,7 @@ const HTMLSymbolsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState<SymbolCategory>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [copied, setCopied] = useState<CopiedState>({});
+  const { copied, handleCopy } = useCopiedState();
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Load preferences from localStorage
@@ -107,22 +107,6 @@ const HTMLSymbolsPage = () => {
 
   // Category counts
   const categoryCounts = useMemo(() => getCategoryCounts(symbols), [symbols]);
-
-  const handleCopy = useCallback(async (text: string, key: string) => {
-    if (!text) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied((prev) => ({ ...prev, [key]: true }));
-      setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [key]: false }));
-      }, 1500);
-    } catch {
-      // Clipboard API failed
-    }
-  }, []);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -281,7 +265,7 @@ const HTMLSymbolsPage = () => {
 };
 
 interface VirtualizedGridProps {
-  copied: CopiedState;
+  copied: Record<string, boolean>;
   onCopy: (text: string, key: string) => void;
   symbols: HTMLSymbol[];
 }
@@ -367,7 +351,7 @@ const VirtualizedGrid = ({ symbols, copied, onCopy }: VirtualizedGridProps) => {
 };
 
 interface SymbolCardProps {
-  copied: CopiedState;
+  copied: Record<string, boolean>;
   onCopy: (text: string, key: string) => void;
   symbol: HTMLSymbol;
 }
@@ -476,7 +460,7 @@ const CopyRow = ({ label, value, copied, onCopy }: CopyRowProps) => {
 };
 
 interface VirtualizedTableProps {
-  copied: CopiedState;
+  copied: Record<string, boolean>;
   onCopy: (text: string, key: string) => void;
   symbols: HTMLSymbol[];
 }
