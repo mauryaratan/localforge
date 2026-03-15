@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { decodeURLComponent, encodeURLComponent } from "@/lib/url-parser";
+import { scheduleStorageValue } from "@/lib/utils";
 
 type CopiedState = Record<string, boolean>;
 
@@ -38,12 +39,7 @@ const URLEncoderPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (decodedText) {
-      localStorage.setItem(STORAGE_KEY, decodedText);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    scheduleStorageValue(STORAGE_KEY, decodedText);
   }, [decodedText, isHydrated]);
 
   const handleDecodedChange = (value: string) => {

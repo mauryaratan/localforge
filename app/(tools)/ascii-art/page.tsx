@@ -56,6 +56,7 @@ import {
   textToAscii,
   WIDTH_PRESETS,
 } from "@/lib/ascii-art";
+import { scheduleStorageValue } from "@/lib/utils";
 
 const IMAGE_STORAGE_KEY = "devtools:ascii-art:image-options";
 const TEXT_STORAGE_KEY = "devtools:ascii-art:text";
@@ -146,21 +147,21 @@ const AsciiArtPage = () => {
     if (!isHydrated) {
       return;
     }
-    localStorage.setItem(TAB_STORAGE_KEY, activeTab);
+    scheduleStorageValue(TAB_STORAGE_KEY, activeTab);
   }, [activeTab, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) {
       return;
     }
-    localStorage.setItem(TEXT_STORAGE_KEY, textInput);
+    scheduleStorageValue(TEXT_STORAGE_KEY, textInput);
   }, [textInput, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) {
       return;
     }
-    localStorage.setItem(IMAGE_STORAGE_KEY, JSON.stringify(imageOptions));
+    scheduleStorageValue(IMAGE_STORAGE_KEY, JSON.stringify(imageOptions));
   }, [imageOptions, isHydrated]);
 
   // Generate text ASCII art

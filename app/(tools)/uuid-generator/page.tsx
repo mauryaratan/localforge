@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { scheduleStorageValue } from "@/lib/utils";
 import {
   type GeneratedId,
   generateIds,
@@ -82,7 +83,7 @@ const UuidGeneratorPage = () => {
       return;
     }
     const settings: StoredSettings = { format, count, style, withHyphens };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    scheduleStorageValue(STORAGE_KEY, JSON.stringify(settings));
   }, [format, count, style, withHyphens, isHydrated]);
 
   const handleGenerate = useCallback(() => {

@@ -50,7 +50,7 @@ import {
   getMarkdownStats,
   type TocItem,
 } from "@/lib/markdown-preview";
-import { getStorageValue, setStorageValue } from "@/lib/utils";
+import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_INPUT = "devtools:markdown-preview:input";
 
@@ -70,7 +70,7 @@ const MarkdownPreviewPage = () => {
     if (!isHydrated) {
       return;
     }
-    setStorageValue(STORAGE_KEY_INPUT, input);
+    scheduleStorageValue(STORAGE_KEY_INPUT, input);
   }, [input, isHydrated]);
 
   // Calculate stats

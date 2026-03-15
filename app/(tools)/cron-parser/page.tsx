@@ -20,7 +20,7 @@ import {
   type ParsedCron,
   parseCron,
 } from "@/lib/cron-parser";
-import { getStorageValue, setStorageValue } from "@/lib/utils";
+import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:cron-parser:input";
 
@@ -42,7 +42,7 @@ const CronParserPage = () => {
     if (!isHydrated) {
       return;
     }
-    setStorageValue(STORAGE_KEY, cronInput);
+    scheduleStorageValue(STORAGE_KEY, cronInput);
   }, [cronInput, isHydrated]);
 
   // Parse cron when input changes

@@ -28,6 +28,7 @@ import {
   formatBytes,
   type OutputFormat,
 } from "@/lib/svg-jsx";
+import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:svg-to-jsx:input";
 
@@ -65,12 +66,7 @@ const SvgToJsxPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (input) {
-      localStorage.setItem(STORAGE_KEY, input);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    scheduleStorageValue(STORAGE_KEY, input);
   }, [input, isHydrated]);
 
   // Convert SVG to JSX

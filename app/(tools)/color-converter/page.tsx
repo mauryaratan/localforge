@@ -33,7 +33,7 @@ import {
   parseColor,
   rgbToHex,
 } from "@/lib/color-converter";
-import { getStorageValue, setStorageValue } from "@/lib/utils";
+import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:color-converter:input";
 
@@ -55,7 +55,7 @@ const ColorConverterPage = () => {
     if (!isHydrated) {
       return;
     }
-    setStorageValue(STORAGE_KEY, colorInput);
+    scheduleStorageValue(STORAGE_KEY, colorInput);
   }, [colorInput, isHydrated]);
 
   // Parse color when input changes

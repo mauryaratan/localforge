@@ -1,17 +1,17 @@
 /**
  * HTML Symbols Browser
  *
- * Fetches and caches the official WHATWG HTML entity list.
+ * Uses a bundled WHATWG HTML entity snapshot to avoid runtime network fetches.
  * Provides search, filtering, and categorization based on Unicode blocks.
- * Uses IndexedDB for caching with background revalidation.
+ * Uses IndexedDB to cache the parsed symbol list.
  */
 
-const ENTITIES_URL = "https://html.spec.whatwg.org/entities.json";
+import bundledEntities from "@/lib/data/html-entities.json";
+
 const DB_NAME = "devtools-html-symbols";
 const DB_VERSION = 1;
 const STORE_NAME = "entities";
-const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
-const REVALIDATE_AFTER = 24 * 60 * 60 * 1000; // 1 day
+export const HTML_SYMBOLS_DATASET_VERSION = "2026-03-16";
 
 // Top-level regex for entityToName function
 const FIRST_CHAR_REGEX = /^./;
@@ -20,7 +20,10 @@ interface CachedData {
   id: string;
   symbols: HTMLSymbol[];
   timestamp: number;
+  version: string;
 }
+
+let bundledSymbols: HTMLSymbol[] | null = null;
 
 /**
  * Open IndexedDB database
@@ -75,6 +78,7 @@ const saveToCache = async (symbols: HTMLSymbol[]): Promise<void> => {
         id: "html-entities",
         symbols,
         timestamp: Date.now(),
+        version: HTML_SYMBOLS_DATASET_VERSION,
       };
       const request = store.put(data);
 
@@ -551,65 +555,35 @@ export const parseEntitiesJson = (
   return symbols.sort((a, b) => a.codepoints[0] - b.codepoints[0]);
 };
 
-/**
- * Fetch entities from the official WHATWG source
- */
-export const fetchEntities = async (): Promise<HTMLSymbol[]> => {
-  const response = await fetch(ENTITIES_URL);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch entities: ${response.status}`);
+const getBundledSymbols = (): HTMLSymbol[] => {
+  if (bundledSymbols) {
+    return bundledSymbols;
   }
-  const data = await response.json();
-  return parseEntitiesJson(data);
+
+  bundledSymbols = parseEntitiesJson(
+    bundledEntities as Record<string, RawEntityData>
+  );
+  return bundledSymbols;
 };
 
 /**
- * Get entities from cache or fetch if needed
+ * Load entities from the bundled WHATWG snapshot.
+ */
+export const fetchEntities = (): Promise<HTMLSymbol[]> =>
+  Promise.resolve(getBundledSymbols());
+
+/**
+ * Get entities from cache or from the bundled dataset if needed.
  */
 export const getEntities = async (): Promise<HTMLSymbol[]> => {
-  // Try to get from IndexedDB first
   const cached = await getFromCache();
-
-  if (cached) {
-    const cacheAge = Date.now() - cached.timestamp;
-
-    // If cache is fresh enough, use it
-    if (cacheAge < CACHE_DURATION) {
-      // Schedule background revalidation if cache is older than 1 day
-      if (cacheAge > REVALIDATE_AFTER) {
-        revalidateInBackground();
-      }
-      return cached.symbols;
-    }
+  if (cached?.version === HTML_SYMBOLS_DATASET_VERSION) {
+    return cached.symbols;
   }
 
-  // Fetch fresh data
   const symbols = await fetchEntities();
-
-  // Cache the result
   await saveToCache(symbols);
-
   return symbols;
-};
-
-/**
- * Background revalidation
- */
-const revalidateInBackground = (): void => {
-  // Use requestIdleCallback if available, otherwise setTimeout
-  const scheduleWork =
-    typeof requestIdleCallback === "undefined"
-      ? (cb: () => void) => setTimeout(cb, 1000)
-      : requestIdleCallback;
-
-  scheduleWork(async () => {
-    try {
-      const symbols = await fetchEntities();
-      await saveToCache(symbols);
-    } catch {
-      // Background revalidation failed silently
-    }
-  });
 };
 
 /**

@@ -3,6 +3,7 @@ import {
   clearCache,
   fetchEntities,
   getEntities,
+  HTML_SYMBOLS_DATASET_VERSION,
   type HTMLSymbol,
   parseEntitiesJson,
 } from "@/lib/html-symbols";
@@ -11,6 +12,7 @@ interface CachedRecord {
   id: string;
   symbols: HTMLSymbol[];
   timestamp: number;
+  version?: string;
 }
 
 const entitiesFixture = {
@@ -96,7 +98,6 @@ describe("html-symbols cache and fetch paths", () => {
       "indexedDB",
       createIndexedDbMock(cacheStore) as unknown as IDBFactory
     );
-    vi.stubGlobal("fetch", vi.fn());
   });
 
   afterEach(() => {
@@ -104,26 +105,11 @@ describe("html-symbols cache and fetch paths", () => {
     vi.unstubAllGlobals();
   });
 
-  it("fetches and parses entities from network source", async () => {
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => entitiesFixture,
-    } as Response);
-
+  it("loads bundled entities without a network fetch", async () => {
     const symbols = await fetchEntities();
     expect(symbols.length).toBeGreaterThan(0);
-    expect(symbols.some((s) => s.entity === "&amp;")).toBe(true);
-  });
-
-  it("throws when network source returns non-ok response", async () => {
-    vi.mocked(fetch).mockResolvedValue({
-      ok: false,
-      status: 503,
-    } as Response);
-
-    await expect(fetchEntities()).rejects.toThrow(
-      "Failed to fetch entities: 503"
-    );
+    expect(symbols.some((s) => s.unicode === "U+0026")).toBe(true);
+    expect(symbols.length).toBeGreaterThan(1000);
   });
 
   it("returns fresh cached symbols without fetching", async () => {
@@ -132,81 +118,44 @@ describe("html-symbols cache and fetch paths", () => {
       id: "html-entities",
       symbols: cachedSymbols,
       timestamp: Date.now(),
+      version: HTML_SYMBOLS_DATASET_VERSION,
     });
 
     const symbols = await getEntities();
     expect(symbols).toEqual(cachedSymbols);
-    expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("fetches and refreshes cache when cache is expired", async () => {
+  it("refreshes cache from bundled data when cached version is stale", async () => {
     const staleSymbols = parseEntitiesJson({
       "&copy;": { codepoints: [169], characters: "©" },
     });
-    const freshSymbols = parseEntitiesJson(entitiesFixture);
+    const bundledSymbols = await fetchEntities();
 
     cacheStore.set("html-entities", {
       id: "html-entities",
       symbols: staleSymbols,
-      timestamp: Date.now() - 8 * 24 * 60 * 60 * 1000,
+      timestamp: Date.now(),
+      version: "old-version",
     });
-
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => entitiesFixture,
-    } as Response);
 
     const symbols = await getEntities();
 
-    expect(symbols).toEqual(freshSymbols);
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(cacheStore.get("html-entities")?.symbols).toEqual(freshSymbols);
+    expect(symbols).toEqual(bundledSymbols);
+    expect(cacheStore.get("html-entities")?.symbols).toEqual(bundledSymbols);
+    expect(cacheStore.get("html-entities")?.version).toBe(
+      HTML_SYMBOLS_DATASET_VERSION
+    );
   });
 
-  it("serves cached symbols and schedules background revalidation", async () => {
-    const cachedSymbols = parseEntitiesJson(entitiesFixture);
-    cacheStore.set("html-entities", {
-      id: "html-entities",
-      symbols: cachedSymbols,
-      timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
-    });
-
-    const idleCallbacks: Array<() => Promise<void> | void> = [];
-    vi.stubGlobal("requestIdleCallback", (cb: () => void) => {
-      idleCallbacks.push(cb as () => Promise<void> | void);
-      return 1;
-    });
-
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => entitiesFixture,
-    } as Response);
-
-    const symbols = await getEntities();
-    expect(symbols).toEqual(cachedSymbols);
-    expect(fetch).not.toHaveBeenCalled();
-    expect(idleCallbacks).toHaveLength(1);
-
-    await idleCallbacks[0]();
-    await Promise.resolve();
-    expect(fetch).toHaveBeenCalledTimes(1);
-  });
-
-  it("falls back to network fetch when cache access fails", async () => {
+  it("falls back to bundled entities when cache access fails", async () => {
     vi.stubGlobal("indexedDB", {
       open: () => {
         throw new Error("indexedDB unavailable");
       },
     } as unknown as IDBFactory);
 
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => entitiesFixture,
-    } as Response);
-
     const symbols = await getEntities();
     expect(symbols.length).toBeGreaterThan(0);
-    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it("clears cached entity data", async () => {

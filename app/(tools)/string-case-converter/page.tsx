@@ -24,6 +24,7 @@ import {
   getCharacterCount,
   getWordCount,
 } from "@/lib/string-case";
+import { scheduleStorageValue } from "@/lib/utils";
 
 type CopiedState = Record<string, boolean>;
 
@@ -59,12 +60,7 @@ const StringCaseConverterPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (input) {
-      localStorage.setItem(STORAGE_KEY, input);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    scheduleStorageValue(STORAGE_KEY, input);
   }, [input, isHydrated]);
 
   const handleCopy = useCallback(async (text: string, key: string) => {

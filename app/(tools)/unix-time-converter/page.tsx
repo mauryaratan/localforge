@@ -38,6 +38,7 @@ import {
   type TimezoneResult,
   toMilliseconds,
 } from "@/lib/unix-time";
+import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_INPUT = "devtools:unix-time:input";
 const STORAGE_KEY_FORMAT = "devtools:unix-time:format";
@@ -127,17 +128,11 @@ const UnixTimeConverterPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (input) {
-      localStorage.setItem(STORAGE_KEY_INPUT, input);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_INPUT);
-    }
-
-    localStorage.setItem(STORAGE_KEY_FORMAT, inputFormat);
-    localStorage.setItem(STORAGE_KEY_UNIT, unit);
-    localStorage.setItem(STORAGE_KEY_TIMEZONE, timezone);
-    localStorage.setItem(STORAGE_KEY_EXTRA_TZ, JSON.stringify(extraTimezones));
+    scheduleStorageValue(STORAGE_KEY_INPUT, input);
+    scheduleStorageValue(STORAGE_KEY_FORMAT, inputFormat);
+    scheduleStorageValue(STORAGE_KEY_UNIT, unit);
+    scheduleStorageValue(STORAGE_KEY_TIMEZONE, timezone);
+    scheduleStorageValue(STORAGE_KEY_EXTRA_TZ, JSON.stringify(extraTimezones));
   }, [input, inputFormat, unit, timezone, extraTimezones, isHydrated]);
 
   // Update current time every second

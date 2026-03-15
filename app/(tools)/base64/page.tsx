@@ -16,7 +16,7 @@ import {
   decodeBase64,
   encodeBase64,
 } from "@/lib/base64";
-import { getStorageValue, setStorageValue } from "@/lib/utils";
+import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:base64:input";
 
@@ -56,7 +56,7 @@ const Base64Page = () => {
     if (!isHydrated) {
       return;
     }
-    setStorageValue(STORAGE_KEY, plainText);
+    scheduleStorageValue(STORAGE_KEY, plainText);
   }, [plainText, isHydrated]);
 
   // Re-encode/decode when mode changes

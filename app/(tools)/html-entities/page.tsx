@@ -22,6 +22,7 @@ import {
   type EncodingMode,
   encodeHTMLEntities,
 } from "@/lib/html-entities";
+import { scheduleStorageValue } from "@/lib/utils";
 
 type CopiedState = Record<string, boolean>;
 
@@ -70,19 +71,16 @@ const HTMLEntitiesPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (decodedText) {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          text: decodedText,
-          mode: encodingMode,
-          encodeAll,
-        })
-      );
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    scheduleStorageValue(
+      STORAGE_KEY,
+      decodedText
+        ? JSON.stringify({
+            text: decodedText,
+            mode: encodingMode,
+            encodeAll,
+          })
+        : ""
+    );
   }, [decodedText, encodingMode, encodeAll, isHydrated]);
 
   const handleDecodedChange = (value: string) => {

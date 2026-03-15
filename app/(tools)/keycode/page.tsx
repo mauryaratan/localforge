@@ -25,6 +25,7 @@ import {
   keyCodeTable,
   modifierSymbols,
 } from "@/lib/keycode";
+import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_HISTORY = "devtools:keycode:history";
 const MAX_HISTORY = 20;
@@ -52,11 +53,10 @@ const KeycodePage = () => {
     if (!isHydrated) {
       return;
     }
-    if (history.length > 0) {
-      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-    } else {
-      localStorage.removeItem(STORAGE_KEY_HISTORY);
-    }
+    scheduleStorageValue(
+      STORAGE_KEY_HISTORY,
+      history.length > 0 ? JSON.stringify(history) : ""
+    );
   }, [history, isHydrated]);
 
   // Global keydown listener - always active

@@ -41,6 +41,7 @@ import {
   validateCsv,
   validateJson,
 } from "@/lib/json-csv";
+import { scheduleStorageValue } from "@/lib/utils";
 
 type CopiedState = Record<string, boolean>;
 type ConversionMode = "json-to-csv" | "csv-to-json";
@@ -104,13 +105,8 @@ const JsonCsvPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (input) {
-      localStorage.setItem(STORAGE_KEY_INPUT, input);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_INPUT);
-    }
-    localStorage.setItem(STORAGE_KEY_MODE, mode);
+    scheduleStorageValue(STORAGE_KEY_INPUT, input);
+    scheduleStorageValue(STORAGE_KEY_MODE, mode);
   }, [input, mode, isHydrated]);
 
   // Convert when input or options change

@@ -27,6 +27,7 @@ import {
   type SymbolCategory,
   searchSymbols,
 } from "@/lib/html-symbols";
+import { scheduleStorageValue } from "@/lib/utils";
 
 type ViewMode = "grid" | "table";
 type CopiedState = Record<string, boolean>;
@@ -74,14 +75,9 @@ const HTMLSymbolsPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (searchQuery) {
-      localStorage.setItem(STORAGE_KEY, searchQuery);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    localStorage.setItem(VIEW_MODE_KEY, viewMode);
-    localStorage.setItem(CATEGORY_KEY, category);
+    scheduleStorageValue(STORAGE_KEY, searchQuery);
+    scheduleStorageValue(VIEW_MODE_KEY, viewMode);
+    scheduleStorageValue(CATEGORY_KEY, category);
   }, [searchQuery, viewMode, category, isHydrated]);
 
   // Fetch entities on mount

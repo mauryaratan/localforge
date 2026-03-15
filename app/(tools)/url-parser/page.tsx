@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { buildURL, type ParsedURL, parseURL } from "@/lib/url-parser";
-import { getStorageValue, setStorageValue } from "@/lib/utils";
+import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 type CopiedState = Record<string, boolean>;
 
@@ -40,7 +40,7 @@ const URLParserPage = () => {
     if (!isHydrated) {
       return;
     }
-    setStorageValue(STORAGE_KEY, urlInput);
+    scheduleStorageValue(STORAGE_KEY, urlInput);
   }, [urlInput, isHydrated]);
 
   // Parse URL when input changes

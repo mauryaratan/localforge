@@ -49,6 +49,7 @@ import {
   validateHtml,
   viewportPresets,
 } from "@/lib/html-preview";
+import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_INPUT = "devtools:html-preview:input";
 const STORAGE_KEY_VIEWPORT = "devtools:html-preview:viewport";
@@ -83,14 +84,8 @@ const HtmlPreviewPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (input) {
-      localStorage.setItem(STORAGE_KEY_INPUT, input);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_INPUT);
-    }
-
-    localStorage.setItem(STORAGE_KEY_VIEWPORT, viewport);
+    scheduleStorageValue(STORAGE_KEY_INPUT, input);
+    scheduleStorageValue(STORAGE_KEY_VIEWPORT, viewport);
   }, [input, viewport, isHydrated]);
 
   // Calculate stats

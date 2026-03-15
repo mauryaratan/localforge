@@ -4,8 +4,6 @@
  * Uses EasyQRCodeJS for advanced customization
  */
 
-import jsQR from "jsqr";
-
 // Error correction levels - higher = more redundancy, lower = smaller QR
 export type ErrorCorrectionLevel = "L" | "M" | "Q" | "H";
 
@@ -350,18 +348,33 @@ export const readQRCodeFromFile = (file: File): Promise<QRReadResult> => {
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
 
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        import("jsqr")
+          .then(({ default: jsQR }) => {
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+            const code = jsQR(
+              imageData.data,
+              imageData.width,
+              imageData.height
+            );
 
-        if (code) {
-          resolve({
-            success: true,
-            data: code.data,
-            contentType: detectContentType(code.data),
+            if (code) {
+              resolve({
+                success: true,
+                data: code.data,
+                contentType: detectContentType(code.data),
+              });
+            } else {
+              resolve({ success: false, error: "No QR code found in image" });
+            }
+          })
+          .catch(() => {
+            resolve({ success: false, error: "Failed to load QR reader" });
           });
-        } else {
-          resolve({ success: false, error: "No QR code found in image" });
-        }
       };
 
       img.onerror = () => {

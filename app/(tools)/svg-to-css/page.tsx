@@ -31,6 +31,7 @@ import {
   exampleSvgs,
   formatBytes,
 } from "@/lib/svg-css";
+import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:svg-to-css:input";
 
@@ -67,12 +68,7 @@ const SvgToCssPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (input) {
-      localStorage.setItem(STORAGE_KEY, input);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    scheduleStorageValue(STORAGE_KEY, input);
   }, [input, isHydrated]);
 
   // Convert SVG to CSS

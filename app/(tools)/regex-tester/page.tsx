@@ -31,6 +31,7 @@ import {
   substituteRegex,
   testRegex,
 } from "@/lib/regex-tester";
+import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_PATTERN = "devtools:regex-tester:pattern";
 const STORAGE_KEY_TEST = "devtools:regex-tester:test";
@@ -67,31 +68,21 @@ const RegexTesterPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (pattern) {
-      localStorage.setItem(STORAGE_KEY_PATTERN, pattern);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_PATTERN);
-    }
+    scheduleStorageValue(STORAGE_KEY_PATTERN, pattern);
   }, [pattern, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) {
       return;
     }
-
-    if (testString) {
-      localStorage.setItem(STORAGE_KEY_TEST, testString);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_TEST);
-    }
+    scheduleStorageValue(STORAGE_KEY_TEST, testString);
   }, [testString, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) {
       return;
     }
-    localStorage.setItem(STORAGE_KEY_FLAGS, flags);
+    scheduleStorageValue(STORAGE_KEY_FLAGS, flags);
   }, [flags, isHydrated]);
 
   // Compute regex result

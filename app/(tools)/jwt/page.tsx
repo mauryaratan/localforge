@@ -48,6 +48,7 @@ import {
   validateJSON,
   verifyJWT,
 } from "@/lib/jwt";
+import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:jwt:input";
 const STORAGE_SECRET_KEY = "devtools:jwt:secret";
@@ -110,12 +111,7 @@ const JWTPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (token) {
-      localStorage.setItem(STORAGE_KEY, token);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    scheduleStorageValue(STORAGE_KEY, token);
   }, [token, isHydrated]);
 
   // Save secret to localStorage
@@ -123,12 +119,7 @@ const JWTPage = () => {
     if (!isHydrated) {
       return;
     }
-
-    if (secret) {
-      localStorage.setItem(STORAGE_SECRET_KEY, secret);
-    } else {
-      localStorage.removeItem(STORAGE_SECRET_KEY);
-    }
+    scheduleStorageValue(STORAGE_SECRET_KEY, secret);
   }, [secret, isHydrated]);
 
   // Handle token decode

@@ -15,7 +15,7 @@ import {
   getAlgorithmInfo,
   type HashAlgorithm,
 } from "@/lib/hash-generator";
-import { getStorageValue, setStorageValue } from "@/lib/utils";
+import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:hash-generator:input";
 
@@ -55,7 +55,7 @@ const HashGeneratorPage = () => {
     if (!isHydrated) {
       return;
     }
-    setStorageValue(STORAGE_KEY, input);
+    scheduleStorageValue(STORAGE_KEY, input);
   }, [input, isHydrated]);
 
   const calculateHashes = useCallback(async (text: string) => {

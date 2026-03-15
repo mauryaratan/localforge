@@ -42,7 +42,7 @@ import {
   validateJson,
 } from "@/lib/json-formatter";
 
-import { getStorageValue, setStorageValue } from "@/lib/utils";
+import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_INPUT = "devtools:json-formatter:input";
 const STORAGE_KEY_PATH = "devtools:json-formatter:path";
@@ -69,8 +69,8 @@ const JsonFormatterPage = () => {
     if (!isHydrated) {
       return;
     }
-    setStorageValue(STORAGE_KEY_INPUT, input);
-    setStorageValue(STORAGE_KEY_PATH, pathQuery);
+    scheduleStorageValue(STORAGE_KEY_INPUT, input);
+    scheduleStorageValue(STORAGE_KEY_PATH, pathQuery);
   }, [input, pathQuery, isHydrated]);
 
   // Validation result
