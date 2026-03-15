@@ -3,20 +3,14 @@
 import {
   ArrowLeft01Icon,
   ArrowRight01Icon,
-  Copy01Icon,
   Delete02Icon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
+import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { decodeURLComponent, encodeURLComponent } from "@/lib/url-parser";
 
 type CopiedState = Record<string, boolean>;
@@ -132,9 +126,9 @@ const URLEncoderPage = () => {
                 </label>
                 <CopyButton
                   copied={copied.decoded}
+                  disabled={!decodedText}
                   label="Copy decoded text"
                   onCopy={() => handleCopy(decodedText, "decoded")}
-                  text={decodedText}
                 />
               </div>
               <Textarea
@@ -184,9 +178,9 @@ const URLEncoderPage = () => {
                 </label>
                 <CopyButton
                   copied={copied.encoded}
+                  disabled={!encodedText}
                   label="Copy encoded text"
                   onCopy={() => handleCopy(encodedText, "encoded")}
-                  text={encodedText}
                 />
               </div>
               <Textarea
@@ -237,35 +231,6 @@ const URLEncoderPage = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
-
-interface CopyButtonProps {
-  copied: boolean;
-  label: string;
-  onCopy: () => void;
-  text: string;
-}
-
-const CopyButton = ({ text, copied, onCopy, label }: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            disabled={!text}
-            onClick={onCopy}
-            size="icon-xs"
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 

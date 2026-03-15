@@ -1,13 +1,10 @@
 "use client";
 
-import {
-  Copy01Icon,
-  Delete02Icon,
-  Tick01Icon,
-} from "@hugeicons/core-free-icons";
+import { Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { CopyButton } from "@/components/copy-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -444,36 +441,6 @@ const SvgToCssPage = () => {
         </Card>
       </div>
     </div>
-  );
-};
-
-interface CopyButtonProps {
-  copied: boolean;
-  disabled?: boolean;
-  label: string;
-  onCopy: () => void;
-}
-
-const CopyButton = ({ copied, disabled, onCopy, label }: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={disabled}
-            onClick={onCopy}
-            size="icon-xs"
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 

@@ -3,14 +3,13 @@
 "use client";
 
 import {
-  Copy01Icon,
   Delete02Icon,
   Download01Icon,
   FileEditIcon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CopyButton } from "@/components/copy-button";
 import { ExampleButton } from "@/components/example-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -405,9 +404,9 @@ const JsonCsvPage = () => {
                 </Tooltip>
                 <CopyButton
                   copied={copied.input}
+                  disabled={!input}
                   label={`Copy ${inputLabel}`}
                   onCopy={() => handleCopy(input, "input")}
-                  text={input}
                 />
               </div>
             </div>
@@ -478,9 +477,9 @@ const JsonCsvPage = () => {
                 </Tooltip>
                 <CopyButton
                   copied={copied.output}
+                  disabled={!output}
                   label={`Copy ${outputLabel}`}
                   onCopy={() => handleCopy(output, "output")}
-                  text={output}
                 />
               </div>
             </div>
@@ -588,43 +587,6 @@ const JsonCsvPage = () => {
         </Card>
       </div>
     </div>
-  );
-};
-
-interface CopyButtonProps {
-  copied: boolean;
-  label: string;
-  onCopy: () => void;
-  size?: "icon-xs" | "icon-sm" | "icon";
-  text: string;
-}
-
-const CopyButton = ({
-  text,
-  copied,
-  onCopy,
-  label,
-  size = "icon-xs",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={!text}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 

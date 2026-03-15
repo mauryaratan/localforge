@@ -4,21 +4,15 @@ import {
   Add01Icon,
   ArrowDown01Icon,
   ArrowUp01Icon,
-  Copy01Icon,
   Delete02Icon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CopyButton } from "@/components/copy-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { buildURL, type ParsedURL, parseURL } from "@/lib/url-parser";
 import { getStorageValue, setStorageValue } from "@/lib/utils";
 
@@ -189,9 +183,9 @@ const URLParserPage = () => {
             </div>
             <CopyButton
               copied={copied.url}
+              disabled={!urlInput}
               label="Copy URL"
               onCopy={() => handleCopy(urlInput, "url")}
-              text={urlInput}
             />
           </div>
 
@@ -236,10 +230,10 @@ const URLParserPage = () => {
                   {value && value !== "(default)" && (
                     <CopyButton
                       copied={copied[key]}
+                      disabled={!value}
                       label={`Copy ${label}`}
                       onCopy={() => handleCopy(value, key)}
                       size="icon-xs"
-                      text={value}
                     />
                   )}
                 </div>
@@ -309,7 +303,6 @@ const URLParserPage = () => {
                           )
                         }
                         size="icon-xs"
-                        text={`${param.key}=${param.value}`}
                       />
                       <Button
                         aria-label="Remove parameter"
@@ -348,42 +341,6 @@ const URLParserPage = () => {
         </Card>
       )}
     </div>
-  );
-};
-
-interface CopyButtonProps {
-  copied: boolean;
-  label: string;
-  onCopy: () => void;
-  size?: "icon-xs" | "icon-sm" | "icon";
-  text: string;
-}
-
-const CopyButton = ({
-  text,
-  copied,
-  onCopy,
-  label,
-  size = "icon-sm",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            disabled={!text}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
   );
 };
 
