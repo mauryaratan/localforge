@@ -21,8 +21,8 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -322,9 +322,9 @@ const QRCodePage = () => {
                   <CardContent className="flex flex-col gap-4 pt-4">
                     {/* Content Type */}
                     <div className="flex flex-col gap-2">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Type
-                      </Label>
+                      </FieldLabel>
                       <Select
                         onValueChange={(v) =>
                           setContentType(v as QRContentType)
@@ -352,14 +352,14 @@ const QRCodePage = () => {
 
                     {/* Content Input */}
                     <div className="flex flex-col gap-2">
-                      <Label
+                      <FieldLabel
                         className="text-muted-foreground text-xs uppercase tracking-wider"
                         htmlFor="content-input"
                       >
                         {contentType === "wifi"
                           ? "Network Name (SSID)"
                           : "Content"}
-                      </Label>
+                      </FieldLabel>
                       {contentType === "text" ? (
                         <Textarea
                           aria-label="QR code content"
@@ -396,12 +396,12 @@ const QRCodePage = () => {
                     {contentType === "wifi" && (
                       <>
                         <div className="flex flex-col gap-2">
-                          <Label
+                          <FieldLabel
                             className="text-muted-foreground text-xs uppercase tracking-wider"
                             htmlFor="wifi-password"
                           >
                             Password
-                          </Label>
+                          </FieldLabel>
                           <Input
                             aria-label="WiFi password"
                             id="wifi-password"
@@ -413,9 +413,9 @@ const QRCodePage = () => {
                         </div>
                         <div className="flex gap-4">
                           <div className="flex flex-1 flex-col gap-2">
-                            <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                            <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                               Encryption
-                            </Label>
+                            </FieldLabel>
                             <Select
                               onValueChange={(v) =>
                                 setWifiEncryption(v as typeof wifiEncryption)
@@ -448,9 +448,9 @@ const QRCodePage = () => {
                             </Select>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                            <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                               Hidden
-                            </Label>
+                            </FieldLabel>
                             <Button
                               aria-pressed={wifiHidden}
                               className="cursor-pointer"
@@ -475,9 +475,9 @@ const QRCodePage = () => {
                   <CardContent className="flex flex-col gap-4 pt-4">
                     {/* Color Presets */}
                     <div className="flex flex-col gap-2">
-                      <Label className="text-[10px] text-muted-foreground">
+                      <FieldLabel className="text-[10px] text-muted-foreground">
                         Color Presets
-                      </Label>
+                      </FieldLabel>
                       <div className="flex flex-wrap gap-2">
                         {COLOR_PRESETS.map((preset) => (
                           <button
@@ -501,12 +501,12 @@ const QRCodePage = () => {
                     {/* Basic Colors */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <Label
+                        <FieldLabel
                           className="text-[10px] text-muted-foreground"
                           htmlFor="fg-color"
                         >
                           Foreground
-                        </Label>
+                        </FieldLabel>
                         <div className="flex gap-2">
                           <input
                             aria-label="Foreground color"
@@ -532,12 +532,12 @@ const QRCodePage = () => {
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Label
+                        <FieldLabel
                           className="text-[10px] text-muted-foreground"
                           htmlFor="bg-color"
                         >
                           Background
-                        </Label>
+                        </FieldLabel>
                         <div className="flex gap-2">
                           <input
                             aria-label="Background color"
@@ -566,9 +566,9 @@ const QRCodePage = () => {
 
                     {/* Dot Style */}
                     <div className="flex flex-col gap-2">
-                      <Label className="text-[10px] text-muted-foreground">
+                      <FieldLabel className="text-[10px] text-muted-foreground">
                         Dot Style
-                      </Label>
+                      </FieldLabel>
                       <Select
                         onValueChange={(v) => {
                           if (v) {
@@ -601,9 +601,9 @@ const QRCodePage = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between">
-                          <Label className="text-[10px] text-muted-foreground">
+                          <FieldLabel className="text-[10px] text-muted-foreground">
                             Size
-                          </Label>
+                          </FieldLabel>
                           <span className="font-mono text-[10px] text-muted-foreground">
                             {options.width}px
                           </span>
@@ -624,9 +624,9 @@ const QRCodePage = () => {
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Label className="text-[10px] text-muted-foreground">
+                        <FieldLabel className="text-[10px] text-muted-foreground">
                           Error Correction
-                        </Label>
+                        </FieldLabel>
                         <Select
                           onValueChange={(v) =>
                             updateOption(
@@ -658,9 +658,9 @@ const QRCodePage = () => {
 
                     {/* Logo Upload */}
                     <div className="flex flex-col gap-2 border-t pt-4">
-                      <Label className="text-[10px] text-muted-foreground">
+                      <FieldLabel className="text-[10px] text-muted-foreground">
                         Logo / Icon
-                      </Label>
+                      </FieldLabel>
                       <input
                         accept="image/*"
                         aria-label="Upload logo"
@@ -680,9 +680,9 @@ const QRCodePage = () => {
                           </div>
                           <div className="flex flex-1 flex-col gap-1">
                             <div className="flex items-center justify-between">
-                              <Label className="text-[10px] text-muted-foreground">
+                              <FieldLabel className="text-[10px] text-muted-foreground">
                                 Logo Size: {options.logoWidth}px
-                              </Label>
+                              </FieldLabel>
                             </div>
                             <Slider
                               aria-label="Logo size"
@@ -753,9 +753,9 @@ const QRCodePage = () => {
                         {/* Corner Colors */}
                         <div className="grid grid-cols-2 gap-4">
                           <div className="flex flex-col gap-2">
-                            <Label className="text-[10px] text-muted-foreground">
+                            <FieldLabel className="text-[10px] text-muted-foreground">
                               Corner Outer Color
-                            </Label>
+                            </FieldLabel>
                             <div className="flex gap-2">
                               <input
                                 aria-label="Corner outer color"
@@ -791,9 +791,9 @@ const QRCodePage = () => {
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <Label className="text-[10px] text-muted-foreground">
+                            <FieldLabel className="text-[10px] text-muted-foreground">
                               Corner Inner Color
-                            </Label>
+                            </FieldLabel>
                             <div className="flex gap-2">
                               <input
                                 aria-label="Corner inner color"
@@ -833,9 +833,9 @@ const QRCodePage = () => {
                         {/* Quiet Zone */}
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center justify-between">
-                            <Label className="text-[10px] text-muted-foreground">
+                            <FieldLabel className="text-[10px] text-muted-foreground">
                               Quiet Zone (Margin)
-                            </Label>
+                            </FieldLabel>
                             <span className="font-mono text-[10px] text-muted-foreground">
                               {options.quietZone}px
                             </span>

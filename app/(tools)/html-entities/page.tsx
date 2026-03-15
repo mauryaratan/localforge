@@ -7,7 +7,7 @@ import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -15,6 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useCopiedState } from "@/hooks/use-copied-state";
 import {
@@ -139,15 +141,18 @@ const HTMLEntitiesPage = () => {
           <CardHeader className="border-b">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <CardTitle>Transform</CardTitle>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 {/* Encoding Mode */}
-                <div className="flex items-center gap-2">
-                  <Label
+                <Field
+                  className="w-auto items-center gap-2"
+                  orientation="horizontal"
+                >
+                  <FieldLabel
                     className="text-muted-foreground text-xs"
                     htmlFor="encoding-mode"
                   >
                     Format
-                  </Label>
+                  </FieldLabel>
                   <Select
                     onValueChange={(v) => handleModeChange(v as EncodingMode)}
                     value={encodingMode}
@@ -164,21 +169,25 @@ const HTMLEntitiesPage = () => {
                       <SelectItem value="hexadecimal">Hexadecimal</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
                 {/* Encode All Toggle */}
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    aria-label="Encode all characters"
-                    checked={encodeAll}
-                    className="h-4 w-4 cursor-pointer rounded border-muted-foreground/30 text-primary focus:ring-primary"
-                    onChange={(e) => handleEncodeAllChange(e.target.checked)}
-                    type="checkbox"
-                  />
-                  <span className="text-muted-foreground text-xs">
+                <Field
+                  className="w-auto items-center gap-2"
+                  orientation="horizontal"
+                >
+                  <FieldLabel
+                    className="text-muted-foreground text-xs"
+                    htmlFor="encode-all"
+                  >
                     Encode all
-                  </span>
-                </label>
+                  </FieldLabel>
+                  <Switch
+                    checked={encodeAll}
+                    id="encode-all"
+                    onCheckedChange={handleEncodeAllChange}
+                  />
+                </Field>
 
                 {(decodedText || encodedText) && (
                   <Button
@@ -201,16 +210,16 @@ const HTMLEntitiesPage = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_auto_1fr]">
+            <FieldGroup className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_auto_1fr]">
               {/* Decoded (Plain Text) */}
-              <div className="flex flex-col gap-2">
+              <Field className="gap-2">
                 <div className="flex items-center justify-between">
-                  <label
+                  <FieldLabel
                     className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
                     htmlFor="decoded-input"
                   >
                     Decoded (Plain Text)
-                  </label>
+                  </FieldLabel>
                   <CopyButton
                     copied={copied.decoded}
                     disabled={!decodedText}
@@ -227,7 +236,7 @@ const HTMLEntitiesPage = () => {
                   value={decodedText}
                 />
                 <CharCount text={decodedText} />
-              </div>
+              </Field>
 
               {/* Direction Indicator */}
               <AutoDirectionIndicator
@@ -236,14 +245,14 @@ const HTMLEntitiesPage = () => {
               />
 
               {/* Encoded (HTML Entities) */}
-              <div className="flex flex-col gap-2">
+              <Field className="gap-2">
                 <div className="flex items-center justify-between">
-                  <label
+                  <FieldLabel
                     className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
                     htmlFor="encoded-input"
                   >
                     Encoded (HTML Entities)
-                  </label>
+                  </FieldLabel>
                   <CopyButton
                     copied={copied.encoded}
                     disabled={!encodedText}
@@ -260,32 +269,35 @@ const HTMLEntitiesPage = () => {
                   value={encodedText}
                 />
                 <CharCount text={encodedText} />
-              </div>
-            </div>
+              </Field>
+            </FieldGroup>
 
             {/* Format Examples */}
-            <div className="mt-6 border-t pt-4">
-              <p className="mb-2 text-[10px] text-muted-foreground uppercase tracking-wider">
-                Encoding Format Examples
-              </p>
-              <div className="grid gap-2 text-xs sm:grid-cols-3">
-                <div className="rounded-sm bg-muted/50 p-2">
-                  <span className="text-muted-foreground">Named:</span>{" "}
-                  <code className="font-mono text-foreground">
-                    &amp;amp; &amp;lt; &amp;copy;
-                  </code>
-                </div>
-                <div className="rounded-sm bg-muted/50 p-2">
-                  <span className="text-muted-foreground">Decimal:</span>{" "}
-                  <code className="font-mono text-foreground">
-                    &amp;#38; &amp;#60; &amp;#169;
-                  </code>
-                </div>
-                <div className="rounded-sm bg-muted/50 p-2">
-                  <span className="text-muted-foreground">Hex:</span>{" "}
-                  <code className="font-mono text-foreground">
-                    &amp;#x26; &amp;#x3C; &amp;#xA9;
-                  </code>
+            <div className="mt-6 flex flex-col gap-4">
+              <Separator />
+              <div className="flex flex-col gap-2">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                  Encoding Format Examples
+                </p>
+                <div className="grid gap-2 text-xs sm:grid-cols-3">
+                  <div className="rounded-sm bg-muted/50 p-2">
+                    <span className="text-muted-foreground">Named:</span>{" "}
+                    <code className="font-mono text-foreground">
+                      &amp;amp; &amp;lt; &amp;copy;
+                    </code>
+                  </div>
+                  <div className="rounded-sm bg-muted/50 p-2">
+                    <span className="text-muted-foreground">Decimal:</span>{" "}
+                    <code className="font-mono text-foreground">
+                      &amp;#38; &amp;#60; &amp;#169;
+                    </code>
+                  </div>
+                  <div className="rounded-sm bg-muted/50 p-2">
+                    <span className="text-muted-foreground">Hex:</span>{" "}
+                    <code className="font-mono text-foreground">
+                      &amp;#x26; &amp;#x3C; &amp;#xA9;
+                    </code>
+                  </div>
                 </div>
               </div>
             </div>

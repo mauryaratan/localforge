@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import {
   type AllHashesResult,
@@ -250,9 +250,9 @@ SHA-512: ${hashes.sha512}`;
                   <div className="flex flex-col gap-2" key={algorithm}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Label className="font-medium text-xs uppercase tracking-wider">
+                        <FieldLabel className="font-medium text-xs uppercase tracking-wider">
                           {algorithm}
-                        </Label>
+                        </FieldLabel>
                         <span className="text-[10px] text-muted-foreground">
                           ({info.bits} bits)
                         </span>

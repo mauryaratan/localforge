@@ -11,8 +11,8 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -343,9 +343,9 @@ const SvgToJsxPage = () => {
             {/* Component Name */}
             {outputFormat !== "jsx" && (
               <div className="flex flex-col gap-2">
-                <Label className="text-xs" htmlFor="component-name">
+                <FieldLabel className="text-xs" htmlFor="component-name">
                   Component Name
-                </Label>
+                </FieldLabel>
                 <Input
                   aria-label="Component name"
                   className="h-8 text-xs"
@@ -359,9 +359,9 @@ const SvgToJsxPage = () => {
 
             {/* Spread Props */}
             <div className="flex items-center justify-between">
-              <Label className="text-xs" htmlFor="spread-props">
+              <FieldLabel className="text-xs" htmlFor="spread-props">
                 Spread props on SVG
-              </Label>
+              </FieldLabel>
               <Switch
                 aria-label="Spread props on SVG element"
                 checked={spreadProps}
@@ -374,9 +374,9 @@ const SvgToJsxPage = () => {
             {/* React.memo */}
             {outputFormat !== "jsx" && (
               <div className="flex items-center justify-between">
-                <Label className="text-xs" htmlFor="memo">
+                <FieldLabel className="text-xs" htmlFor="memo">
                   Wrap with React.memo
-                </Label>
+                </FieldLabel>
                 <Switch
                   aria-label="Wrap component with React.memo"
                   checked={memo}
@@ -389,9 +389,9 @@ const SvgToJsxPage = () => {
 
             {/* Single Quotes */}
             <div className="flex items-center justify-between">
-              <Label className="text-xs" htmlFor="single-quotes">
+              <FieldLabel className="text-xs" htmlFor="single-quotes">
                 Use single quotes
-              </Label>
+              </FieldLabel>
               <Switch
                 aria-label="Use single quotes instead of double quotes"
                 checked={singleQuotes}
@@ -403,9 +403,9 @@ const SvgToJsxPage = () => {
 
             {/* Cleanup IDs */}
             <div className="flex items-center justify-between">
-              <Label className="text-xs" htmlFor="cleanup-ids">
+              <FieldLabel className="text-xs" htmlFor="cleanup-ids">
                 Prefix IDs (avoid conflicts)
-              </Label>
+              </FieldLabel>
               <Switch
                 aria-label="Prefix IDs to avoid conflicts when using multiple SVGs"
                 checked={cleanupIds}

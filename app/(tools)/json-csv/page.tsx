@@ -14,7 +14,7 @@ import { ExampleButton } from "@/components/example-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -277,12 +277,12 @@ const JsonCsvPage = () => {
           <CardContent className="pt-4">
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2">
-                <Label
+                <FieldLabel
                   className="whitespace-nowrap text-xs"
                   htmlFor="delimiter"
                 >
                   Delimiter
-                </Label>
+                </FieldLabel>
                 <Select
                   onValueChange={(v) => v && setDelimiter(v)}
                   value={delimiter}
@@ -316,12 +316,12 @@ const JsonCsvPage = () => {
                       id="include-header"
                       onCheckedChange={setIncludeHeader}
                     />
-                    <Label
+                    <FieldLabel
                       className="cursor-pointer text-xs"
                       htmlFor="include-header"
                     >
                       Include header row
-                    </Label>
+                    </FieldLabel>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
@@ -330,12 +330,12 @@ const JsonCsvPage = () => {
                       id="flatten-nested"
                       onCheckedChange={setFlattenNested}
                     />
-                    <Label
+                    <FieldLabel
                       className="cursor-pointer text-xs"
                       htmlFor="flatten-nested"
                     >
                       Flatten nested objects
-                    </Label>
+                    </FieldLabel>
                   </div>
                 </>
               ) : (
@@ -346,12 +346,12 @@ const JsonCsvPage = () => {
                     id="has-header"
                     onCheckedChange={setHasHeader}
                   />
-                  <Label
+                  <FieldLabel
                     className="cursor-pointer text-xs"
                     htmlFor="has-header"
                   >
                     First row is header
-                  </Label>
+                  </FieldLabel>
                 </div>
               )}
             </div>

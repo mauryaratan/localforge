@@ -16,8 +16,24 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Field,
+  FieldGroup,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Tooltip,
@@ -338,35 +354,50 @@ const UnixTimeConverterPage = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  aria-label="Timestamp or date input"
-                  className="flex-1 font-mono"
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Enter timestamp, date, or expression (e.g., now+1d)"
-                  type="text"
-                  value={input}
-                />
-                <select
-                  aria-label="Input format"
-                  className="h-8 w-44 cursor-pointer rounded-md border border-input bg-transparent px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                  onChange={(e) =>
-                    setInputFormat(e.target.value as InputFormat)
-                  }
-                  value={inputFormat}
-                >
-                  {FORMAT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+            <FieldGroup className="gap-4">
+              <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_11rem]">
+                <Field>
+                  <Input
+                    aria-label="Timestamp or date input"
+                    className="flex-1 font-mono"
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Enter timestamp, date, or expression (e.g., now+1d)"
+                    type="text"
+                    value={input}
+                  />
+                </Field>
+                <Field>
+                  <Select
+                    onValueChange={(value) =>
+                      setInputFormat(value as InputFormat)
+                    }
+                    value={inputFormat}
+                  >
+                    <SelectTrigger aria-label="Input format" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Input format</SelectLabel>
+                        {FORMAT_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <Label className="text-muted-foreground">Output unit:</Label>
+              <div className="flex flex-wrap items-start gap-4 text-xs">
+                <FieldSet className="gap-2">
+                  <FieldLegend
+                    className="text-muted-foreground"
+                    variant="label"
+                  >
+                    Output unit
+                  </FieldLegend>
                   <ToggleGroup size="sm" variant="outline">
                     {UNIT_OPTIONS.map((opt) => (
                       <ToggleGroupItem
@@ -381,9 +412,14 @@ const UnixTimeConverterPage = () => {
                       </ToggleGroupItem>
                     ))}
                   </ToggleGroup>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Label className="text-muted-foreground">Timezone:</Label>
+                </FieldSet>
+                <FieldSet className="gap-2">
+                  <FieldLegend
+                    className="text-muted-foreground"
+                    variant="label"
+                  >
+                    Timezone
+                  </FieldLegend>
                   <ToggleGroup size="sm" variant="outline">
                     <ToggleGroupItem
                       aria-pressed={timezone === "local"}
@@ -404,13 +440,13 @@ const UnixTimeConverterPage = () => {
                       UTC
                     </ToggleGroupItem>
                   </ToggleGroup>
-                </div>
+                </FieldSet>
               </div>
 
               {parseResult?.success === false && (
                 <Badge variant="destructive">{parseResult.error}</Badge>
               )}
-            </div>
+            </FieldGroup>
           </CardContent>
         </Card>
 
@@ -426,7 +462,7 @@ const UnixTimeConverterPage = () => {
               </div>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="space-y-6">
+              <div className="flex flex-col gap-6">
                 {/* Main formats */}
                 <div className="grid gap-2">
                   <DateOutputRow
@@ -473,10 +509,8 @@ const UnixTimeConverterPage = () => {
 
                 {/* Detailed relative time */}
                 {detailedRelative && (
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-xs">
-                      Relative
-                    </Label>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-muted-foreground text-xs">Relative</p>
                     <div className="flex items-center gap-2">
                       <code className="flex-1 rounded bg-muted/50 px-3 py-2 font-mono text-sm">
                         {detailedRelative.formatted}
@@ -502,10 +536,8 @@ const UnixTimeConverterPage = () => {
                 )}
 
                 {/* Other formats */}
-                <div className="space-y-2">
-                  <Label className="text-muted-foreground text-xs">
-                    Other Formats
-                  </Label>
+                <div className="flex flex-col gap-2">
+                  <p className="text-muted-foreground text-xs">Other Formats</p>
                   <div className="grid gap-1.5">
                     <FormatRow
                       label="US Date"
@@ -764,44 +796,53 @@ const UnixTimeConverterPage = () => {
                 </div>
 
                 {/* Multiple Timezones */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-muted-foreground text-xs">
-                      Other Timezones
-                    </Label>
-                  </div>
+                <div className="flex flex-col gap-3">
+                  <p className="text-muted-foreground text-xs">
+                    Other Timezones
+                  </p>
                   <div className="flex gap-2">
-                    <select
-                      aria-label="Select timezone"
-                      className="h-8 flex-1 cursor-pointer rounded-md border border-input bg-transparent px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                      onChange={(e) => setSelectedTz(e.target.value)}
-                      value={selectedTz}
+                    <Select
+                      onValueChange={(value) => setSelectedTz(value ?? "")}
+                      value={selectedTz || undefined}
                     >
-                      <option value="">Select timezone...</option>
-                      {COMMON_TIMEZONES.filter(
-                        (tz) => !extraTimezones.includes(tz)
-                      ).map((tz) => (
-                        <option key={tz} value={tz}>
-                          {tz}
-                        </option>
-                      ))}
-                      <option disabled>─────────────</option>
-                      {availableTimezones
-                        .filter(
-                          (tz) =>
-                            !(
-                              COMMON_TIMEZONES.includes(
-                                tz as (typeof COMMON_TIMEZONES)[number]
-                              ) || extraTimezones.includes(tz)
+                      <SelectTrigger
+                        aria-label="Select timezone"
+                        className="flex-1"
+                      >
+                        <SelectValue placeholder="Select timezone..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Common</SelectLabel>
+                          {COMMON_TIMEZONES.filter(
+                            (tz) => !extraTimezones.includes(tz)
+                          ).map((tz) => (
+                            <SelectItem key={tz} value={tz}>
+                              {tz}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>All timezones</SelectLabel>
+                          {availableTimezones
+                            .filter(
+                              (tz) =>
+                                !(
+                                  COMMON_TIMEZONES.includes(
+                                    tz as (typeof COMMON_TIMEZONES)[number]
+                                  ) || extraTimezones.includes(tz)
+                                )
                             )
-                        )
-                        .slice(0, 100)
-                        .map((tz) => (
-                          <option key={tz} value={tz}>
-                            {tz}
-                          </option>
-                        ))}
-                    </select>
+                            .slice(0, 100)
+                            .map((tz) => (
+                              <SelectItem key={tz} value={tz}>
+                                {tz}
+                              </SelectItem>
+                            ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                     <Button
                       aria-label="Add timezone"
                       className="cursor-pointer"
@@ -811,12 +852,16 @@ const UnixTimeConverterPage = () => {
                       tabIndex={0}
                       variant="outline"
                     >
-                      <HugeiconsIcon icon={Add01Icon} size={14} />
+                      <HugeiconsIcon
+                        data-icon="inline-start"
+                        icon={Add01Icon}
+                        size={14}
+                      />
                       Add
                     </Button>
                   </div>
                   {extraTzResults.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       {extraTzResults.map((result) => (
                         <div
                           className="flex items-center gap-2 rounded-md border border-border/50 bg-muted/30 px-3 py-2"
@@ -868,14 +913,14 @@ const UnixTimeConverterPage = () => {
 
       {/* Sidebar */}
       <div className="shrink-0 lg:w-72">
-        <div className="space-y-4 lg:sticky lg:top-4">
+        <div className="flex flex-col gap-4 lg:sticky lg:top-4">
           {/* Reference Timestamps */}
           <Card>
             <CardHeader className="border-b">
               <CardTitle className="text-sm">Reference Timestamps</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <ReferenceGroup label="Today">
                   <ReferenceItem
                     label="Start"
@@ -934,7 +979,7 @@ const UnixTimeConverterPage = () => {
               <CardTitle className="text-sm">Expression Tips</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="space-y-2 text-xs">
+              <div className="flex flex-col gap-2 text-xs">
                 <div className="flex justify-between">
                   <code className="text-muted-foreground">now</code>
                   <span>Current time</span>
@@ -951,7 +996,8 @@ const UnixTimeConverterPage = () => {
                   <code className="text-muted-foreground">now+2h</code>
                   <span>2 hours later</span>
                 </div>
-                <div className="mt-2 border-border/50 border-t pt-2">
+                <div className="mt-2 flex flex-col gap-2">
+                  <Separator className="bg-border/50" />
                   <span className="text-muted-foreground">
                     Units: s, m, h, d, w
                   </span>
@@ -966,7 +1012,7 @@ const UnixTimeConverterPage = () => {
               <CardTitle className="text-sm">Notable Timestamps</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Button
                   aria-label="Load Unix Epoch timestamp"
                   className="w-full cursor-pointer justify-start text-xs"
@@ -1104,11 +1150,11 @@ interface ReferenceGroupProps {
 
 const ReferenceGroup = ({ label, children }: ReferenceGroupProps) => {
   return (
-    <div className="space-y-1">
+    <div className="flex flex-col gap-1">
       <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
         {label}
       </span>
-      <div className="space-y-1">{children}</div>
+      <div className="flex flex-col gap-1">{children}</div>
     </div>
   );
 };

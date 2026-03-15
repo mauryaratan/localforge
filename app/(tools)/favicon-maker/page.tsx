@@ -20,7 +20,9 @@ import {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   cleanupFavicons,
@@ -477,7 +479,7 @@ Generated with LocalForge Favicon Maker
               </TabsList>
 
               <TabsContent className="mt-4" value="html">
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium text-sm">HTML Code</h3>
                     <Button
@@ -487,7 +489,7 @@ Generated with LocalForge Favicon Maker
                       variant="ghost"
                     >
                       <HugeiconsIcon
-                        className="h-3 w-3"
+                        data-icon="inline-start"
                         icon={
                           copiedField === "html"
                             ? CheckmarkCircle01Icon
@@ -507,7 +509,7 @@ Generated with LocalForge Favicon Maker
               </TabsContent>
 
               <TabsContent className="mt-4" value="manifest">
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium text-sm">site.webmanifest</h3>
                     <div className="flex gap-1">
@@ -528,7 +530,7 @@ Generated with LocalForge Favicon Maker
                         variant="ghost"
                       >
                         <HugeiconsIcon
-                          className="h-3 w-3"
+                          data-icon="inline-start"
                           icon={
                             copiedField === "manifest"
                               ? CheckmarkCircle01Icon
@@ -543,10 +545,7 @@ Generated with LocalForge Favicon Maker
                         size="sm"
                         variant="ghost"
                       >
-                        <HugeiconsIcon
-                          className="h-3 w-3"
-                          icon={Download01Icon}
-                        />
+                        <HugeiconsIcon icon={Download01Icon} />
                       </Button>
                     </div>
                   </div>
@@ -562,20 +561,15 @@ Generated with LocalForge Favicon Maker
               </TabsContent>
 
               <TabsContent className="mt-4" value="settings">
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   <h3 className="font-medium text-sm">Manifest Settings</h3>
                   <p className="text-muted-foreground text-xs">
                     Customize the manifest file for your PWA:
                   </p>
 
-                  <div className="space-y-3">
-                    <div>
-                      <label
-                        className="mb-1.5 block font-medium text-xs"
-                        htmlFor="app-name"
-                      >
-                        App Name
-                      </label>
+                  <FieldGroup className="gap-3">
+                    <Field>
+                      <FieldLabel htmlFor="app-name">App Name</FieldLabel>
                       <Input
                         className="h-8 text-sm"
                         id="app-name"
@@ -583,15 +577,10 @@ Generated with LocalForge Favicon Maker
                         placeholder="My App"
                         value={appName}
                       />
-                    </div>
+                    </Field>
 
-                    <div>
-                      <label
-                        className="mb-1.5 block font-medium text-xs"
-                        htmlFor="theme-color"
-                      >
-                        Theme Color
-                      </label>
+                    <Field>
+                      <FieldLabel htmlFor="theme-color">Theme Color</FieldLabel>
                       <div className="flex gap-2">
                         <input
                           className="h-8 w-10 cursor-pointer rounded border border-border"
@@ -601,21 +590,19 @@ Generated with LocalForge Favicon Maker
                           value={themeColor}
                         />
                         <Input
+                          aria-label="Theme color hex value"
                           className="h-8 flex-1 text-sm"
                           onChange={(e) => setThemeColor(e.target.value)}
                           placeholder="#ffffff"
                           value={themeColor}
                         />
                       </div>
-                    </div>
+                    </Field>
 
-                    <div>
-                      <label
-                        className="mb-1.5 block font-medium text-xs"
-                        htmlFor="bg-color"
-                      >
+                    <Field>
+                      <FieldLabel htmlFor="bg-color">
                         Background Color
-                      </label>
+                      </FieldLabel>
                       <div className="flex gap-2">
                         <input
                           className="h-8 w-10 cursor-pointer rounded border border-border"
@@ -625,22 +612,24 @@ Generated with LocalForge Favicon Maker
                           value={bgColor}
                         />
                         <Input
+                          aria-label="Background color hex value"
                           className="h-8 flex-1 text-sm"
                           onChange={(e) => setBgColor(e.target.value)}
                           placeholder="#ffffff"
                           value={bgColor}
                         />
                       </div>
-                    </div>
-                  </div>
+                    </Field>
+                  </FieldGroup>
                 </div>
               </TabsContent>
             </Tabs>
 
             {/* File list */}
-            <div className="mt-6 border-border border-t pt-4">
-              <h3 className="mb-3 font-medium text-sm">Generated Files</h3>
-              <div className="space-y-1.5">
+            <div className="mt-6 flex flex-col gap-4">
+              <Separator />
+              <div className="flex flex-col gap-1.5">
+                <h3 className="font-medium text-sm">Generated Files</h3>
                 {FAVICON_SIZES.map((size) => (
                   <div
                     className="flex items-center justify-between py-1 text-xs"

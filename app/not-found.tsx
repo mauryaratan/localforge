@@ -20,7 +20,7 @@ export default function NotFound() {
             tools below.
           </p>
         </CardHeader>
-        <CardContent className="space-y-6 pt-6">
+        <CardContent className="flex flex-col gap-6 pt-6">
           <div className="flex flex-wrap gap-2">
             <Link className={buttonVariants()} href="/">
               Back Home

@@ -11,8 +11,8 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -200,9 +200,9 @@ const UuidGeneratorPage = () => {
 
         {/* Format Selection */}
         <div className="flex flex-col gap-3">
-          <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+          <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
             Format
-          </Label>
+          </FieldLabel>
           <ToggleGroup className="justify-start" size="sm" variant="outline">
             <ToggleGroupItem
               aria-label="UUID v4 format"
@@ -244,9 +244,9 @@ const UuidGeneratorPage = () => {
         <div className="flex flex-wrap items-end gap-6">
           {/* Count */}
           <div className="flex min-w-[200px] flex-col gap-3">
-            <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+            <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
               Count: {count}
-            </Label>
+            </FieldLabel>
             <Slider
               aria-label="Number of IDs to generate"
               className="cursor-pointer"
@@ -261,9 +261,9 @@ const UuidGeneratorPage = () => {
           {/* Style (only for UUIDs) */}
           {format !== "ulid" && (
             <div className="flex flex-col gap-3">
-              <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+              <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                 Case
-              </Label>
+              </FieldLabel>
               <ToggleGroup size="sm" variant="outline">
                 <ToggleGroupItem
                   aria-label="Lowercase"
@@ -299,12 +299,12 @@ const UuidGeneratorPage = () => {
                 id="hyphens"
                 onCheckedChange={handleHyphensChange}
               />
-              <Label
+              <FieldLabel
                 className="cursor-pointer text-muted-foreground text-xs"
                 htmlFor="hyphens"
               >
                 Hyphens
-              </Label>
+              </FieldLabel>
             </div>
           )}
         </div>

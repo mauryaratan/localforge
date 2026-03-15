@@ -26,8 +26,8 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -478,9 +478,9 @@ const AsciiArtPage = () => {
 
                   {/* Font Selection */}
                   <div className="flex flex-col gap-2">
-                    <Label className="text-muted-foreground text-xs">
+                    <FieldLabel className="text-muted-foreground text-xs">
                       Font
-                    </Label>
+                    </FieldLabel>
                     <Select
                       onValueChange={(v) =>
                         setTextOptions((prev) => ({
@@ -698,9 +698,9 @@ const AsciiArtPage = () => {
               {/* Output Width */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-muted-foreground text-xs">
+                  <FieldLabel className="text-muted-foreground text-xs">
                     Output Width
-                  </Label>
+                  </FieldLabel>
                   <span className="font-mono text-muted-foreground text-xs">
                     {imageOptions.width} chars
                   </span>
@@ -738,9 +738,9 @@ const AsciiArtPage = () => {
 
               {/* Character Set */}
               <div className="flex flex-col gap-2">
-                <Label className="text-muted-foreground text-xs">
+                <FieldLabel className="text-muted-foreground text-xs">
                   Character Set
-                </Label>
+                </FieldLabel>
                 <Select
                   onValueChange={(v) =>
                     updateImageOption("characterSet", v as CharacterSet)
@@ -769,9 +769,9 @@ const AsciiArtPage = () => {
               {/* Custom Characters */}
               {imageOptions.characterSet === "custom" && (
                 <div className="flex flex-col gap-2">
-                  <Label className="text-muted-foreground text-xs">
+                  <FieldLabel className="text-muted-foreground text-xs">
                     Custom Characters (dark to light)
-                  </Label>
+                  </FieldLabel>
                   <Input
                     aria-label="Custom character set"
                     className="font-mono text-xs"
@@ -789,9 +789,9 @@ const AsciiArtPage = () => {
 
               {/* Color Mode */}
               <div className="flex flex-col gap-2">
-                <Label className="text-muted-foreground text-xs">
+                <FieldLabel className="text-muted-foreground text-xs">
                   Color Mode
-                </Label>
+                </FieldLabel>
                 <Select
                   onValueChange={(v) =>
                     updateImageOption(
@@ -820,12 +820,12 @@ const AsciiArtPage = () => {
 
               {/* Invert Option */}
               <div className="flex items-center justify-between">
-                <Label
+                <FieldLabel
                   className="text-muted-foreground text-xs"
                   htmlFor="invert"
                 >
                   Invert Colors
-                </Label>
+                </FieldLabel>
                 <Switch
                   aria-label="Invert colors"
                   checked={imageOptions.invert}
@@ -838,12 +838,12 @@ const AsciiArtPage = () => {
 
               {/* Preserve Aspect Ratio */}
               <div className="flex items-center justify-between">
-                <Label
+                <FieldLabel
                   className="text-muted-foreground text-xs"
                   htmlFor="aspect"
                 >
                   Preserve Aspect Ratio
-                </Label>
+                </FieldLabel>
                 <Switch
                   aria-label="Preserve aspect ratio"
                   checked={imageOptions.preserveAspectRatio}

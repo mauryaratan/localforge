@@ -7,6 +7,8 @@ import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useCopiedState } from "@/hooks/use-copied-state";
 import { decodeURLComponent, encodeURLComponent } from "@/lib/url-parser";
@@ -90,16 +92,16 @@ const URLEncoderPage = () => {
           </div>
         </CardHeader>
         <CardContent className="pt-4">
-          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_auto_1fr]">
+          <FieldGroup className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_auto_1fr]">
             {/* Decoded (Plain Text) */}
-            <div className="flex flex-col gap-2">
+            <Field className="gap-2">
               <div className="flex items-center justify-between">
-                <label
+                <FieldLabel
                   className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
                   htmlFor="decoded-input"
                 >
                   Decoded (Plain Text)
-                </label>
+                </FieldLabel>
                 <CopyButton
                   copied={copied.decoded}
                   disabled={!decodedText}
@@ -116,7 +118,7 @@ const URLEncoderPage = () => {
                 value={decodedText}
               />
               <CharCount text={decodedText} />
-            </div>
+            </Field>
 
             {/* Direction Indicator */}
             <AutoDirectionIndicator
@@ -125,14 +127,14 @@ const URLEncoderPage = () => {
             />
 
             {/* Encoded (URL Safe) */}
-            <div className="flex flex-col gap-2">
+            <Field className="gap-2">
               <div className="flex items-center justify-between">
-                <label
+                <FieldLabel
                   className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
                   htmlFor="encoded-input"
                 >
                   Encoded (URL Safe)
-                </label>
+                </FieldLabel>
                 <CopyButton
                   copied={copied.encoded}
                   disabled={!encodedText}
@@ -149,40 +151,43 @@ const URLEncoderPage = () => {
                 value={encodedText}
               />
               <CharCount text={encodedText} />
-            </div>
-          </div>
+            </Field>
+          </FieldGroup>
 
           {/* Quick Reference */}
-          <div className="mt-6 border-t pt-4">
-            <p className="mb-2 text-[10px] text-muted-foreground uppercase tracking-wider">
-              Common Encodings
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { char: " ", encoded: "%20" },
-                { char: "&", encoded: "%26" },
-                { char: "=", encoded: "%3D" },
-                { char: "?", encoded: "%3F" },
-                { char: "/", encoded: "%2F" },
-                { char: "#", encoded: "%23" },
-                { char: "+", encoded: "%2B" },
-                { char: "@", encoded: "%40" },
-              ].map(({ char, encoded }) => (
-                <button
-                  aria-label={`Insert ${char}`}
-                  className="rounded-sm bg-muted/50 px-2 py-1 font-mono text-xs transition-colors hover:bg-muted"
-                  key={encoded}
-                  onClick={() => handleDecodedChange(decodedText + char)}
-                  tabIndex={0}
-                  type="button"
-                >
-                  <span className="text-foreground">
-                    {char === " " ? "␣" : char}
-                  </span>
-                  <span className="mx-1 text-muted-foreground">→</span>
-                  <span className="text-primary">{encoded}</span>
-                </button>
-              ))}
+          <div className="mt-6 flex flex-col gap-4">
+            <Separator />
+            <div className="flex flex-col gap-2">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                Common Encodings
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { char: " ", encoded: "%20" },
+                  { char: "&", encoded: "%26" },
+                  { char: "=", encoded: "%3D" },
+                  { char: "?", encoded: "%3F" },
+                  { char: "/", encoded: "%2F" },
+                  { char: "#", encoded: "%23" },
+                  { char: "+", encoded: "%2B" },
+                  { char: "@", encoded: "%40" },
+                ].map(({ char, encoded }) => (
+                  <button
+                    aria-label={`Insert ${char}`}
+                    className="rounded-sm bg-muted/50 px-2 py-1 font-mono text-xs transition-colors hover:bg-muted"
+                    key={encoded}
+                    onClick={() => handleDecodedChange(decodedText + char)}
+                    tabIndex={0}
+                    type="button"
+                  >
+                    <span className="text-foreground">
+                      {char === " " ? "␣" : char}
+                    </span>
+                    <span className="mx-1 text-muted-foreground">→</span>
+                    <span className="text-primary">{encoded}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </CardContent>

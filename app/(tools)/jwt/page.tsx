@@ -16,8 +16,8 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -285,7 +285,7 @@ const JWTPage = () => {
           </TabsList>
 
           {/* Decoder Tab */}
-          <TabsContent className="mt-4 space-y-4" value="decode">
+          <TabsContent className="mt-4 flex flex-col gap-4" value="decode">
             {/* Token Input */}
             <Card>
               <CardHeader className="border-b">
@@ -318,14 +318,14 @@ const JWTPage = () => {
                 </div>
               </CardHeader>
               <CardContent className="pt-4">
-                <div className="flex flex-col gap-2">
+                <Field className="gap-2">
                   <div className="flex items-center justify-between">
-                    <Label
+                    <FieldLabel
                       className="text-muted-foreground text-xs uppercase tracking-wider"
                       htmlFor="token-input"
                     >
                       Paste JWT Token
-                    </Label>
+                    </FieldLabel>
                     <Button
                       aria-label="Copy token"
                       className="cursor-pointer"
@@ -339,6 +339,7 @@ const JWTPage = () => {
                     </Button>
                   </div>
                   <Textarea
+                    aria-invalid={!!decodeError}
                     aria-label="JWT token input"
                     className={`min-h-[120px] resize-none break-all font-mono text-xs ${
                       decodeError
@@ -365,7 +366,7 @@ const JWTPage = () => {
                       </span>
                     </div>
                   )}
-                </div>
+                </Field>
               </CardContent>
             </Card>
 
@@ -377,7 +378,7 @@ const JWTPage = () => {
                   <CardHeader className="border-b">
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
-                        <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+                        <span className="size-2 rounded-full bg-red-500" />
                         Header
                       </CardTitle>
                       <Button
@@ -401,7 +402,7 @@ const JWTPage = () => {
                     <pre className="overflow-x-auto rounded bg-muted/50 p-3 font-mono text-xs">
                       {JSON.stringify(decoded.header, null, 2)}
                     </pre>
-                    <div className="mt-3 space-y-1">
+                    <div className="mt-3 flex flex-col gap-1">
                       {Object.entries(decoded.header).map(([key, value]) => (
                         <div
                           className="flex items-center justify-between text-xs"
@@ -422,7 +423,7 @@ const JWTPage = () => {
                   <CardHeader className="border-b">
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
-                        <span className="inline-block h-2 w-2 rounded-full bg-purple-500" />
+                        <span className="size-2 rounded-full bg-purple-500" />
                         Payload
                       </CardTitle>
                       <Button
@@ -446,7 +447,7 @@ const JWTPage = () => {
                     <pre className="overflow-x-auto rounded bg-muted/50 p-3 font-mono text-xs">
                       {JSON.stringify(decoded.payload, null, 2)}
                     </pre>
-                    <div className="mt-3 space-y-2">
+                    <div className="mt-3 flex flex-col gap-2">
                       {Object.entries(decoded.payload).map(([key, value]) => {
                         const { formatted, isTimestamp } = formatClaimValue(
                           key,
@@ -522,13 +523,13 @@ const JWTPage = () => {
               </CardHeader>
               <CardContent className="pt-4">
                 <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2">
-                    <Label
+                  <Field className="gap-2">
+                    <FieldLabel
                       className="text-muted-foreground text-xs uppercase tracking-wider"
                       htmlFor="secret-input"
                     >
                       Secret Key
-                    </Label>
+                    </FieldLabel>
                     <div className="flex gap-2">
                       <Input
                         aria-label="Secret key for verification"
@@ -554,7 +555,7 @@ const JWTPage = () => {
                         Verify
                       </Button>
                     </div>
-                  </div>
+                  </Field>
 
                   {verificationStatus !== "idle" && (
                     <div
@@ -594,14 +595,14 @@ const JWTPage = () => {
           </TabsContent>
 
           {/* Encoder Tab */}
-          <TabsContent className="mt-4 space-y-4" value="encode">
+          <TabsContent className="mt-4 flex flex-col gap-4" value="encode">
             <div className="grid gap-4 lg:grid-cols-2">
               {/* Header Input */}
               <Card>
                 <CardHeader className="border-b">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+                      <span className="size-2 rounded-full bg-red-500" />
                       Header
                     </CardTitle>
                     <Select
@@ -660,7 +661,7 @@ const JWTPage = () => {
               <Card>
                 <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
-                    <span className="inline-block h-2 w-2 rounded-full bg-purple-500" />
+                    <span className="size-2 rounded-full bg-purple-500" />
                     Payload
                   </CardTitle>
                 </CardHeader>
@@ -689,19 +690,20 @@ const JWTPage = () => {
             <Card>
               <CardHeader className="border-b">
                 <CardTitle className="flex items-center gap-2">
-                  <span className="inline-block h-2 w-2 rounded-full bg-cyan-500" />
+                  <span className="size-2 rounded-full bg-cyan-500" />
                   Secret
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
-                <div className="flex flex-col gap-2">
-                  <Label
+                <Field className="gap-2" data-invalid={!!encodeError}>
+                  <FieldLabel
                     className="text-muted-foreground text-xs uppercase tracking-wider"
                     htmlFor="encode-secret"
                   >
                     Secret Key
-                  </Label>
+                  </FieldLabel>
                   <Input
+                    aria-invalid={!!encodeError}
                     aria-label="Secret key for signing"
                     className="font-mono text-xs"
                     id="encode-secret"
@@ -710,10 +712,8 @@ const JWTPage = () => {
                     type="text"
                     value={encodeSecret}
                   />
-                  {encodeError && (
-                    <p className="text-destructive text-xs">{encodeError}</p>
-                  )}
-                </div>
+                  {encodeError && <FieldError>{encodeError}</FieldError>}
+                </Field>
               </CardContent>
             </Card>
 
@@ -828,7 +828,7 @@ const JWTPage = () => {
             <CardTitle>About JWT</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="space-y-2 text-muted-foreground text-xs">
+            <div className="flex flex-col gap-2 text-muted-foreground text-xs">
               <p>
                 JSON Web Tokens are an open, industry standard{" "}
                 <a

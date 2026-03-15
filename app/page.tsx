@@ -21,7 +21,7 @@ const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
     <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
       <HugeiconsIcon icon={icon} size={20} strokeWidth={1.5} />
     </div>
-    <div className="space-y-1">
+    <div className="flex flex-col gap-1">
       <h3 className="font-medium text-sm">{title}</h3>
       <p className="text-muted-foreground text-xs leading-relaxed">
         {description}
@@ -65,7 +65,7 @@ export default function HomePage() {
         <div className="flex flex-col items-center gap-6 text-center">
           <Logo showText={false} size="lg" />
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h1 className="font-medium text-3xl tracking-tight md:text-4xl">
               LocalForge
             </h1>
@@ -80,7 +80,7 @@ export default function HomePage() {
 
           <div className="flex flex-wrap items-center justify-center gap-2">
             <Badge className="gap-1.5" variant="secondary">
-              <span className="size-1.5 animate-pulse rounded-full bg-emerald-500" />
+              <span className="size-1.5 rounded-full bg-primary" />
               Local-First
             </Badge>
             <Badge variant="secondary">Zero Server Uploads</Badge>
@@ -96,7 +96,7 @@ export default function HomePage() {
         </div>
 
         {/* Quick Access */}
-        <div className="w-full space-y-4">
+        <div className="flex w-full flex-col gap-4">
           <h2 className="text-center text-muted-foreground text-xs uppercase tracking-wider">
             {navItems.length} Tools Available
           </h2>

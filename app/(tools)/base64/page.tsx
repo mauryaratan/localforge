@@ -7,7 +7,14 @@ import { toast } from "sonner";
 import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
@@ -146,36 +153,41 @@ const Base64Page = () => {
         </div>
 
         {/* Mode Toggle */}
-        <div className="flex items-center gap-3">
-          <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+        <FieldSet className="gap-3">
+          <FieldLegend
+            className="text-muted-foreground uppercase tracking-wider"
+            variant="label"
+          >
             Mode
-          </Label>
-          <ToggleGroup size="sm" variant="outline">
-            <ToggleGroupItem
-              aria-label="Standard Base64 mode"
-              aria-pressed={mode === "standard"}
-              className="cursor-pointer px-3"
-              onClick={() => setMode("standard")}
-              pressed={mode === "standard"}
-              value="standard"
-            >
-              Standard
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              aria-label="URL-safe Base64 mode"
-              aria-pressed={mode === "url-safe"}
-              className="cursor-pointer px-3"
-              onClick={() => setMode("url-safe")}
-              pressed={mode === "url-safe"}
-              value="url-safe"
-            >
-              URL-Safe
-            </ToggleGroupItem>
-          </ToggleGroup>
-          <span className="text-[10px] text-muted-foreground">
-            {mode === "url-safe" && "(RFC 4648 / Base64URL)"}
-          </span>
-        </div>
+          </FieldLegend>
+          <div className="flex flex-wrap items-center gap-3">
+            <ToggleGroup size="sm" variant="outline">
+              <ToggleGroupItem
+                aria-label="Standard Base64 mode"
+                aria-pressed={mode === "standard"}
+                className="cursor-pointer px-3"
+                onClick={() => setMode("standard")}
+                pressed={mode === "standard"}
+                value="standard"
+              >
+                Standard
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                aria-label="URL-safe Base64 mode"
+                aria-pressed={mode === "url-safe"}
+                className="cursor-pointer px-3"
+                onClick={() => setMode("url-safe")}
+                pressed={mode === "url-safe"}
+                value="url-safe"
+              >
+                URL-Safe
+              </ToggleGroupItem>
+            </ToggleGroup>
+            <span className="text-[10px] text-muted-foreground">
+              {mode === "url-safe" && "(RFC 4648 / Base64URL)"}
+            </span>
+          </div>
+        </FieldSet>
 
         <Card>
           <CardHeader className="border-b">
@@ -206,16 +218,16 @@ const Base64Page = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+            <FieldGroup className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               {/* Plain Text */}
-              <div className="flex min-w-0 flex-col gap-2">
+              <Field className="min-w-0 gap-2">
                 <div className="flex items-center justify-between">
-                  <label
+                  <FieldLabel
                     className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
                     htmlFor="plain-input"
                   >
                     Plain Text
-                  </label>
+                  </FieldLabel>
                   <Button
                     aria-label="Copy plain text"
                     className="cursor-pointer"
@@ -244,7 +256,7 @@ const Base64Page = () => {
                     {plainText.length} characters
                   </span>
                 </div>
-              </div>
+              </Field>
 
               {/* Direction Indicator */}
               <AutoDirectionIndicator
@@ -253,14 +265,14 @@ const Base64Page = () => {
               />
 
               {/* Encoded (Base64) */}
-              <div className="flex min-w-0 flex-col gap-2">
+              <Field className="min-w-0 gap-2">
                 <div className="flex items-center justify-between">
-                  <label
+                  <FieldLabel
                     className="font-medium text-muted-foreground text-xs uppercase tracking-wider"
                     htmlFor="encoded-input"
                   >
                     Base64 Encoded
-                  </label>
+                  </FieldLabel>
                   <Button
                     aria-label="Copy encoded text"
                     className="cursor-pointer"
@@ -293,19 +305,22 @@ const Base64Page = () => {
                     {encodedText.length} characters
                   </span>
                 </div>
-              </div>
-            </div>
+              </Field>
+            </FieldGroup>
 
             {/* Size Info */}
             {plainText && encodedText && (
-              <div className="mt-4 flex items-center gap-4 border-t pt-4">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  Size Change
-                </span>
-                <span className="font-mono text-xs">
-                  {sizeInfo.increase > 0 ? "+" : ""}
-                  {sizeInfo.increase} bytes
-                </span>
+              <div className="mt-4 flex flex-col gap-4">
+                <Separator />
+                <div className="flex items-center gap-4">
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    Size Change
+                  </span>
+                  <span className="font-mono text-xs">
+                    {sizeInfo.increase > 0 ? "+" : ""}
+                    {sizeInfo.increase} bytes
+                  </span>
+                </div>
               </div>
             )}
           </CardContent>

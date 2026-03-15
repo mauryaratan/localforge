@@ -29,7 +29,7 @@ export default function RouteError({
             the segment or head back to a stable page.
           </p>
         </CardHeader>
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="flex flex-col gap-4 pt-6">
           {error.digest ? (
             <p className="font-mono text-[11px] text-muted-foreground">
               Digest: {error.digest}

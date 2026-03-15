@@ -24,6 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -363,19 +364,19 @@ const HtmlPreviewPage = () => {
         </div>
         <div className="flex items-center gap-3">
           {/* Auto-update toggle */}
-          <div className="flex items-center gap-2">
-            <label
+          <Field className="w-auto items-center gap-2" orientation="horizontal">
+            <FieldLabel
               className="text-muted-foreground text-xs"
               htmlFor="auto-update"
             >
               Auto-update
-            </label>
+            </FieldLabel>
             <Switch
               checked={autoUpdate}
               id="auto-update"
               onCheckedChange={setAutoUpdate}
             />
-          </div>
+          </Field>
           {/* Examples dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -388,7 +389,7 @@ const HtmlPreviewPage = () => {
                   variant="outline"
                 >
                   <HugeiconsIcon
-                    className="mr-1.5"
+                    data-icon="inline-start"
                     icon={FileEditIcon}
                     size={14}
                   />

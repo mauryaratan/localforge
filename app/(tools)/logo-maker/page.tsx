@@ -19,8 +19,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -284,9 +284,9 @@ const LogoMakerPage = () => {
                 <CardContent className="flex flex-col gap-4 pt-4">
                   {/* Icon Type Selection */}
                   <div className="flex flex-col gap-2">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                    <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                       Type
-                    </Label>
+                    </FieldLabel>
                     <div className="flex gap-2">
                       <Button
                         aria-pressed={config.icon.type === "icon"}
@@ -338,9 +338,9 @@ const LogoMakerPage = () => {
                   {/* Icon Selection */}
                   {config.icon.type === "icon" && (
                     <div className="flex flex-col gap-2">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Select Icon
-                      </Label>
+                      </FieldLabel>
                       <ScrollArea className="h-48 rounded border">
                         <div className="grid grid-cols-8 gap-1 p-2">
                           {ALL_ICONS.map((iconName) => (
@@ -387,9 +387,9 @@ const LogoMakerPage = () => {
                   {/* Text Input */}
                   {config.icon.type === "text" && (
                     <div className="flex flex-col gap-2">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Text (max 3 chars)
-                      </Label>
+                      </FieldLabel>
                       <Input
                         aria-label="Logo text"
                         className="font-mono text-lg uppercase"
@@ -404,9 +404,9 @@ const LogoMakerPage = () => {
                   {/* Image Preview */}
                   {config.icon.type === "image" && (
                     <div className="flex flex-col gap-2">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Custom Image
-                      </Label>
+                      </FieldLabel>
                       {config.icon.value.startsWith("data:") ? (
                         <div className="flex items-center gap-3">
                           <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded border bg-muted">
@@ -460,9 +460,9 @@ const LogoMakerPage = () => {
 
                   {/* Icon Color */}
                   <div className="flex flex-col gap-2 border-t pt-4">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                    <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                       Icon Color
-                    </Label>
+                    </FieldLabel>
                     <div className="flex gap-2">
                       <input
                         aria-label="Icon fill color"
@@ -491,9 +491,9 @@ const LogoMakerPage = () => {
                   {/* Icon Opacity */}
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Opacity
-                      </Label>
+                      </FieldLabel>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         {config.icon.fillOpacity}%
                       </span>
@@ -524,9 +524,9 @@ const LogoMakerPage = () => {
                 <CardContent className="flex flex-col gap-4 pt-4">
                   {/* Background Type */}
                   <div className="flex flex-col gap-2">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                    <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                       Type
-                    </Label>
+                    </FieldLabel>
                     <div className="flex gap-2">
                       <Button
                         aria-pressed={config.background.type === "solid"}
@@ -559,11 +559,11 @@ const LogoMakerPage = () => {
 
                   {/* Color Presets */}
                   <div className="flex flex-col gap-2">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                    <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                       {config.background.type === "solid"
                         ? "Color Presets"
                         : "Gradient Presets"}
-                    </Label>
+                    </FieldLabel>
                     <div className="flex flex-wrap gap-1.5">
                       {config.background.type === "solid"
                         ? COLOR_PRESETS.map((preset) => (
@@ -611,11 +611,11 @@ const LogoMakerPage = () => {
 
                   {/* Background Color */}
                   <div className="flex flex-col gap-2">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                    <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                       {config.background.type === "gradient"
                         ? "Start Color"
                         : "Background Color"}
-                    </Label>
+                    </FieldLabel>
                     <div className="flex gap-2">
                       <input
                         aria-label="Background color"
@@ -644,9 +644,9 @@ const LogoMakerPage = () => {
                   {config.background.type === "gradient" && (
                     <>
                       <div className="flex flex-col gap-2">
-                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                        <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                           End Color
-                        </Label>
+                        </FieldLabel>
                         <div className="flex gap-2">
                           <input
                             aria-label="Gradient end color"
@@ -679,9 +679,9 @@ const LogoMakerPage = () => {
                       {/* Gradient Angle */}
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between">
-                          <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                          <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                             Angle
-                          </Label>
+                          </FieldLabel>
                           <span className="font-mono text-[10px] text-muted-foreground">
                             {config.background.gradientAngle || 135}°
                           </span>
@@ -707,9 +707,9 @@ const LogoMakerPage = () => {
                   {/* Corner Radius */}
                   <div className="flex flex-col gap-2 border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Corner Radius
-                      </Label>
+                      </FieldLabel>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         {config.background.radius}%
                       </span>
@@ -731,9 +731,9 @@ const LogoMakerPage = () => {
                   {/* Padding */}
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Padding
-                      </Label>
+                      </FieldLabel>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         {config.background.padding}%
                       </span>
@@ -755,9 +755,9 @@ const LogoMakerPage = () => {
                   {/* Inner Shadow */}
                   <div className="flex flex-col gap-3 border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Inner Shadow
-                      </Label>
+                      </FieldLabel>
                       <Switch
                         aria-label="Toggle inner shadow"
                         checked={config.background.innerShadow}
@@ -772,9 +772,9 @@ const LogoMakerPage = () => {
                       <>
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center justify-between">
-                            <Label className="text-muted-foreground text-xs">
+                            <FieldLabel className="text-muted-foreground text-xs">
                               Intensity
-                            </Label>
+                            </FieldLabel>
                             <span className="font-mono text-[10px] text-muted-foreground">
                               {config.background.innerShadowIntensity}%
                             </span>
@@ -796,9 +796,9 @@ const LogoMakerPage = () => {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <Label className="text-muted-foreground text-xs">
+                          <FieldLabel className="text-muted-foreground text-xs">
                             Shadow Color
-                          </Label>
+                          </FieldLabel>
                           <div className="flex gap-2">
                             <input
                               aria-label="Inner shadow color"
@@ -842,9 +842,9 @@ const LogoMakerPage = () => {
                   {/* Icon Size */}
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Size
-                      </Label>
+                      </FieldLabel>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         {config.icon.size}%
                       </span>
@@ -866,9 +866,9 @@ const LogoMakerPage = () => {
                   {/* Icon Rotation */}
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Rotation
-                      </Label>
+                      </FieldLabel>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         {config.icon.rotation}°
                       </span>
@@ -890,9 +890,9 @@ const LogoMakerPage = () => {
                   {/* Border Width */}
                   <div className="flex flex-col gap-2 border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Border Width
-                      </Label>
+                      </FieldLabel>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         {config.icon.borderWidth}px
                       </span>
@@ -914,9 +914,9 @@ const LogoMakerPage = () => {
                   {/* Border Color */}
                   {config.icon.borderWidth > 0 && (
                     <div className="flex flex-col gap-2">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">
+                      <FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
                         Border Color
-                      </Label>
+                      </FieldLabel>
                       <div className="flex gap-2">
                         <input
                           aria-label="Border color"
@@ -1001,9 +1001,9 @@ const LogoMakerPage = () => {
             {/* Export Options */}
             <div className="flex flex-col gap-2 border-t pt-3">
               <div className="flex items-center gap-2">
-                <Label className="shrink-0 text-[10px] text-muted-foreground uppercase tracking-wider">
+                <FieldLabel className="shrink-0 text-[10px] text-muted-foreground uppercase tracking-wider">
                   PNG
-                </Label>
+                </FieldLabel>
                 <Select
                   onValueChange={(v) => v && setExportSize(Number(v))}
                   value={String(exportSize)}
