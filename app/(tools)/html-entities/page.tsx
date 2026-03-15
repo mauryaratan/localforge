@@ -1,12 +1,9 @@
 "use client";
 
-import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Delete02Icon,
-} from "@hugeicons/core-free-icons";
+import { Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
+import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -252,29 +249,10 @@ const HTMLEntitiesPage = () => {
               </div>
 
               {/* Direction Indicator */}
-              <div className="hidden flex-col items-center justify-center gap-2 pt-8 lg:flex">
-                <div
-                  className={`rounded-sm p-2 transition-colors ${
-                    lastEdited === "decoded"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
-                </div>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  Auto
-                </span>
-                <div
-                  className={`rounded-sm p-2 transition-colors ${
-                    lastEdited === "encoded"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
-                </div>
-              </div>
+              <AutoDirectionIndicator
+                forwardActive={lastEdited === "decoded"}
+                reverseActive={lastEdited === "encoded"}
+              />
 
               {/* Encoded (HTML Entities) */}
               <div className="flex flex-col gap-2">

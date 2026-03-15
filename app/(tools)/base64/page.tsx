@@ -1,14 +1,10 @@
 "use client";
 
-import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Copy01Icon,
-  Delete02Icon,
-} from "@hugeicons/core-free-icons";
+import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -251,29 +247,10 @@ const Base64Page = () => {
               </div>
 
               {/* Direction Indicator */}
-              <div className="hidden flex-col items-center justify-center gap-2 pt-8 lg:flex">
-                <div
-                  className={`rounded-sm p-2 transition-colors ${
-                    lastEdited === "plain"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
-                </div>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  Auto
-                </span>
-                <div
-                  className={`rounded-sm p-2 transition-colors ${
-                    lastEdited === "encoded"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
-                </div>
-              </div>
+              <AutoDirectionIndicator
+                forwardActive={lastEdited === "plain"}
+                reverseActive={lastEdited === "encoded"}
+              />
 
               {/* Encoded (Base64) */}
               <div className="flex min-w-0 flex-col gap-2">
