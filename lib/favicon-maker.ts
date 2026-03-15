@@ -108,7 +108,7 @@ export const resizeImage = (
   ctx.imageSmoothingQuality = "high";
 
   ctx.drawImage(source, 0, 0, width, height);
-  return canvas;
+  return Promise.resolve(canvas);
 };
 
 /**

@@ -251,7 +251,7 @@ export const downloadQRCodeFromElement = (
   try {
     const canvas = element.querySelector("canvas");
     if (!canvas) {
-      return false;
+      return Promise.resolve(false);
     }
 
     const dataUrl = canvas.toDataURL("image/png");
@@ -261,9 +261,9 @@ export const downloadQRCodeFromElement = (
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    return true;
+    return Promise.resolve(true);
   } catch {
-    return false;
+    return Promise.resolve(false);
   }
 };
 

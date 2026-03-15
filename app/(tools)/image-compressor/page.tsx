@@ -438,7 +438,10 @@ export default function ImageCompressorPage() {
   }, [selectedJob, globalOptions.format]);
 
   const handleDownloadAll = useCallback(async () => {
-    const completed = jobs.filter((j) => j.result);
+    const completed = jobs.filter(
+      (job): job is ImageJob & { result: NonNullable<ImageJob["result"]> } =>
+        Boolean(job.result)
+    );
     if (completed.length === 0) {
       return;
     }
@@ -452,7 +455,7 @@ export default function ImageCompressorPage() {
     const ext = globalOptions.format === "png" ? ".png" : ".jpg";
     for (const job of completed) {
       const name = job.name.replace(FILE_EXTENSION_REGEX, ext);
-      zip.file(name, job.result?.blob);
+      zip.file(name, job.result.blob);
     }
     const blob = await zip.generateAsync({ type: "blob" });
     const a = document.createElement("a");
@@ -505,7 +508,9 @@ export default function ImageCompressorPage() {
 
   const job = selectedJob;
   const isCompressing = job.status === "compressing";
-  const hasResult = !!job.result;
+  const result = job.result;
+  const hasResult = Boolean(result);
+  const completedJobsCount = jobs.filter((item) => item.result).length;
 
   return (
     <>
@@ -572,7 +577,7 @@ export default function ImageCompressorPage() {
               />
 
               {/* Compressed image overlay (shows on left side of slider) */}
-              {hasResult && (
+              {result && (
                 <div
                   className="absolute inset-0 overflow-hidden"
                   style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
@@ -581,7 +586,7 @@ export default function ImageCompressorPage() {
                     alt="Compressed"
                     className="pointer-events-none block h-full w-full object-contain"
                     draggable={false}
-                    src={job.result?.url}
+                    src={result.url}
                   />
                 </div>
               )}
@@ -815,18 +820,18 @@ export default function ImageCompressorPage() {
             <span className="font-medium text-white">
               {formatBytes(job.size)}
             </span>
-            {hasResult && (
+            {result && (
               <>
                 <span className="mx-2 text-white/30">→</span>
                 <span className="text-white/50">Compressed</span>{" "}
                 <span className="font-medium text-white">
-                  {formatBytes(job.result?.size)}
+                  {formatBytes(result.size)}
                 </span>
                 <span
-                  className={`ml-2 font-medium ${job.result?.savings > 0 ? "text-green-400" : "text-red-400"}`}
+                  className={`ml-2 font-medium ${result.savings > 0 ? "text-green-400" : "text-red-400"}`}
                 >
-                  {job.result?.savings > 0 ? "-" : "+"}
-                  {Math.abs(job.result?.savings).toFixed(1)}%
+                  {result.savings > 0 ? "-" : "+"}
+                  {Math.abs(result.savings).toFixed(1)}%
                 </span>
               </>
             )}
@@ -836,14 +841,14 @@ export default function ImageCompressorPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            {jobs.length > 1 && jobs.filter((j) => j.result).length > 0 && (
+            {jobs.length > 1 && completedJobsCount > 0 && (
               <Button
                 className="cursor-pointer border-white/20 hover:bg-white/10 disabled:opacity-50"
                 disabled={isCompressing}
                 onClick={handleDownloadAll}
                 variant="outline"
               >
-                Download All ({jobs.filter((j) => j.result).length})
+                Download All ({completedJobsCount})
               </Button>
             )}
             <Button

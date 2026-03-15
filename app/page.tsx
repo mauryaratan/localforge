@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Download04Icon,
   FlashIcon,
@@ -100,7 +98,7 @@ export default function HomePage() {
         {/* Quick Access */}
         <div className="w-full space-y-4">
           <h2 className="text-center text-muted-foreground text-xs uppercase tracking-wider">
-            20+ Tools Available
+            {navItems.length} Tools Available
           </h2>
           <div className="flex flex-wrap justify-center gap-2">
             {navItems.slice(0, 8).map((item) => (
@@ -121,7 +119,7 @@ export default function HomePage() {
               className="flex items-center gap-1.5 rounded-md border border-border/50 border-dashed px-3 py-1.5 text-muted-foreground text-xs transition-colors hover:border-primary/50 hover:text-foreground"
               href="/json-formatter"
             >
-              +{navItems.length - 8} more
+              +{Math.max(navItems.length - 8, 0)} more
             </Link>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@/components/analytics";
@@ -12,66 +12,69 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { getSiteUrl, siteConfig } from "@/lib/site";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+  display: "swap",
 });
 
-const siteConfig = {
-  name: "LocalForge",
-  description:
-    "Privacy-first developer utilities that run entirely in your browser. Format JSON, encode/decode Base64, parse URLs, generate UUIDs, and more — your data never leaves your device.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://localforge.app",
+const siteUrl = getSiteUrl();
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  colorScheme: "light dark",
+  themeColor: [
+    {
+      media: "(prefers-color-scheme: light)",
+      color: siteConfig.themeColor.light,
+    },
+    {
+      media: "(prefers-color-scheme: dark)",
+      color: siteConfig.themeColor.dark,
+    },
+  ],
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(siteUrl),
+  applicationName: siteConfig.name,
   title: {
-    default: `${siteConfig.name} — Privacy-First Developer Utilities`,
+    default: siteConfig.title,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: [
-    "developer tools",
-    "localforge",
-    "json formatter",
-    "base64 encoder",
-    "url parser",
-    "uuid generator",
-    "regex tester",
-    "color converter",
-    "cron parser",
-    "offline tools",
-    "privacy tools",
-    "local-first",
-    "pwa",
-    "web tools",
-  ],
-  authors: [{ name: "LocalForge Contributors" }],
-  creator: "LocalForge Contributors",
+  keywords: [...siteConfig.keywords],
+  authors: [{ name: siteConfig.creator }],
+  creator: siteConfig.creator,
+  category: "developer tools",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: siteConfig.url,
-    title: `${siteConfig.name} — Privacy-First Developer Utilities`,
+    url: siteUrl,
+    title: siteConfig.title,
     description: siteConfig.description,
     siteName: siteConfig.name,
     images: [
       {
-        url: "/og.jpg",
+        url: siteConfig.ogImage,
         width: 1200,
         height: 630,
-        alt: `${siteConfig.name} — Privacy-First Developer Utilities`,
+        alt: siteConfig.title,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} — Privacy-First Developer Utilities`,
+    title: siteConfig.title,
     description: siteConfig.description,
-    creator: "@localforge",
-    images: ["/og.jpg"],
+    creator: siteConfig.xHandle,
+    images: [siteConfig.ogImage],
   },
   robots: {
     index: true,
