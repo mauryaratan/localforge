@@ -11,6 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { ExampleButton } from "@/components/example-button";
 
 // Dynamic import MarkdownRenderer to reduce initial bundle size
 // ReactMarkdown + remarkGfm add ~50KB gzipped to the bundle
@@ -320,6 +321,7 @@ const MarkdownPreviewPage = () => {
                   >
                 ).map((key) => (
                   <ExampleButton
+                    ariaLabel={`Load ${exampleLabels[key]}`}
                     key={key}
                     label={exampleLabels[key]}
                     onClick={() => handleLoadExample(key)}
@@ -374,26 +376,6 @@ const MarkdownPreviewPage = () => {
         </div>
       </div>
     </div>
-  );
-};
-
-interface ExampleButtonProps {
-  label: string;
-  onClick: () => void;
-}
-
-const ExampleButton = ({ label, onClick }: ExampleButtonProps) => {
-  return (
-    <Button
-      aria-label={`Load ${label}`}
-      className="cursor-pointer justify-start"
-      onClick={onClick}
-      size="sm"
-      tabIndex={0}
-      variant="outline"
-    >
-      {label}
-    </Button>
   );
 };
 

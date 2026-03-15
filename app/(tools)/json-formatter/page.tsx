@@ -14,6 +14,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { ExampleButton } from "@/components/example-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -702,26 +703,6 @@ const TreeNodeItem = ({ node, depth, onCopy }: TreeNodeItemProps) => {
         <TreeView depth={depth + 1} nodes={node.children} onCopy={onCopy} />
       )}
     </div>
-  );
-};
-
-interface ExampleButtonProps {
-  label: string;
-  onClick: () => void;
-}
-
-const ExampleButton = ({ label, onClick }: ExampleButtonProps) => {
-  return (
-    <Button
-      aria-label={`Load ${label} example`}
-      className="cursor-pointer justify-start"
-      onClick={onClick}
-      size="sm"
-      tabIndex={0}
-      variant="outline"
-    >
-      {label}
-    </Button>
   );
 };
 

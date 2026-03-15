@@ -10,6 +10,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { ExampleButton } from "@/components/example-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -363,27 +364,6 @@ const DetailRow = ({ label, value }: DetailRowProps) => {
       <span className="text-muted-foreground text-sm">{label}</span>
       <span className="font-mono text-sm">{value}</span>
     </div>
-  );
-};
-
-// Example Button Component
-interface ExampleButtonProps {
-  label: string;
-  onClick: () => void;
-}
-
-const ExampleButton = ({ label, onClick }: ExampleButtonProps) => {
-  return (
-    <Button
-      aria-label={`Load ${label} example`}
-      className="cursor-pointer justify-start"
-      onClick={onClick}
-      size="sm"
-      tabIndex={0}
-      variant="outline"
-    >
-      {label}
-    </Button>
   );
 };
 

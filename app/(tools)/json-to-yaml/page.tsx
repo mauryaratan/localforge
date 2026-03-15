@@ -10,6 +10,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useState } from "react";
+import { ExampleButton } from "@/components/example-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -387,26 +388,6 @@ const CopyButton = ({
       </TooltipTrigger>
       <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
     </Tooltip>
-  );
-};
-
-interface ExampleButtonProps {
-  label: string;
-  onClick: () => void;
-}
-
-const ExampleButton = ({ label, onClick }: ExampleButtonProps) => {
-  return (
-    <Button
-      aria-label={`Load ${label} example`}
-      className="cursor-pointer justify-start"
-      onClick={onClick}
-      size="sm"
-      tabIndex={0}
-      variant="outline"
-    >
-      {label}
-    </Button>
   );
 };
 
