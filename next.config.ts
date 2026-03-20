@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
     // @hugeicons has thousands of re-exports that cause 200-800ms import cost
     // This transforms barrel imports to direct imports at build time
     optimizePackageImports: ["@hugeicons/core-free-icons", "@hugeicons/react"],
+    // This app has many small App Router routes; inline prefetches cut request fan-out.
+    prefetchInlining: true,
   },
 };
 

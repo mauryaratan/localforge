@@ -107,10 +107,12 @@ export const validateHtml = (html: string): HtmlValidationResult => {
 
   // Find all tags
   const tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9]*)[^>]*\/?>/g;
-  let match: RegExpExecArray | null = null;
+  while (true) {
+    const match = tagRegex.exec(html);
+    if (!match) {
+      break;
+    }
 
-  match = tagRegex.exec(html);
-  while (match !== null) {
     const fullTag = match[0];
     const tagName = match[1].toLowerCase();
 
@@ -135,8 +137,6 @@ export const validateHtml = (html: string): HtmlValidationResult => {
       // Opening tag
       openingTags.push(tagName);
     }
-
-    match = tagRegex.exec(html);
   }
 
   // Unclosed tags

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ErrorInfo } from "next/error";
 import Link from "next/link";
 import { useEffect } from "react";
 import { buttonVariants } from "@/components/ui/button";
@@ -7,11 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function RouteError({
   error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+  unstable_retry: unstableRetry,
+}: ErrorInfo) {
+  const errorDigest =
+    "digest" in error && typeof error.digest === "string"
+      ? error.digest
+      : undefined;
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -30,15 +33,15 @@ export default function RouteError({
           </p>
         </CardHeader>
         <CardContent className="flex flex-col gap-4 pt-6">
-          {error.digest ? (
+          {errorDigest ? (
             <p className="font-mono text-[11px] text-muted-foreground">
-              Digest: {error.digest}
+              Digest: {errorDigest}
             </p>
           ) : null}
           <div className="flex flex-wrap gap-2">
             <button
               className={buttonVariants()}
-              onClick={() => reset()}
+              onClick={() => unstableRetry()}
               type="button"
             >
               Try Again
