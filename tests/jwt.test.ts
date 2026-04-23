@@ -102,12 +102,28 @@ describe("decodeJWT", () => {
     expect(result.error).toContain("Invalid header");
   });
 
+  it("should return error for non-object header JSON", () => {
+    const invalidHeader = base64UrlEncode("[]");
+    const validPayload = base64UrlEncode('{"sub":"test"}');
+    const result = decodeJWT(`${invalidHeader}.${validPayload}.signature`);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("must be a JSON object");
+  });
+
   it("should return error for invalid payload JSON", () => {
     const validHeader = base64UrlEncode('{"alg":"HS256","typ":"JWT"}');
     const invalidPayload = base64UrlEncode("not-json");
     const result = decodeJWT(`${validHeader}.${invalidPayload}.signature`);
     expect(result.success).toBe(false);
     expect(result.error).toContain("Invalid payload");
+  });
+
+  it("should return error for non-object payload JSON", () => {
+    const validHeader = base64UrlEncode('{"alg":"HS256","typ":"JWT"}');
+    const invalidPayload = base64UrlEncode("[]");
+    const result = decodeJWT(`${validHeader}.${invalidPayload}.signature`);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("must be a JSON object");
   });
 
   it("should preserve raw parts", () => {

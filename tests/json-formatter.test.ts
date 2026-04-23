@@ -203,6 +203,17 @@ describe("queryJsonPath", () => {
     expect(filtered.every((p) => p.price < 100)).toBe(true);
   });
 
+  it("should filter array elements with inclusive comparison", () => {
+    const result = queryJsonPath(testJson, "$.products[?(@.price<=79)]");
+    expect(result.success).toBe(true);
+    const filtered = result.result as {
+      id: number;
+      name: string;
+      price: number;
+    }[];
+    expect(filtered.map((p) => p.name)).toEqual(["Mouse", "Keyboard"]);
+  });
+
   it("should filter array elements with equality", () => {
     const result = queryJsonPath(testJson, '$.products[?(@.name=="Laptop")]');
     expect(result.success).toBe(true);
@@ -225,6 +236,12 @@ describe("queryJsonPath", () => {
     const result = queryJsonPath("{invalid}", "$.test");
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
+  });
+
+  it("should return error for invalid JSONPath syntax", () => {
+    const result = queryJsonPath(testJson, "$.products[");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Invalid JSONPath");
   });
 
   it("should handle empty path query", () => {

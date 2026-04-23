@@ -27,37 +27,7 @@ const HEX_HASH_REGEX = /^[a-f0-9]+$/i;
  * Pure JavaScript implementation for client-side use
  */
 const md5 = (input: string): string => {
-  const utf8Encode = (str: string): number[] => {
-    const bytes: number[] = [];
-    for (let i = 0; i < str.length; i++) {
-      let charCode = str.charCodeAt(i);
-      if (charCode < 0x80) {
-        bytes.push(charCode);
-      } else if (charCode < 0x8_00) {
-        bytes.push(0xc0 | (charCode >> 6), 0x80 | (charCode & 0x3f));
-      } else if (charCode < 0xd8_00 || charCode >= 0xe0_00) {
-        bytes.push(
-          0xe0 | (charCode >> 12),
-          0x80 | ((charCode >> 6) & 0x3f),
-          0x80 | (charCode & 0x3f)
-        );
-      } else {
-        i++;
-        charCode =
-          0x1_00_00 +
-          (((charCode & 0x3_ff) << 10) | (str.charCodeAt(i) & 0x3_ff));
-        bytes.push(
-          0xf0 | (charCode >> 18),
-          0x80 | ((charCode >> 12) & 0x3f),
-          0x80 | ((charCode >> 6) & 0x3f),
-          0x80 | (charCode & 0x3f)
-        );
-      }
-    }
-    return bytes;
-  };
-
-  const bytes = utf8Encode(input);
+  const bytes = Array.from(new TextEncoder().encode(input));
   const len = bytes.length;
 
   // Initialize hash values

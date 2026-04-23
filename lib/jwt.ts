@@ -39,6 +39,9 @@ export const STANDARD_CLAIMS: Record<string, string> = {
 
 const BASE64_URL_PADDING_REGEX = /=+$/;
 
+const isJsonObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 export const base64UrlEncode = (input: string): string => {
   const utf8Bytes = new TextEncoder().encode(input);
   const binaryString = Array.from(utf8Bytes, (byte) =>
@@ -96,6 +99,13 @@ export const decodeJWT = (token: string): JWTResult<JWTDecoded> => {
         error: "Invalid header: not valid JSON",
       };
     }
+    if (!isJsonObject(header)) {
+      return {
+        success: false,
+        data: {} as JWTDecoded,
+        error: "Invalid header: must be a JSON object",
+      };
+    }
 
     try {
       payload = JSON.parse(payloadJson);
@@ -104,6 +114,13 @@ export const decodeJWT = (token: string): JWTResult<JWTDecoded> => {
         success: false,
         data: {} as JWTDecoded,
         error: "Invalid payload: not valid JSON",
+      };
+    }
+    if (!isJsonObject(payload)) {
+      return {
+        success: false,
+        data: {} as JWTDecoded,
+        error: "Invalid payload: must be a JSON object",
       };
     }
 

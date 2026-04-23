@@ -138,6 +138,13 @@ describe("formatDate", () => {
     expect(result.weekNumber).toBeGreaterThanOrEqual(1);
     expect(result.weekNumber).toBeLessThanOrEqual(53);
   });
+
+  it("should calculate UTC day and week from UTC calendar fields", () => {
+    const result = formatDate(new Date("2024-12-31T23:30:00Z"), "utc");
+    expect(result.year).toBe(2024);
+    expect(result.dayOfYear).toBe(366);
+    expect(result.weekNumber).toBe(1);
+  });
 });
 
 describe("getRelativeTime", () => {

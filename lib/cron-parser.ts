@@ -82,6 +82,7 @@ const DAY_NAMES = [
 ];
 
 const WHITESPACE_REGEX = /\s+/;
+const INTEGER_REGEX = /^\d+$/;
 
 /**
  * Convert named values to numbers (e.g., JAN -> 1, MON -> 1)
@@ -101,6 +102,13 @@ const convertNamedValue = (value: string, config: FieldConfig): string => {
   return value;
 };
 
+const parseFieldNumber = (value: string, config: FieldConfig): number => {
+  const converted = convertNamedValue(value.trim(), config);
+  return INTEGER_REGEX.test(converted)
+    ? Number.parseInt(converted, 10)
+    : Number.NaN;
+};
+
 /**
  * Parse a single cron field value and validate it
  */
@@ -110,6 +118,23 @@ const parseFieldValue = (
 ): { values: number[]; error?: string } => {
   const values: number[] = [];
   const parts = value.split(",");
+  const validateRange = (
+    start: number,
+    end: number,
+    source: string
+  ): string | undefined => {
+    if (start > end) {
+      return `Invalid range: start (${start}) > end (${end})`;
+    }
+    if (
+      start < config.min ||
+      start > config.max ||
+      end < config.min ||
+      end > config.max
+    ) {
+      return `Range ${source} out of range (${config.min}-${config.max})`;
+    }
+  };
 
   for (const part of parts) {
     const trimmed = part.trim();
@@ -125,7 +150,9 @@ const parseFieldValue = (
     // Handle step values (*/n or start-end/n)
     if (trimmed.includes("/")) {
       const [range, stepStr] = trimmed.split("/");
-      const step = Number.parseInt(stepStr, 10);
+      const step = INTEGER_REGEX.test(stepStr)
+        ? Number.parseInt(stepStr, 10)
+        : Number.NaN;
 
       if (Number.isNaN(step) || step <= 0) {
         return { values: [], error: `Invalid step value: ${stepStr}` };
@@ -138,16 +165,21 @@ const parseFieldValue = (
         if (range.includes("-")) {
           const [s, e] = range
             .split("-")
-            .map((v) => Number.parseInt(convertNamedValue(v, config), 10));
+            .map((v) => parseFieldNumber(v, config));
           start = s;
           end = e;
         } else {
-          start = Number.parseInt(convertNamedValue(range, config), 10);
+          start = parseFieldNumber(range, config);
         }
       }
 
       if (Number.isNaN(start) || Number.isNaN(end)) {
         return { values: [], error: `Invalid range: ${range}` };
+      }
+
+      const rangeError = validateRange(start, end, range);
+      if (rangeError) {
+        return { values: [], error: rangeError };
       }
 
       for (let i = start; i <= end; i += step) {
@@ -159,18 +191,16 @@ const parseFieldValue = (
     // Handle range (n-m)
     if (trimmed.includes("-")) {
       const [startStr, endStr] = trimmed.split("-");
-      const start = Number.parseInt(convertNamedValue(startStr, config), 10);
-      const end = Number.parseInt(convertNamedValue(endStr, config), 10);
+      const start = parseFieldNumber(startStr, config);
+      const end = parseFieldNumber(endStr, config);
 
       if (Number.isNaN(start) || Number.isNaN(end)) {
         return { values: [], error: `Invalid range: ${trimmed}` };
       }
 
-      if (start > end) {
-        return {
-          values: [],
-          error: `Invalid range: start (${start}) > end (${end})`,
-        };
+      const rangeError = validateRange(start, end, trimmed);
+      if (rangeError) {
+        return { values: [], error: rangeError };
       }
 
       for (let i = start; i <= end; i++) {
@@ -180,7 +210,7 @@ const parseFieldValue = (
     }
 
     // Handle single value
-    const num = Number.parseInt(convertNamedValue(trimmed, config), 10);
+    const num = parseFieldNumber(trimmed, config);
     if (Number.isNaN(num)) {
       return { values: [], error: `Invalid value: ${trimmed}` };
     }
@@ -351,6 +381,10 @@ const calculateNextRuns = (fields: CronField[], count = 5): Date[] => {
     fields[4].value,
     FIELD_CONFIGS[4]
   ).values;
+  const dayOfMonthRestricted =
+    dayOfMonthVals.length !== FIELD_CONFIGS[2].max - FIELD_CONFIGS[2].min + 1;
+  const dayOfWeekRestricted =
+    dayOfWeekVals.length !== FIELD_CONFIGS[4].max - FIELD_CONFIGS[4].min + 1;
 
   const matchesCron = (date: Date): boolean => {
     const minute = date.getMinutes();
@@ -359,11 +393,23 @@ const calculateNextRuns = (fields: CronField[], count = 5): Date[] => {
     const month = date.getMonth() + 1;
     const dayOfWeek = date.getDay();
 
+    const dayOfMonthMatches = dayOfMonthVals.includes(dayOfMonth);
+    const dayOfWeekMatches = dayOfWeekVals.includes(dayOfWeek);
+    let dayMatches = true;
+
+    if (dayOfMonthRestricted && dayOfWeekRestricted) {
+      dayMatches = dayOfMonthMatches || dayOfWeekMatches;
+    } else if (dayOfMonthRestricted) {
+      dayMatches = dayOfMonthMatches;
+    } else if (dayOfWeekRestricted) {
+      dayMatches = dayOfWeekMatches;
+    }
+
     return (
       minuteVals.includes(minute) &&
       hourVals.includes(hour) &&
       monthVals.includes(month) &&
-      (dayOfMonthVals.includes(dayOfMonth) || dayOfWeekVals.includes(dayOfWeek))
+      dayMatches
     );
   };
 

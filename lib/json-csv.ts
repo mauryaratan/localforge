@@ -36,8 +36,6 @@ const DEFAULT_CSV_TO_JSON_OPTIONS: CsvToJsonOptions = {
   hasHeader: true,
 };
 
-const CSV_LINE_SPLIT_REGEX = /\r?\n/;
-
 /**
  * Validates JSON string and returns parsed result
  */
@@ -127,39 +125,48 @@ const escapeCsvValue = (value: unknown, delimiter: string): string => {
 };
 
 /**
- * Parses a CSV line respecting quoted values
+ * Parses CSV into rows while preserving quoted line breaks.
  */
-const parseCsvLine = (line: string, delimiter: string): string[] => {
-  const result: string[] = [];
+const parseCsvRows = (csvString: string, delimiter: string): string[][] => {
+  const rows: string[][] = [];
+  let row: string[] = [];
   let current = "";
   let inQuotes = false;
   let i = 0;
 
-  while (i < line.length) {
-    const char = line[i];
-    const nextChar = line[i + 1];
+  while (i < csvString.length) {
+    const char = csvString[i];
+    const nextChar = csvString[i + 1];
 
     if (inQuotes) {
       if (char === '"' && nextChar === '"') {
-        // Escaped quote
         current += '"';
         i += 2;
       } else if (char === '"') {
-        // End of quoted field
         inQuotes = false;
         i++;
       } else {
         current += char;
         i++;
       }
-    } else if (char === '"') {
-      // Start of quoted field
+      continue;
+    }
+
+    if (char === '"') {
       inQuotes = true;
       i++;
     } else if (char === delimiter) {
-      // End of field
-      result.push(current);
+      row.push(current);
       current = "";
+      i++;
+    } else if (char === "\r" || char === "\n") {
+      row.push(current);
+      rows.push(row);
+      row = [];
+      current = "";
+      if (char === "\r" && nextChar === "\n") {
+        i++;
+      }
       i++;
     } else {
       current += char;
@@ -167,10 +174,10 @@ const parseCsvLine = (line: string, delimiter: string): string[] => {
     }
   }
 
-  // Don't forget the last field
-  result.push(current);
+  row.push(current);
+  rows.push(row);
 
-  return result;
+  return rows;
 };
 
 /**
@@ -280,9 +287,9 @@ export const csvToJson = (
   }
 
   try {
-    const lines = csvString.trim().split(CSV_LINE_SPLIT_REGEX);
+    const rows = parseCsvRows(csvString.trim(), opts.delimiter);
 
-    if (lines.length === 0) {
+    if (rows.length === 0) {
       return { success: false, output: "", error: "CSV is empty" };
     }
 
@@ -290,31 +297,30 @@ export const csvToJson = (
     let dataStartIndex: number;
 
     if (opts.hasHeader) {
-      if (lines.length < 2) {
+      if (rows.length < 2) {
         return {
           success: false,
           output: "",
           error: "CSV must have at least a header row and one data row",
         };
       }
-      headers = parseCsvLine(lines[0], opts.delimiter);
+      headers = rows[0];
       dataStartIndex = 1;
     } else {
       // Generate column names
-      const firstRow = parseCsvLine(lines[0], opts.delimiter);
+      const firstRow = rows[0];
       headers = firstRow.map((_, i) => `column${i + 1}`);
       dataStartIndex = 0;
     }
 
     const result: Record<string, unknown>[] = [];
 
-    for (let i = dataStartIndex; i < lines.length; i++) {
-      const line = lines[i];
-      if (!line.trim()) {
+    for (let i = dataStartIndex; i < rows.length; i++) {
+      const values = rows[i];
+      if (values.every((value) => !value.trim())) {
         continue; // Skip empty lines
       }
 
-      const values = parseCsvLine(line, opts.delimiter);
       const obj: Record<string, unknown> = {};
 
       for (let j = 0; j < headers.length; j++) {
@@ -386,14 +392,12 @@ const parseValue = (value: string): unknown => {
  * Detects the delimiter used in a CSV string
  */
 export const detectDelimiter = (csvString: string): string => {
-  const firstLine = csvString.split("\n")[0] || "";
   const delimiters = [",", ";", "\t", "|"];
   let maxCount = 0;
   let detected = ",";
 
   for (const delimiter of delimiters) {
-    const count = (firstLine.match(new RegExp(`\\${delimiter}`, "g")) || [])
-      .length;
+    const count = Math.max(parseCsvRows(csvString, delimiter)[0].length - 1, 0);
     if (count > maxCount) {
       maxCount = count;
       detected = delimiter;
@@ -414,11 +418,11 @@ export const getCsvStats = (
     return null;
   }
 
-  const lines = csvString.trim().split(CSV_LINE_SPLIT_REGEX);
-  const firstLine = parseCsvLine(lines[0], delimiter);
+  const rows = parseCsvRows(csvString.trim(), delimiter);
+  const firstLine = rows[0];
 
   return {
-    rows: lines.length,
+    rows: rows.filter((row) => row.some((value) => value.trim())).length,
     columns: firstLine.length,
   };
 };

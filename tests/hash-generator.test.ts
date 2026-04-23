@@ -31,6 +31,12 @@ describe("generateHash - MD5", () => {
     expect(result.hash).toBe("07117fe4a1ebd544965dc19573183da2");
   });
 
+  it("should hash lone surrogate input like TextEncoder", async () => {
+    const result = await generateHash("\uD800", "MD5");
+    expect(result.success).toBe(true);
+    expect(result.hash).toBe("9b759040321a408a5c7768b4511287a6");
+  });
+
   it("should produce 32-character hash", async () => {
     const result = await generateHash("test", "MD5");
     expect(result.hash.length).toBe(32);

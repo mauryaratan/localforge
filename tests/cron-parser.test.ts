@@ -35,6 +35,12 @@ describe("parseCron", () => {
       expect(result.error).toContain("out of range");
     });
 
+    it("should return error for values with junk suffixes", () => {
+      const result = parseCron("5abc * * * *");
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain("Invalid value");
+    });
+
     it("should return error for invalid hour value", () => {
       const result = parseCron("* 25 * * *");
       expect(result.isValid).toBe(false);
@@ -126,6 +132,18 @@ describe("parseCron", () => {
       const result = parseCron("5-3 * * * *");
       expect(result.isValid).toBe(false);
       expect(result.error).toContain("start");
+    });
+
+    it("should return error for out-of-range stepped range", () => {
+      const result = parseCron("0-99/5 * * * *");
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain("out of range");
+    });
+
+    it("should return error for step values with junk suffixes", () => {
+      const result = parseCron("*/5x * * * *");
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain("Invalid step");
     });
   });
 
@@ -233,6 +251,18 @@ describe("parseCron", () => {
       expect(result.nextRuns).toHaveLength(5);
       expect(result.nextRuns[0].getHours()).toBe(12);
       expect(result.nextRuns[0].getMinutes()).toBe(0);
+    });
+
+    it("should honor day-of-month when day-of-week is unrestricted", () => {
+      const result = parseCron("0 0 1 * *");
+      expect(result.nextRuns).toHaveLength(5);
+      expect(result.nextRuns[0].getDate()).toBe(1);
+    });
+
+    it("should honor day-of-week when day-of-month is unrestricted", () => {
+      const result = parseCron("0 0 * * 0");
+      expect(result.nextRuns).toHaveLength(5);
+      expect(result.nextRuns[0].getDay()).toBe(0);
     });
 
     it("should return empty array for invalid expression", () => {

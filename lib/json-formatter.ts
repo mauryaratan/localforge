@@ -37,7 +37,7 @@ const FILTER_REGEX = /^\[\?\(([^)]+)\)\]/;
 const WILDCARD_REGEX = /^\[\*\]/;
 const BRACKET_REGEX = /^\[(\d+|"[^"]+"|'[^']+')\]/;
 const KEY_REGEX = /^([^.[\]]+)/;
-const FILTER_EXPRESSION_REGEX = /@\.(\w+)\s*(==|!=|<|>|<=|>=)\s*(.+)/;
+const FILTER_EXPRESSION_REGEX = /@\.(\w+)\s*(==|!=|<=|>=|<|>)\s*(.+)/;
 
 /**
  * Helper to calculate match count without nested ternary
@@ -368,7 +368,7 @@ const parsePathSegments = (path: string): PathSegment[] => {
       continue;
     }
 
-    break;
+    throw new Error(`Invalid JSONPath near: ${remaining}`);
   }
 
   return segments;

@@ -303,16 +303,12 @@ describe("csvToJson", () => {
   });
 
   it("should handle newlines in quoted values", () => {
-    // Note: The CSV parser splits by newline first, so embedded newlines
-    // in quoted values need special handling. For simplicity, the current
-    // implementation handles most common cases but not embedded newlines.
-    // This test verifies the basic quoted value handling works.
-    const csv = 'name,text\nJohn,"Text with spaces"';
+    const csv = 'name,text\nJohn,"Line 1\nLine 2"';
     const result = csvToJson(csv);
 
     expect(result.success).toBe(true);
     const parsed = JSON.parse(result.output);
-    expect(parsed[0].text).toBe("Text with spaces");
+    expect(parsed[0].text).toBe("Line 1\nLine 2");
   });
 
   it("should parse JSON arrays in cells", () => {
@@ -340,6 +336,18 @@ describe("csvToJson", () => {
     expect(result.success).toBe(true);
     const parsed = JSON.parse(result.output);
     expect(parsed).toHaveLength(2);
+  });
+
+  it("should keep row counts stable with quoted line breaks", () => {
+    const csv = 'name,note\nJohn,"hello\nworld"\nJane,done';
+    const result = csvToJson(csv);
+
+    expect(result.success).toBe(true);
+    expect(result.rowCount).toBe(2);
+    expect(JSON.parse(result.output)[1]).toEqual({
+      name: "Jane",
+      note: "done",
+    });
   });
 
   it("should return error for empty input", () => {
@@ -381,6 +389,11 @@ describe("detectDelimiter", () => {
     expect(detectDelimiter(csv)).toBe("|");
   });
 
+  it("should ignore delimiters inside quoted values", () => {
+    const csv = '"Doe, John";30\n"Smith, Jane";25';
+    expect(detectDelimiter(csv)).toBe(";");
+  });
+
   it("should default to comma for ambiguous input", () => {
     const csv = "name";
     expect(detectDelimiter(csv)).toBe(",");
@@ -405,6 +418,13 @@ describe("getCsvStats", () => {
     const stats = getCsvStats(csv, ";");
 
     expect(stats).toEqual({ rows: 2, columns: 3 });
+  });
+
+  it("should count quoted line breaks as part of one row", () => {
+    expect(getCsvStats('name,note\nJohn,"hello\nworld"')).toEqual({
+      rows: 2,
+      columns: 2,
+    });
   });
 });
 

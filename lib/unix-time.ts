@@ -146,19 +146,30 @@ export const getCurrentTimestamps = () => {
 /**
  * Get day of year (1-366)
  */
-const getDayOfYear = (date: Date): number => {
-  const start = new Date(date.getFullYear(), 0, 0);
-  const diff = date.getTime() - start.getTime();
-  const oneDay = 1000 * 60 * 60 * 24;
-  return Math.floor(diff / oneDay);
+const getDayOfYear = (date: Date, timezone: TimezoneMode = "local"): number => {
+  const isUtc = timezone === "utc";
+  const year = isUtc ? date.getUTCFullYear() : date.getFullYear();
+  const month = isUtc ? date.getUTCMonth() : date.getMonth();
+  const day = isUtc ? date.getUTCDate() : date.getDate();
+  const start = Date.UTC(year, 0, 0);
+  const current = Date.UTC(year, month, day);
+  return Math.floor((current - start) / 86_400_000);
 };
 
 /**
  * Get ISO week number (1-53)
  */
-const getWeekNumber = (date: Date): number => {
+const getWeekNumber = (
+  date: Date,
+  timezone: TimezoneMode = "local"
+): number => {
+  const isUtc = timezone === "utc";
   const d = new Date(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    Date.UTC(
+      isUtc ? date.getUTCFullYear() : date.getFullYear(),
+      isUtc ? date.getUTCMonth() : date.getMonth(),
+      isUtc ? date.getUTCDate() : date.getDate()
+    )
   );
   const dayNum = d.getUTCDay() || 7;
   d.setUTCDate(d.getUTCDate() + 4 - dayNum);
@@ -272,8 +283,8 @@ export const formatDate = (
     second,
     millisecond,
     dayOfWeek: dayNames[dayIndex],
-    dayOfYear: getDayOfYear(date),
-    weekNumber: getWeekNumber(date),
+    dayOfYear: getDayOfYear(date, timezone),
+    weekNumber: getWeekNumber(date, timezone),
   };
 };
 
