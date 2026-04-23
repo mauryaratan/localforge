@@ -118,6 +118,23 @@ describe("parseColor", () => {
     expect(parseColor("hsl(120, 50)").isValid).toBe(false);
   });
 
+  it("should reject partial RGB/HSL matches with trailing input", () => {
+    expect(parseColor("rgb(1, 2, 3) nope").isValid).toBe(false);
+    expect(parseColor("hsl(120, 50%, 50%) nope").isValid).toBe(false);
+  });
+
+  it("should reject malformed alpha values", () => {
+    expect(parseColor("rgba(1, 2, 3, 0.5.3)").isValid).toBe(false);
+    expect(parseColor("hsla(120, 50%, 50%, .)").isValid).toBe(false);
+  });
+
+  it("should normalize negative HSL hue values", () => {
+    const result = parseColor("hsl(-120, 100%, 50%)");
+
+    expect(result.isValid).toBe(true);
+    expect(result.formats?.hsl.h).toBe(240);
+  });
+
   it("should clamp RGB values above 255", () => {
     const result = parseColor("rgb(300, 50, 128)");
 

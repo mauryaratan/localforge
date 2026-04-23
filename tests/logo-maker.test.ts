@@ -368,5 +368,19 @@ describe("logo-maker", () => {
       expect(svg).toContain("<image");
       expect(svg).toContain("data:image/png;base64,abc123");
     });
+
+    it("should escape image href attributes", () => {
+      const config: LogoConfig = {
+        ...DEFAULT_LOGO_CONFIG,
+        icon: {
+          ...DEFAULT_ICON_CONFIG,
+          type: "image",
+          value: `data:image/svg+xml," onload="alert(1)`,
+        },
+      };
+      const svg = generateLogoSVG(config);
+      expect(svg).toContain("&quot; onload=&quot;");
+      expect(svg).not.toContain(`href="data:image/svg+xml," onload="`);
+    });
   });
 });

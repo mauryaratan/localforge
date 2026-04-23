@@ -71,6 +71,19 @@ describe("formatQRContent", () => {
     expect(result).toBe("WIFI:T:WPA;S:HiddenNet;P:pass;H:true;;");
   });
 
+  it("should escape reserved WiFi field characters", () => {
+    const result = formatQRContent("Cafe;Guest", "wifi", {
+      ssid: "Cafe;Guest",
+      password: String.raw`pa:ss,word\1`,
+      encryption: "WPA",
+      hidden: false,
+    });
+
+    expect(result).toBe(
+      String.raw`WIFI:T:WPA;S:Cafe\;Guest;P:pa\:ss\,word\\1;H:false;;`
+    );
+  });
+
   it("should format email as mailto: link", () => {
     expect(formatQRContent("test@example.com", "email")).toBe(
       "mailto:test@example.com"
@@ -188,6 +201,18 @@ describe("parseWiFiData", () => {
       ssid: "JustSSID",
       password: "",
       encryption: "WPA", // defaults to WPA when not specified
+      hidden: false,
+    });
+  });
+
+  it("should parse escaped WiFi field characters", () => {
+    const result = parseWiFiData(
+      String.raw`WIFI:T:WPA;S:Cafe\;Guest;P:pa\:ss\,word\\1;H:false;;`
+    );
+    expect(result).toEqual({
+      ssid: "Cafe;Guest",
+      password: String.raw`pa:ss,word\1`,
+      encryption: "WPA",
       hidden: false,
     });
   });

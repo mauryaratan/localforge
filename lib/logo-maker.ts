@@ -355,7 +355,7 @@ export const generateLogoSVG = (config: LogoConfig): string => {
     iconElement = `
       <g transform="translate(${iconCenterX}, ${iconCenterY}) rotate(${icon.rotation}) translate(${-iconCenterX}, ${-iconCenterY})">
         <image 
-          href="${icon.value}" 
+          href="${escapeXml(icon.value)}"
           x="${iconOffset}" 
           y="${iconOffset}" 
           width="${iconSize}" 
@@ -384,14 +384,13 @@ export const generateLogoSVG = (config: LogoConfig): string => {
 /**
  * Escape XML special characters
  */
-const escapeXml = (text: string): string => {
-  return text
+const escapeXml = (text: string): string =>
+  text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
-};
 
 /**
  * Converts SVG to PNG data URL at specified size
@@ -399,8 +398,8 @@ const escapeXml = (text: string): string => {
 export const svgToPng = (
   svgString: string,
   outputSize: number
-): Promise<string> => {
-  return new Promise((resolve, reject) => {
+): Promise<string> =>
+  new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
     canvas.width = outputSize;
     canvas.height = outputSize;
@@ -430,7 +429,6 @@ export const svgToPng = (
 
     img.src = url;
   });
-};
 
 /**
  * Downloads a file from a data URL
@@ -469,21 +467,19 @@ export const downloadPNG = async (
 /**
  * Validates hex color
  */
-export const isValidHexColor = (color: string): boolean => {
-  return HEX_COLOR_REGEX.test(color);
-};
+export const isValidHexColor = (color: string): boolean =>
+  HEX_COLOR_REGEX.test(color);
 
 /**
  * Converts image file to data URL
  */
-export const imageToDataUrl = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
+export const imageToDataUrl = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-};
 
 /**
  * Checks if file is a valid image

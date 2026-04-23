@@ -86,6 +86,49 @@ export interface QRReadResult {
   success: boolean;
 }
 
+const escapeWiFiValue = (value: string): string =>
+  value.replace(/([\\;,:"])/g, "\\$1");
+
+const parseWiFiFields = (data: string): Record<string, string> => {
+  const params: Record<string, string> = {};
+  const payload = data.slice(5);
+  let index = 0;
+
+  while (index < payload.length) {
+    const key = payload[index];
+    if (!["T", "S", "P", "H"].includes(key) || payload[index + 1] !== ":") {
+      index++;
+      continue;
+    }
+
+    index += 2;
+    let value = "";
+    while (index < payload.length) {
+      const char = payload[index];
+      if (char === "\\") {
+        if (index + 1 < payload.length) {
+          value += payload[index + 1];
+          index += 2;
+          continue;
+        }
+        value += char;
+        index++;
+        continue;
+      }
+      if (char === ";") {
+        index++;
+        break;
+      }
+      value += char;
+      index++;
+    }
+
+    params[key] = value;
+  }
+
+  return params;
+};
+
 /**
  * Format content based on type for QR code encoding
  */
@@ -119,7 +162,7 @@ export const formatQRContent = (
       const password = metadata?.password || "";
       const encryption = metadata?.encryption || "WPA";
       const hidden = metadata?.hidden ? "true" : "false";
-      return `WIFI:T:${encryption};S:${ssid};P:${password};H:${hidden};;`;
+      return `WIFI:T:${escapeWiFiValue(encryption)};S:${escapeWiFiValue(ssid)};P:${escapeWiFiValue(password)};H:${hidden};;`;
     }
 
     case "email": {
@@ -307,15 +350,7 @@ export const parseWiFiData = (
     return null;
   }
 
-  const params: Record<string, string> = {};
-  const regex = /([TSPH]):([^;]*)/g;
-  let match: RegExpExecArray | null;
-
-  match = regex.exec(data);
-  while (match !== null) {
-    params[match[1]] = match[2];
-    match = regex.exec(data);
-  }
+  const params = parseWiFiFields(data);
 
   return {
     ssid: params.S || "",
@@ -328,8 +363,8 @@ export const parseWiFiData = (
 /**
  * Read QR code from image file
  */
-export const readQRCodeFromFile = (file: File): Promise<QRReadResult> => {
-  return new Promise((resolve) => {
+export const readQRCodeFromFile = (file: File): Promise<QRReadResult> =>
+  new Promise((resolve) => {
     const reader = new FileReader();
 
     reader.onload = () => {
@@ -390,26 +425,23 @@ export const readQRCodeFromFile = (file: File): Promise<QRReadResult> => {
 
     reader.readAsDataURL(file);
   });
-};
 
 /**
  * Convert file to data URL for logo
  */
-export const fileToDataUrl = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
+export const fileToDataUrl = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-};
 
 /**
  * Validate hex color
  */
-export const isValidHexColor = (color: string): boolean => {
-  return /^#[0-9A-Fa-f]{6}$/.test(color);
-};
+export const isValidHexColor = (color: string): boolean =>
+  /^#[0-9A-Fa-f]{6}$/.test(color);
 
 /**
  * Preset color schemes for quick styling

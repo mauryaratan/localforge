@@ -254,16 +254,12 @@ export const toConstantCase = (input: string): string => {
 /**
  * Converts input to UPPER CASE
  */
-export const toUpperCase = (input: string): string => {
-  return input.toUpperCase();
-};
+export const toUpperCase = (input: string): string => input.toUpperCase();
 
 /**
  * Converts input to lower case
  */
-export const toLowerCase = (input: string): string => {
-  return input.toLowerCase();
-};
+export const toLowerCase = (input: string): string => input.toLowerCase();
 
 /**
  * Converts input to Capitalized Case
@@ -371,8 +367,8 @@ export const toUpperFlatCase = (input: string): string => {
 /**
  * Converts input to sWAP cASE (inverts each character's case)
  */
-export const toSwapCase = (input: string): string => {
-  return input
+export const toSwapCase = (input: string): string =>
+  input
     .split("")
     .map((char) => {
       if (char === char.toUpperCase()) {
@@ -381,7 +377,6 @@ export const toSwapCase = (input: string): string => {
       return char.toUpperCase();
     })
     .join("");
-};
 
 /**
  * Converts input to the specified case type
@@ -517,9 +512,6 @@ export const getCharacterCount = (
  * Gets word count
  */
 export const getWordCount = (input: string): number => {
-  const words = input
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
-  return words.length;
+  const words = input.match(/[\p{L}\p{N}]+(?:['-][\p{L}\p{N}]+)*/gu);
+  return words?.length ?? 0;
 };

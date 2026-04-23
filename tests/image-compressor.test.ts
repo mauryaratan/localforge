@@ -63,6 +63,12 @@ describe("formatBytes", () => {
     expect(formatBytes(1500)).toBe("1.5 KB");
     expect(formatBytes(1100)).toBe("1.1 KB");
   });
+
+  it("should guard non-positive and non-finite values", () => {
+    expect(formatBytes(-1)).toBe("0 B");
+    expect(formatBytes(Number.NaN)).toBe("0 B");
+    expect(formatBytes(Number.POSITIVE_INFINITY)).toBe("0 B");
+  });
 });
 
 describe("formatSavings", () => {

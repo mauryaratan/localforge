@@ -463,6 +463,14 @@ describe("getWordCount", () => {
     expect(getWordCount("Hello World")).toBe(2);
   });
 
+  it("should ignore punctuation-only tokens", () => {
+    expect(getWordCount("... hello !!!")).toBe(1);
+  });
+
+  it("should count Unicode words", () => {
+    expect(getWordCount("Café Привет 世界")).toBe(3);
+  });
+
   it("should handle multiple spaces", () => {
     expect(getWordCount("Hello   World")).toBe(2);
   });

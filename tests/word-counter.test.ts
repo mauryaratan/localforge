@@ -40,6 +40,14 @@ describe("word-counter", () => {
       expect(countWords("Hello\nworld")).toBe(2);
       expect(countWords("Hello\tworld")).toBe(2);
     });
+
+    it("should ignore punctuation-only input", () => {
+      expect(countWords("... !!! ---")).toBe(0);
+    });
+
+    it("should count Unicode words", () => {
+      expect(countWords("Café Привет 世界")).toBe(3);
+    });
   });
 
   describe("countCharacters", () => {
@@ -126,11 +134,19 @@ describe("word-counter", () => {
     it("should return empty array for empty string", () => {
       expect(getUniqueWords("")).toEqual([]);
     });
+
+    it("should preserve accented unique words", () => {
+      expect(getUniqueWords("Café cafe café")).toEqual(["café", "cafe"]);
+    });
   });
 
   describe("calculateAvgWordLength", () => {
     it("should calculate average word length", () => {
       expect(calculateAvgWordLength("cat dog")).toBe(3); // (3 + 3) / 2
+    });
+
+    it("should ignore surrounding punctuation", () => {
+      expect(calculateAvgWordLength("...cat! dog?")).toBe(3);
     });
 
     it("should return 0 for empty string", () => {
@@ -244,6 +260,12 @@ describe("word-counter", () => {
     it("should respect limit", () => {
       const result = getTopWords("a b c d e f g", 3);
       expect(result.length).toBe(3);
+    });
+
+    it("should ignore punctuation-only tokens", () => {
+      expect(getTopWords("hello ... hello !!!", 2)).toEqual([
+        { word: "hello", count: 2 },
+      ]);
     });
   });
 

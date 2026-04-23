@@ -114,8 +114,8 @@ export const resizeImage = (
 /**
  * Convert canvas to PNG blob
  */
-export const canvasToPngBlob = (canvas: HTMLCanvasElement): Promise<Blob> => {
-  return new Promise((resolve, reject) => {
+export const canvasToPngBlob = (canvas: HTMLCanvasElement): Promise<Blob> =>
+  new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (blob) {
@@ -128,7 +128,6 @@ export const canvasToPngBlob = (canvas: HTMLCanvasElement): Promise<Blob> => {
       1.0
     );
   });
-};
 
 /**
  * Create ICO file from multiple PNG images
@@ -289,12 +288,11 @@ export const generateManifest = (
 /**
  * Generate HTML link tags for favicon installation
  */
-export const generateHtmlCode = (): string => {
-  return `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+export const generateHtmlCode =
+  (): string => `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">`;
-};
 
 /**
  * Check if file type is supported
@@ -315,7 +313,7 @@ export const isFileSupported = (file: File): boolean => {
  * Format file size in human-readable format
  */
 export const formatBytes = (bytes: number): string => {
-  if (bytes === 0) {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
     return "0 B";
   }
   const units = ["B", "KB", "MB", "GB"];
@@ -339,14 +337,13 @@ export const cleanupFavicons = (favicons: GeneratedFavicon[]): void => {
 /**
  * Convert file to base64 data URL for localStorage persistence
  */
-export const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
+export const fileToBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-};
 
 /**
  * Convert base64 data URL to File

@@ -338,8 +338,8 @@ function getWorker(): Worker {
 export const compressImage = (
   imageData: ImageData,
   options: CompressOptions
-): Promise<CompressResult> => {
-  return new Promise((resolve, reject) => {
+): Promise<CompressResult> =>
+  new Promise((resolve, reject) => {
     const id = `c${++msgId}`;
     pending.set(id, { resolve: resolve as (v: unknown) => void, reject });
     const buffer = imageData.data.buffer.slice(0);
@@ -355,13 +355,12 @@ export const compressImage = (
       [buffer]
     );
   });
-};
 
 export const resizeImage = (
   imageData: ImageData,
   options: ResizeOptions
-): Promise<ImageData> => {
-  return new Promise((resolve, reject) => {
+): Promise<ImageData> =>
+  new Promise((resolve, reject) => {
     const id = `r${++msgId}`;
     pending.set(id, { resolve: resolve as (v: unknown) => void, reject });
     const buffer = imageData.data.buffer.slice(0);
@@ -377,7 +376,6 @@ export const resizeImage = (
       [buffer]
     );
   });
-};
 
 export const detectAlpha = (data: Uint8ClampedArray): boolean => {
   // Check all alpha bytes to avoid false negatives on large images.
@@ -414,7 +412,7 @@ export const decodeFile = async (
 };
 
 export const formatBytes = (b: number): string => {
-  if (!b) {
+  if (!Number.isFinite(b) || b <= 0) {
     return "0 B";
   }
   const u = ["B", "KB", "MB", "GB"];

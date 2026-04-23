@@ -1,5 +1,6 @@
 // biome-ignore-all lint/performance/useTopLevelRegex: test-local regex literals are fine here
 import { describe, expect, it } from "vitest";
+import { formatBytes as formatFaviconBytes } from "@/lib/favicon-maker";
 
 // Pure utility function tests for favicon maker
 // These functions are tested separately from browser-dependent functions
@@ -58,12 +59,11 @@ const generateManifest = (
   return JSON.stringify(manifest, null, 2);
 };
 
-const generateHtmlCode = (): string => {
-  return `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+const generateHtmlCode =
+  (): string => `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">`;
-};
 
 const FAVICON_SIZES = [
   { name: "favicon-16x16.png", width: 16, height: 16, format: "png" as const },
@@ -122,6 +122,12 @@ describe("formatBytes", () => {
 
   it("should format gigabytes correctly", () => {
     expect(formatBytes(1_073_741_824)).toBe("1 GB");
+  });
+
+  it("should guard non-positive and non-finite values in the utility", () => {
+    expect(formatFaviconBytes(-1)).toBe("0 B");
+    expect(formatFaviconBytes(Number.NaN)).toBe("0 B");
+    expect(formatFaviconBytes(Number.POSITIVE_INFINITY)).toBe("0 B");
   });
 });
 

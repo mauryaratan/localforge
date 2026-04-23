@@ -188,31 +188,31 @@ export const getSimilarKeyCodes = (keyCode: number): number[] => {
 };
 
 // Get key description
-export const getKeyDescription = (keyCode: number): KeyDescription => {
-  return (
-    keyCodeDescriptions[keyCode] || {
-      name: "unknown",
-      description: `Key code ${keyCode}`,
-    }
-  );
-};
+export const getKeyDescription = (keyCode: number): KeyDescription =>
+  keyCodeDescriptions[keyCode] || {
+    name: "unknown",
+    description: `Key code ${keyCode}`,
+  };
 
 // Get location description
-export const getLocationDescription = (location: number): string => {
-  return locationDescriptions[location] || "Unknown location";
-};
+export const getLocationDescription = (location: number): string =>
+  locationDescriptions[location] || "Unknown location";
 
 // Get Unicode value from key
 export const getUnicodeValue = (key: string): string => {
-  if (key.length === 1) {
-    return `U+${key.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0")}`;
+  const codePoints = Array.from(key);
+  if (codePoints.length === 1) {
+    const codePoint = codePoints[0].codePointAt(0);
+    if (codePoint !== undefined) {
+      return `U+${codePoint.toString(16).toUpperCase().padStart(4, "0")}`;
+    }
   }
   return "";
 };
 
 // Get Unicode character representation
 export const getUnicodeChar = (key: string): string => {
-  if (key.length === 1) {
+  if (Array.from(key).length === 1) {
     return key;
   }
   // Special key symbols
@@ -240,24 +240,22 @@ export const getUnicodeChar = (key: string): string => {
 export const keyboardEventToInfo = (
   event: KeyboardEvent,
   eventType: "keydown" | "keyup" | "keypress"
-): KeyEventInfo => {
-  return {
-    key: event.key,
-    code: event.code,
-    keyCode: event.keyCode,
-    which: event.which,
-    location: event.location,
-    charCode: event.charCode,
-    repeat: event.repeat,
-    isComposing: event.isComposing,
-    shiftKey: event.shiftKey,
-    ctrlKey: event.ctrlKey,
-    altKey: event.altKey,
-    metaKey: event.metaKey,
-    eventType,
-    timestamp: Date.now(),
-  };
-};
+): KeyEventInfo => ({
+  key: event.key,
+  code: event.code,
+  keyCode: event.keyCode,
+  which: event.which,
+  location: event.location,
+  charCode: event.charCode,
+  repeat: event.repeat,
+  isComposing: event.isComposing,
+  shiftKey: event.shiftKey,
+  ctrlKey: event.ctrlKey,
+  altKey: event.altKey,
+  metaKey: event.metaKey,
+  eventType,
+  timestamp: Date.now(),
+});
 
 // Format event as JSON for display
 export const formatEventJson = (info: KeyEventInfo): string => {

@@ -1184,9 +1184,8 @@ export const textToAscii = (text: string, options: TextOptions): string => {
 /**
  * Get list of available fonts
  */
-export const getAvailableFonts = (): TextFont[] => {
-  return Object.keys(FONTS) as TextFont[];
-};
+export const getAvailableFonts = (): TextFont[] =>
+  Object.keys(FONTS) as TextFont[];
 
 // ============================================
 // IMAGE TO ASCII SECTION
@@ -1262,13 +1261,8 @@ export const WIDTH_PRESETS = [
  * Calculate the brightness of a pixel (0-255)
  * Uses standard luminance formula
  */
-export const calculateBrightness = (
-  r: number,
-  g: number,
-  b: number
-): number => {
-  return 0.299 * r + 0.587 * g + 0.114 * b;
-};
+export const calculateBrightness = (r: number, g: number, b: number): number =>
+  0.299 * r + 0.587 * g + 0.114 * b;
 
 /**
  * Map a brightness value to a character from the given set
@@ -1283,7 +1277,7 @@ export const brightnessToChar = (
   }
 
   // Normalize brightness to 0-1
-  const normalizedBrightness = brightness / 255;
+  const normalizedBrightness = Math.max(0, Math.min(1, brightness / 255));
 
   // If inverted, flip the brightness
   const adjustedBrightness = invert
@@ -1337,8 +1331,8 @@ export const getCharacterSet = (options: ConversionOptions): string => {
  */
 export const loadImageFromFile = (
   file: File
-): Promise<{ imageData: ImageData; width: number; height: number }> => {
-  return new Promise((resolve, reject) => {
+): Promise<{ imageData: ImageData; width: number; height: number }> =>
+  new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
 
@@ -1368,15 +1362,14 @@ export const loadImageFromFile = (
 
     img.src = url;
   });
-};
 
 /**
  * Load image from a data URL
  */
 export const loadImageFromDataUrl = (
   dataUrl: string
-): Promise<{ imageData: ImageData; width: number; height: number }> => {
-  return new Promise((resolve, reject) => {
+): Promise<{ imageData: ImageData; width: number; height: number }> =>
+  new Promise((resolve, reject) => {
     const img = new Image();
 
     img.onload = () => {
@@ -1402,7 +1395,6 @@ export const loadImageFromDataUrl = (
 
     img.src = dataUrl;
   });
-};
 
 /**
  * Scale image data to target dimensions
@@ -1667,9 +1659,8 @@ export const SUPPORTED_IMAGE_TYPES = [
 /**
  * Check if a file is a supported image type
  */
-export const isImageSupported = (file: File): boolean => {
-  return SUPPORTED_IMAGE_TYPES.includes(file.type);
-};
+export const isImageSupported = (file: File): boolean =>
+  SUPPORTED_IMAGE_TYPES.includes(file.type);
 
 /**
  * Get file extension from MIME type

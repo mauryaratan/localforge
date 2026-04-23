@@ -48,6 +48,8 @@ const clamp = (value: number, min: number, max: number): number =>
 const round = (value: number, decimals = 2): number =>
   Math.round(value * 10 ** decimals) / 10 ** decimals;
 
+const CSS_NUMBER_PATTERN = String.raw`[+-]?(?:\d+\.?\d*|\.\d+)`;
+
 // Parse HEX color
 const parseHex = (hex: string): RGBA | null => {
   const cleanHex = hex.replace("#", "");
@@ -89,7 +91,10 @@ const parseHex = (hex: string): RGBA | null => {
 // Parse RGB/RGBA color
 const parseRgb = (input: string): RGBA | null => {
   const rgbaMatch = input.match(
-    /rgba?\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([\d.]+))?\s*\)/i
+    new RegExp(
+      String.raw`^rgba?\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*(${CSS_NUMBER_PATTERN}))?\s*\)$`,
+      "i"
+    )
   );
 
   if (!rgbaMatch) {
@@ -107,14 +112,17 @@ const parseRgb = (input: string): RGBA | null => {
 // Parse HSL/HSLA color
 const parseHsl = (input: string): RGBA | null => {
   const hslaMatch = input.match(
-    /hsla?\s*\(\s*([\d.]+)\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)%?\s*(?:,\s*([\d.]+))?\s*\)/i
+    new RegExp(
+      String.raw`^hsla?\s*\(\s*(${CSS_NUMBER_PATTERN})\s*,\s*(${CSS_NUMBER_PATTERN})%?\s*,\s*(${CSS_NUMBER_PATTERN})%?\s*(?:,\s*(${CSS_NUMBER_PATTERN}))?\s*\)$`,
+      "i"
+    )
   );
 
   if (!hslaMatch) {
     return null;
   }
 
-  const h = Number.parseFloat(hslaMatch[1]) % 360;
+  const h = ((Number.parseFloat(hslaMatch[1]) % 360) + 360) % 360;
   const s = clamp(Number.parseFloat(hslaMatch[2]), 0, 100) / 100;
   const l = clamp(Number.parseFloat(hslaMatch[3]), 0, 100) / 100;
   const a = hslaMatch[4] ? clamp(Number.parseFloat(hslaMatch[4]), 0, 1) : 1;

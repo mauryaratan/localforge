@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildURL, encodeURLComponent, parseURL } from "@/lib/url-parser";
+import {
+  buildURL,
+  decodeURLComponent,
+  encodeURLComponent,
+  parseURL,
+} from "@/lib/url-parser";
 
 describe("parseURL", () => {
   it("should parse a complete URL correctly", () => {
@@ -211,5 +216,11 @@ describe("encodeURLComponent", () => {
   it("should return original value when URI encoding throws", () => {
     const malformedSurrogate = "\uD800";
     expect(encodeURLComponent(malformedSurrogate)).toBe(malformedSurrogate);
+  });
+});
+
+describe("decodeURLComponent", () => {
+  it("should return original value when URI decoding throws", () => {
+    expect(decodeURLComponent("%E0%A4%A")).toBe("%E0%A4%A");
   });
 });

@@ -85,6 +85,11 @@ describe("brightnessToChar", () => {
     expect(brightnessToChar(128, "", false)).toBe(" ");
   });
 
+  it("should clamp out-of-range brightness values to the character set", () => {
+    expect(brightnessToChar(-20, charSet, false)).toBe(" ");
+    expect(brightnessToChar(300, charSet, false)).toBe("@");
+  });
+
   it("should handle mid-range brightness", () => {
     const result = brightnessToChar(128, charSet, false);
     // Should be somewhere in the middle of the character set

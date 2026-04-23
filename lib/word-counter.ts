@@ -30,18 +30,14 @@ const SPEAKING_WPM = 150;
 // Average words per page (standard double-spaced)
 const WORDS_PER_PAGE = 275;
 
+const WORD_REGEX = /[\p{L}\p{N}]+(?:['-][\p{L}\p{N}]+)*/gu;
+
+const getWords = (text: string): string[] => text.match(WORD_REGEX) ?? [];
+
 /**
  * Count words in text
  */
-export const countWords = (text: string): number => {
-  if (!text.trim()) {
-    return 0;
-  }
-
-  // Split by whitespace and filter out empty strings
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  return words.length;
-};
+export const countWords = (text: string): number => getWords(text).length;
 
 /**
  * Get unique words from text
@@ -51,12 +47,7 @@ export const getUniqueWords = (text: string): string[] => {
     return [];
   }
 
-  const words = text
-    .toLowerCase()
-    .replace(/[^\w\s'-]/g, " ") // Keep words, spaces, apostrophes, hyphens
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((word) => word.replace(/^['-]+|['-]+$/g, "")); // Trim leading/trailing punctuation
+  const words = getWords(text.toLowerCase());
 
   return [...new Set(words)].filter(Boolean);
 };
@@ -64,16 +55,13 @@ export const getUniqueWords = (text: string): string[] => {
 /**
  * Count characters in text
  */
-export const countCharacters = (text: string): number => {
-  return text.length;
-};
+export const countCharacters = (text: string): number => text.length;
 
 /**
  * Count characters excluding spaces
  */
-export const countCharactersNoSpaces = (text: string): number => {
-  return text.replace(/\s/g, "").length;
-};
+export const countCharactersNoSpaces = (text: string): number =>
+  text.replace(/\s/g, "").length;
 
 /**
  * Count sentences in text
@@ -145,11 +133,7 @@ export const countLines = (text: string): number => {
  * Calculate average word length
  */
 export const calculateAvgWordLength = (text: string): number => {
-  const words = text
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((w) => w.replace(/[^\w]/g, ""));
+  const words = getWords(text);
 
   if (words.length === 0) {
     return 0;
@@ -299,13 +283,7 @@ export const getTopWords = (
     return [];
   }
 
-  const words = text
-    .toLowerCase()
-    .replace(/[^\w\s'-]/g, " ")
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((word) => word.replace(/^['-]+|['-]+$/g, ""))
-    .filter((word) => word.length > 0);
+  const words = getWords(text.toLowerCase());
 
   const frequency: Record<string, number> = {};
   for (const word of words) {

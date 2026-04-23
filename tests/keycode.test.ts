@@ -89,12 +89,20 @@ describe("getUnicodeValue", () => {
     expect(getUnicodeValue("@")).toBe("U+0040");
     expect(getUnicodeValue(" ")).toBe("U+0020");
   });
+
+  it("should return Unicode code points for non-BMP characters", () => {
+    expect(getUnicodeValue("😀")).toBe("U+1F600");
+  });
 });
 
 describe("getUnicodeChar", () => {
   it("should return the character for single char keys", () => {
     expect(getUnicodeChar("A")).toBe("A");
     expect(getUnicodeChar("5")).toBe("5");
+  });
+
+  it("should return single-code-point emoji keys", () => {
+    expect(getUnicodeChar("😀")).toBe("😀");
   });
 
   it("should return special symbols for known special keys", () => {
