@@ -2,10 +2,12 @@ import {
   AnalysisTextLinkIcon,
   BrowserIcon,
   Calendar03Icon,
+  Certificate01Icon,
   CodeIcon,
   CodeSquareIcon,
   CommandIcon,
   DocumentCodeIcon,
+  DocumentValidationIcon,
   FingerPrintIcon,
   GridTableIcon,
   Image01Icon,
@@ -51,6 +53,11 @@ export const navItems: NavItem[] = [
     icon: TextIcon,
   },
   {
+    title: "Diff Viewer",
+    href: "/diff-viewer",
+    icon: TextWrapIcon,
+  },
+  {
     title: "String Case",
     href: "/string-case-converter",
     icon: TextAlignLeftIcon,
@@ -76,6 +83,11 @@ export const navItems: NavItem[] = [
     icon: LicenseIcon,
   },
   {
+    title: "Certificate Parser",
+    href: "/certificate-parser",
+    icon: Certificate01Icon,
+  },
+  {
     title: "UUID / ULID",
     href: "/uuid-generator",
     icon: FingerPrintIcon,
@@ -99,6 +111,11 @@ export const navItems: NavItem[] = [
     title: "JSON Formatter",
     href: "/json-formatter",
     icon: CodeIcon,
+  },
+  {
+    title: "JSON Schema",
+    href: "/json-schema-validator",
+    icon: DocumentValidationIcon,
   },
   {
     title: "JSON / YAML",
