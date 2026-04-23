@@ -91,6 +91,14 @@ print("hello")
     expect(stats.codeBlocks).toBe(2);
   });
 
+  it("should count tilde fenced code blocks", () => {
+    const markdown = `~~~js
+const value = 1;
+~~~`;
+    const stats = getMarkdownStats(markdown);
+    expect(stats.codeBlocks).toBe(1);
+  });
+
   it("should count links correctly", () => {
     const markdown = `Check out [Google](https://google.com) and [GitHub](https://github.com).
 Here's an image: ![Alt text](https://example.com/image.png)`;
@@ -159,6 +167,24 @@ code();
     expect(stats.lists).toBe(2);
     expect(stats.blockquotes).toBe(1);
     expect(stats.codeBlocks).toBe(1);
+  });
+
+  it("should ignore markdown syntax inside fenced code blocks", () => {
+    const markdown = `# Real heading
+
+\`\`\`md
+# Not a heading
+- Not a list item
+[Not a link](https://example.com)
+![Not an image](image.png)
+> Not a quote
+\`\`\``;
+    const stats = getMarkdownStats(markdown);
+    expect(stats.headings).toBe(1);
+    expect(stats.lists).toBe(0);
+    expect(stats.links).toBe(0);
+    expect(stats.images).toBe(0);
+    expect(stats.blockquotes).toBe(0);
   });
 });
 
@@ -330,5 +356,20 @@ Some paragraph text
     const toc = extractTableOfContents("# Hello    World");
     expect(toc[0].text).toBe("Hello    World");
     expect(toc[0].slug).toBe("hello-world"); // multiple spaces become single dash due to -+ replacement
+  });
+
+  it("should ignore headings inside fenced code blocks", () => {
+    const toc = extractTableOfContents(`# Real Heading
+
+\`\`\`md
+# Code Heading
+\`\`\`
+
+## Real Section`);
+
+    expect(toc.map((item) => item.text)).toEqual([
+      "Real Heading",
+      "Real Section",
+    ]);
   });
 });

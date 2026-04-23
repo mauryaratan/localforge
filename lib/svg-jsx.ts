@@ -198,9 +198,8 @@ export const parseStyleToJsx = (
 /**
  * Generates a unique ID prefix
  */
-const generateIdPrefix = (): string => {
-  return `svg-${Math.random().toString(36).slice(2, 8)}`;
-};
+const generateIdPrefix = (): string =>
+  `svg-${Math.random().toString(36).slice(2, 8)}`;
 
 /**
  * Validates if the input is valid SVG markup
@@ -373,7 +372,7 @@ export const convertSvgToJsx = (
 
   // Add spread props to root SVG element if enabled
   if (opts.spreadProps) {
-    result = result.replace(/^(<svg\s+[^>]*)(\/?>)/, "$1 {...props}$2");
+    result = result.replace(/^(<svg\b[^>]*?)(\s*\/?>)/, "$1 {...props}$2");
   }
 
   // Format output based on selected format
@@ -454,8 +453,11 @@ export const formatBytes = (bytes: number): string => {
     return "0 B";
   }
 
-  const units = ["B", "KB", "MB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
   const size = bytes / 1024 ** i;
 
   return `${size.toFixed(i > 0 ? 2 : 0)} ${units[i]}`;

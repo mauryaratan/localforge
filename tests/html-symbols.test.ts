@@ -76,6 +76,18 @@ describe("parseEntitiesJson", () => {
       );
     }
   });
+
+  it("should not let skipped multi-codepoint entities hide valid single-codepoint entities", () => {
+    const symbols = parseEntitiesJson({
+      "&NotEqualTilde;": { codepoints: [8770, 824], characters: "≂̸" },
+      "&esim;": { codepoints: [8770], characters: "≂" },
+    });
+
+    expect(symbols.some((symbol) => symbol.entity === "&esim;")).toBe(true);
+    expect(symbols.some((symbol) => symbol.entity === "&NotEqualTilde;")).toBe(
+      false
+    );
+  });
 });
 
 describe("categorization", () => {

@@ -272,20 +272,32 @@ export const createPreviewDocument = (
 ): string => {
   const hasHtmlTag = /<html[^>]*>/i.test(html);
   const hasBodyTag = /<body[^>]*>/i.test(html);
-  const _hasHeadTag = /<head[^>]*>/i.test(html);
+  const hasHeadTag = /<head[^>]*>/i.test(html);
 
   // If it's a complete document, inject our theme styles
   if (hasHtmlTag && hasBodyTag) {
     const themeClass = isDarkMode ? "dark" : "light";
     const themeStyles = getThemeStyles(isDarkMode);
+    const themeTag = `<style id="__preview_theme__">${themeStyles}</style>`;
+    const themedHtml = html.replace(/<html([^>]*)>/i, (match, attrs) => {
+      if (/\sclass\s*=/i.test(attrs)) {
+        return match.replace(
+          /\sclass\s*=\s*(["'])(.*?)\1/i,
+          (_classMatch, quote, classNames) =>
+            ` class=${quote}${classNames} ${themeClass}${quote}`
+        );
+      }
+      return `<html${attrs} class="${themeClass}">`;
+    });
 
-    // Inject styles into head
-    return html
-      .replace(/<html([^>]*)>/i, `<html$1 class="${themeClass}">`)
-      .replace(
-        /<head([^>]*)>/i,
-        `<head$1><style id="__preview_theme__">${themeStyles}</style>`
-      );
+    if (hasHeadTag) {
+      return themedHtml.replace(/<head([^>]*)>/i, `<head$1>${themeTag}`);
+    }
+
+    return themedHtml.replace(
+      /<html([^>]*)>/i,
+      `<html$1><head>${themeTag}</head>`
+    );
   }
 
   // Wrap partial HTML in a complete document

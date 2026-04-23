@@ -28,8 +28,8 @@ let bundledSymbols: HTMLSymbol[] | null = null;
 /**
  * Open IndexedDB database
  */
-const openDB = (): Promise<IDBDatabase> => {
-  return new Promise((resolve, reject) => {
+const openDB = (): Promise<IDBDatabase> =>
+  new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => reject(request.error);
@@ -42,7 +42,6 @@ const openDB = (): Promise<IDBDatabase> => {
       }
     };
   });
-};
 
 /**
  * Get cached data from IndexedDB
@@ -406,9 +405,7 @@ const formatHexCode = (codepoint: number): string => {
 /**
  * Format codepoint to decimal HTML entity
  */
-const formatHtmlCode = (codepoint: number): string => {
-  return `&#${codepoint};`;
-};
+const formatHtmlCode = (codepoint: number): string => `&#${codepoint};`;
 
 /**
  * Format codepoint to CSS code
@@ -507,12 +504,6 @@ export const parseEntitiesJson = (
     const { codepoints, characters } = info;
     const primaryCodepoint = codepoints[0];
 
-    // Skip duplicates by codepoint
-    if (seenCodepoints.has(primaryCodepoint)) {
-      continue;
-    }
-    seenCodepoints.add(primaryCodepoint);
-
     // Skip entities with multiple codepoints (combining characters, etc.)
     // These are harder to display correctly
     if (codepoints.length > 1) {
@@ -527,6 +518,12 @@ export const parseEntitiesJson = (
     ) {
       continue;
     }
+
+    // Skip duplicates by codepoint after excluding unsupported forms.
+    if (seenCodepoints.has(primaryCodepoint)) {
+      continue;
+    }
+    seenCodepoints.add(primaryCodepoint);
 
     const symbol: HTMLSymbol = {
       entity,

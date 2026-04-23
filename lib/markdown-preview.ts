@@ -17,6 +17,26 @@ export interface MarkdownStats {
   words: number;
 }
 
+const isFenceLine = (line: string): boolean => /^(```|~~~)/.test(line.trim());
+
+const getMarkdownLinesOutsideFences = (markdown: string): string[] => {
+  let insideFence = false;
+  const linesOutsideFences: string[] = [];
+
+  for (const line of markdown.split("\n")) {
+    if (isFenceLine(line)) {
+      insideFence = !insideFence;
+      continue;
+    }
+
+    if (!insideFence) {
+      linesOutsideFences.push(line);
+    }
+  }
+
+  return linesOutsideFences;
+};
+
 /**
  * Calculate statistics for markdown content
  */
@@ -47,30 +67,37 @@ export const getMarkdownStats = (markdown: string): MarkdownStats => {
     .split(/\n\s*\n/)
     .filter((p) => p.trim().length > 0).length;
 
-  // Count headings (lines starting with #)
-  const headings = lines.filter((line) => /^#{1,6}\s/.test(line.trim())).length;
+  const contentLines = getMarkdownLinesOutsideFences(markdown);
 
-  // Count fenced code blocks (```)
-  const codeBlockMatches = markdown.match(/```/g);
+  // Count headings (lines starting with #)
+  const headings = contentLines.filter((line) =>
+    /^#{1,6}\s/.test(line.trim())
+  ).length;
+
+  // Count fenced code blocks
+  const codeBlockMatches = markdown.match(/^(```|~~~)/gm);
   const codeBlocks = codeBlockMatches
     ? Math.floor(codeBlockMatches.length / 2)
     : 0;
 
   // Count links [text](url) - exclude images
-  const linkMatches = markdown.match(/(?<!!)\[([^\]]+)\]\(([^)]+)\)/g);
+  const contentOutsideFences = contentLines.join("\n");
+  const linkMatches = contentOutsideFences.match(
+    /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g
+  );
   const links = linkMatches ? linkMatches.length : 0;
 
   // Count images ![alt](url)
-  const imageMatches = markdown.match(/!\[([^\]]*)\]\(([^)]+)\)/g);
+  const imageMatches = contentOutsideFences.match(/!\[([^\]]*)\]\(([^)]+)\)/g);
   const images = imageMatches ? imageMatches.length : 0;
 
   // Count list items (lines starting with -, *, +, or numbered)
-  const lists = lines.filter((line) =>
+  const lists = contentLines.filter((line) =>
     /^\s*[-*+]\s|^\s*\d+\.\s/.test(line)
   ).length;
 
   // Count blockquotes (lines starting with >)
-  const blockquotes = lines.filter((line) => /^\s*>/.test(line)).length;
+  const blockquotes = contentLines.filter((line) => /^\s*>/.test(line)).length;
 
   return {
     characters: markdown.length,
@@ -122,7 +149,7 @@ export interface TocItem {
 }
 
 export const extractTableOfContents = (markdown: string): TocItem[] => {
-  const lines = markdown.split("\n");
+  const lines = getMarkdownLinesOutsideFences(markdown);
   const toc: TocItem[] = [];
 
   for (const line of lines) {

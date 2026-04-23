@@ -174,6 +174,12 @@ const NAMED_ENTITY_TEST_REGEX = /&[a-zA-Z]+;/;
 const DECIMAL_ENTITY_TEST_REGEX = /&#\d+;/;
 const HEX_ENTITY_TEST_REGEX = /&#[xX][0-9a-fA-F]+;/;
 
+const isValidUnicodeScalarValue = (codePoint: number): boolean =>
+  Number.isInteger(codePoint) &&
+  codePoint >= 0 &&
+  codePoint <= MAX_UNICODE_CODE_POINT &&
+  !(codePoint >= 0xd8_00 && codePoint <= 0xdf_ff);
+
 /**
  * Check if a character needs encoding (for minimal encoding)
  */
@@ -192,6 +198,9 @@ const needsEncoding = (char: string, encodeAll: boolean): boolean => {
 const encodeChar = (char: string, mode: EncodingMode): string => {
   const codePoint = char.codePointAt(0);
   if (codePoint === undefined) {
+    return char;
+  }
+  if (!isValidUnicodeScalarValue(codePoint)) {
     return char;
   }
 
@@ -267,11 +276,7 @@ export const decodeHTMLEntities = (text: string): DecodeResult => {
     // Decode decimal entities (&#123;)
     decoded = decoded.replace(DECIMAL_ENTITY_REGEX, (_, dec) => {
       const codePoint = Number.parseInt(dec, 10);
-      if (
-        Number.isNaN(codePoint) ||
-        codePoint < 0 ||
-        codePoint > MAX_UNICODE_CODE_POINT
-      ) {
+      if (!isValidUnicodeScalarValue(codePoint)) {
         return `&#${dec};`; // Return original if invalid
       }
       return String.fromCodePoint(codePoint);
@@ -280,11 +285,7 @@ export const decodeHTMLEntities = (text: string): DecodeResult => {
     // Decode hexadecimal entities (&#x1F4A9; or &#X1F4A9;)
     decoded = decoded.replace(HEX_ENTITY_REGEX, (_, hex) => {
       const codePoint = Number.parseInt(hex, 16);
-      if (
-        Number.isNaN(codePoint) ||
-        codePoint < 0 ||
-        codePoint > MAX_UNICODE_CODE_POINT
-      ) {
+      if (!isValidUnicodeScalarValue(codePoint)) {
         return `&#x${hex};`; // Return original if invalid
       }
       return String.fromCodePoint(codePoint);
@@ -357,11 +358,7 @@ export const findEntities = (text: string): EntityInfo[] => {
   match = decimalRegex.exec(text);
   while (match !== null) {
     const codePoint = Number.parseInt(match[1], 10);
-    if (
-      !Number.isNaN(codePoint) &&
-      codePoint >= 0 &&
-      codePoint <= MAX_UNICODE_CODE_POINT
-    ) {
+    if (isValidUnicodeScalarValue(codePoint)) {
       entities.push({
         entity: match[0],
         decoded: String.fromCodePoint(codePoint),
@@ -378,11 +375,7 @@ export const findEntities = (text: string): EntityInfo[] => {
   match = hexRegex.exec(text);
   while (match !== null) {
     const codePoint = Number.parseInt(match[1], 16);
-    if (
-      !Number.isNaN(codePoint) &&
-      codePoint >= 0 &&
-      codePoint <= MAX_UNICODE_CODE_POINT
-    ) {
+    if (isValidUnicodeScalarValue(codePoint)) {
       entities.push({
         entity: match[0],
         decoded: String.fromCodePoint(codePoint),

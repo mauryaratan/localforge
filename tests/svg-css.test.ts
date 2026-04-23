@@ -69,6 +69,14 @@ describe("ensureXmlns", () => {
     expect(result).toBe(svg);
   });
 
+  it("should add base xmlns when only namespaced xmlns attributes exist", () => {
+    const svg =
+      '<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon" /></svg>';
+    const result = ensureXmlns(svg);
+    expect(result).toContain("xmlns='http://www.w3.org/2000/svg'");
+    expect(result).toContain("xmlns:xlink=");
+  });
+
   it("should handle lowercase svg tag", () => {
     const svg = "<svg viewBox='0 0 100 100'></svg>";
     const result = ensureXmlns(svg);
@@ -193,6 +201,14 @@ describe("decodeSvgFromDataUri", () => {
     expect(result).toContain("</svg>");
   });
 
+  it("should decode URL-encoded data URI containing literal percent signs", () => {
+    const percentSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg"><text>100%</text></svg>';
+    const dataUri = createDataUri(percentSvg, "url");
+    const result = decodeSvgFromDataUri(dataUri);
+    expect(result).toContain("100%");
+  });
+
   it("should decode base64 data URI", () => {
     const dataUri = createDataUri(svg, "base64");
     const result = decodeSvgFromDataUri(dataUri);
@@ -213,5 +229,6 @@ describe("formatBytes", () => {
     expect(formatBytes(1024)).toBe("1.00 KB");
     expect(formatBytes(1536)).toBe("1.50 KB");
     expect(formatBytes(1_048_576)).toBe("1.00 MB");
+    expect(formatBytes(1_073_741_824)).toBe("1.00 GB");
   });
 });

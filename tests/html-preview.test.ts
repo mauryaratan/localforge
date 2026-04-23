@@ -317,6 +317,22 @@ describe("createPreviewDocument", () => {
     expect(result).toContain("__preview_theme__");
   });
 
+  it("should preserve existing html classes when adding theme class", () => {
+    const input =
+      '<html class="custom"><head></head><body><p>Hello</p></body></html>';
+    const result = createPreviewDocument(input, false);
+    expect(result).toContain('class="custom light"');
+    expect(result.match(/\sclass=/g)).toHaveLength(1);
+  });
+
+  it("should inject a head with theme styles when complete document has no head", () => {
+    const input = "<html><body><p>Hello</p></body></html>";
+    const result = createPreviewDocument(input, true);
+    expect(result).toContain("<head>");
+    expect(result).toContain("__preview_theme__");
+    expect(result).toContain('class="dark"');
+  });
+
   it("should add dark mode styles when dark is true", () => {
     const input = "<p>Test</p>";
     const result = createPreviewDocument(input, true);

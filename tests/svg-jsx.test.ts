@@ -201,6 +201,11 @@ describe("convertSvgToJsx", () => {
     expect(result.output).toContain("{...props}");
   });
 
+  it("should add spread props to root SVG without attributes", () => {
+    const result = convertSvgToJsx("<svg></svg>");
+    expect(result.output).toBe("<svg {...props}></svg>");
+  });
+
   it("should not add spread props when disabled", () => {
     const result = convertSvgToJsx(validSvg, { spreadProps: false });
     expect(result.output).not.toContain("{...props}");
@@ -305,5 +310,6 @@ describe("formatBytes", () => {
     expect(formatBytes(1024)).toBe("1.00 KB");
     expect(formatBytes(1536)).toBe("1.50 KB");
     expect(formatBytes(1_048_576)).toBe("1.00 MB");
+    expect(formatBytes(1_073_741_824)).toBe("1.00 GB");
   });
 });

@@ -61,6 +61,25 @@ const extractGroups = (match: RegExpExecArray): MatchGroup[] => {
   return groups;
 };
 
+const advanceRegexIndex = (input: string, index: number, unicode: boolean) => {
+  if (!unicode) {
+    return index + 1;
+  }
+
+  const first = input.charCodeAt(index);
+  const second = input.charCodeAt(index + 1);
+  if (
+    first >= 0xd8_00 &&
+    first <= 0xdb_ff &&
+    second >= 0xdc_00 &&
+    second <= 0xdf_ff
+  ) {
+    return index + 2;
+  }
+
+  return index + 1;
+};
+
 /**
  * Validates and creates a RegExp from pattern and flags
  */
@@ -133,7 +152,11 @@ export const testRegex = (
 
       // Prevent infinite loop for zero-length matches
       if (match[0].length === 0) {
-        regex.lastIndex++;
+        regex.lastIndex = advanceRegexIndex(
+          testString,
+          regex.lastIndex,
+          flags.includes("u")
+        );
       }
 
       iterations++;
@@ -216,9 +239,8 @@ export const substituteRegex = (
 /**
  * Escapes special regex characters in a string
  */
-export const escapeRegex = (str: string): string => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-};
+export const escapeRegex = (str: string): string =>
+  str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export interface ExamplePattern {
   description: string;

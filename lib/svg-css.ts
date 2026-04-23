@@ -21,7 +21,7 @@ export interface ConversionResult {
  * Ensures the SVG has the required xmlns attribute
  */
 export const ensureXmlns = (svg: string): string => {
-  if (!svg.includes("xmlns")) {
+  if (!/\sxmlns\s*=/.test(svg)) {
     return svg.replace(/<svg/i, "<svg xmlns='http://www.w3.org/2000/svg'");
   }
   return svg;
@@ -49,11 +49,13 @@ export const validateSvg = (
 
   // Try parsing as XML to catch malformed SVG
   try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(trimmed, "image/svg+xml");
-    const errorNode = doc.querySelector("parsererror");
-    if (errorNode) {
-      return { isValid: false, error: "Invalid SVG markup" };
+    if (typeof DOMParser !== "undefined") {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(trimmed, "image/svg+xml");
+      const errorNode = doc.querySelector("parsererror");
+      if (errorNode) {
+        return { isValid: false, error: "Invalid SVG markup" };
+      }
     }
   } catch {
     return { isValid: false, error: "Failed to parse SVG" };
@@ -195,15 +197,7 @@ export const decodeSvgFromDataUri = (dataUri: string): string => {
     }
 
     const encoded = dataUri.replace(/^data:image\/svg\+xml,/, "");
-    return decodeURIComponent(
-      encoded
-        .replace(/%3C/g, "<")
-        .replace(/%3E/g, ">")
-        .replace(/%23/g, "#")
-        .replace(/%7B/g, "{")
-        .replace(/%7D/g, "}")
-        .replace(/%25/g, "%")
-    );
+    return decodeURIComponent(encoded);
   } catch {
     return "";
   }
@@ -217,8 +211,11 @@ export const formatBytes = (bytes: number): string => {
     return "0 B";
   }
 
-  const units = ["B", "KB", "MB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
   const size = bytes / 1024 ** i;
 
   return `${size.toFixed(i > 0 ? 2 : 0)} ${units[i]}`;

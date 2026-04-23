@@ -160,6 +160,15 @@ describe("encodeHTMLEntities", () => {
       expect(result.encoded).toBe("Hi &#x1F680;");
       expect(result.isValid).toBe(true);
     });
+
+    it("should not emit invalid surrogate entities", () => {
+      const result = encodeHTMLEntities("\uD800", {
+        mode: "hexadecimal",
+        encodeAll: false,
+      });
+      expect(result.encoded).toBe("\uD800");
+      expect(result.isValid).toBe(true);
+    });
   });
 
   describe("encodeAll option", () => {
@@ -279,6 +288,12 @@ describe("decodeHTMLEntities", () => {
       expect(result.decoded).toBe("&#abc;");
       expect(result.isValid).toBe(true);
     });
+
+    it("should preserve surrogate decimal entities", () => {
+      const result = decodeHTMLEntities("bad &#55296; scalar");
+      expect(result.decoded).toBe("bad &#55296; scalar");
+      expect(result.isValid).toBe(true);
+    });
   });
 
   describe("hexadecimal entities", () => {
@@ -315,6 +330,12 @@ describe("decodeHTMLEntities", () => {
     it("should handle uppercase hex digits", () => {
       const result = decodeHTMLEntities("&#x3C;");
       expect(result.decoded).toBe("<");
+      expect(result.isValid).toBe(true);
+    });
+
+    it("should preserve surrogate hexadecimal entities", () => {
+      const result = decodeHTMLEntities("bad &#xD800; scalar");
+      expect(result.decoded).toBe("bad &#xD800; scalar");
       expect(result.isValid).toBe(true);
     });
   });
@@ -460,6 +481,11 @@ describe("findEntities", () => {
 
   it("should return empty array for text without entities", () => {
     const entities = findEntities("Hello World");
+    expect(entities).toHaveLength(0);
+  });
+
+  it("should ignore surrogate numeric entities", () => {
+    const entities = findEntities("bad &#55296; and &#xD800;");
     expect(entities).toHaveLength(0);
   });
 });

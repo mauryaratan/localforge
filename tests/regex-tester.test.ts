@@ -152,6 +152,14 @@ describe("testRegex", () => {
     expect(result.matches.length).toBeLessThanOrEqual(10_000);
   });
 
+  it("should advance zero-length unicode matches by code point", () => {
+    const result = testRegex("(?=)", "😀", "gu");
+
+    expect(result.isValid).toBe(true);
+    expect(result.matches).toHaveLength(2);
+    expect(result.matches.map((match) => match.index)).toEqual([0, 2]);
+  });
+
   it("should include execution time", () => {
     const result = testRegex("test", "test string", "g");
 
