@@ -32,8 +32,7 @@ export const metadata: Metadata = {
   },
 };
 
-const FaviconMakerLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const FaviconMakerLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default FaviconMakerLayout;

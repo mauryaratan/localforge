@@ -31,8 +31,7 @@ export const metadata: Metadata = {
   },
 };
 
-const SvgToJsxLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const SvgToJsxLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default SvgToJsxLayout;

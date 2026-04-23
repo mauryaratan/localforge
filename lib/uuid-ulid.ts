@@ -88,9 +88,7 @@ export const generateUUIDv7 = (): string => {
  * Generate a ULID
  * Universally Unique Lexicographically Sortable Identifier
  */
-export const generateULID = (): string => {
-  return ulid();
-};
+export const generateULID = (): string => ulid();
 
 /**
  * Generate multiple IDs of the specified format
@@ -154,13 +152,13 @@ export const extractUUIDv7Timestamp = (uuid: string): number | undefined => {
   try {
     const hex = uuid.replace(/-/g, "");
     if (hex.length < 12 || !/^[0-9a-f]+$/i.test(hex)) {
-      return undefined;
+      return;
     }
     const timestampHex = hex.slice(0, 12);
     const timestamp = Number.parseInt(timestampHex, 16);
     return Number.isNaN(timestamp) ? undefined : timestamp;
   } catch {
-    return undefined;
+    return;
   }
 };
 

@@ -83,9 +83,7 @@ const StringCaseConverterPage = () => {
   }, [input]);
 
   // Detect input case
-  const detectedCase = useMemo(() => {
-    return detectCase(input);
-  }, [input]);
+  const detectedCase = useMemo(() => detectCase(input), [input]);
 
   // Stats
   const charCount = getCharacterCount(input);
@@ -254,40 +252,38 @@ const ConversionCard = ({
   result,
   copied,
   onCopy,
-}: ConversionCardProps) => {
-  return (
-    <div
-      className="group flex items-center justify-between gap-2 rounded-sm bg-muted/50 p-2 transition-colors hover:bg-muted/70"
-      data-case={caseType}
-    >
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-          {label}
-        </span>
-        <span className="truncate font-mono text-xs" title={result}>
-          {result || "(empty)"}
-        </span>
-      </div>
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              aria-label={`Copy ${label}`}
-              className="cursor-pointer opacity-50 transition-opacity group-hover:opacity-100"
-              disabled={!result}
-              onClick={onCopy}
-              size="icon-xs"
-              tabIndex={0}
-              variant="ghost"
-            />
-          }
-        >
-          <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-        </TooltipTrigger>
-        <TooltipContent>{copied ? "Copied!" : `Copy ${label}`}</TooltipContent>
-      </Tooltip>
+}: ConversionCardProps) => (
+  <div
+    className="group flex items-center justify-between gap-2 rounded-sm bg-muted/50 p-2 transition-colors hover:bg-muted/70"
+    data-case={caseType}
+  >
+    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+        {label}
+      </span>
+      <span className="truncate font-mono text-xs" title={result}>
+        {result || "(empty)"}
+      </span>
     </div>
-  );
-};
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            aria-label={`Copy ${label}`}
+            className="cursor-pointer opacity-50 transition-opacity group-hover:opacity-100"
+            disabled={!result}
+            onClick={onCopy}
+            size="icon-xs"
+            tabIndex={0}
+            variant="ghost"
+          />
+        }
+      >
+        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
+      </TooltipTrigger>
+      <TooltipContent>{copied ? "Copied!" : `Copy ${label}`}</TooltipContent>
+    </Tooltip>
+  </div>
+);
 
 export default StringCaseConverterPage;

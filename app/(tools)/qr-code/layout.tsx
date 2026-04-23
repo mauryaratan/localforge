@@ -29,8 +29,6 @@ export const metadata: Metadata = {
   },
 };
 
-const QRCodeLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const QRCodeLayout = ({ children }: { children: React.ReactNode }) => children;
 
 export default QRCodeLayout;

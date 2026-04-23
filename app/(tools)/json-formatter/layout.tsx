@@ -29,8 +29,7 @@ export const metadata: Metadata = {
   },
 };
 
-const JsonFormatterLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const JsonFormatterLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default JsonFormatterLayout;

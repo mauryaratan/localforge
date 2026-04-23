@@ -32,8 +32,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UuidGeneratorLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const UuidGeneratorLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default UuidGeneratorLayout;

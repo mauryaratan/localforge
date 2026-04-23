@@ -33,8 +33,7 @@ export const metadata: Metadata = {
   },
 };
 
-const LogoMakerLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const LogoMakerLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default LogoMakerLayout;

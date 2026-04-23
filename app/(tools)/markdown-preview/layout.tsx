@@ -31,8 +31,7 @@ export const metadata: Metadata = {
   },
 };
 
-const MarkdownPreviewLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const MarkdownPreviewLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default MarkdownPreviewLayout;

@@ -30,8 +30,7 @@ export const metadata: Metadata = {
   },
 };
 
-const URLParserLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const URLParserLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default URLParserLayout;

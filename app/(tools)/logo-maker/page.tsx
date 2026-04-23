@@ -83,13 +83,12 @@ const LogoMakerPage = () => {
   }, [config, isHydrated]);
 
   // Generate SVG preview
-  const svgString = useMemo(() => {
-    return generateLogoSVG(config);
-  }, [config]);
+  const svgString = useMemo(() => generateLogoSVG(config), [config]);
 
-  const svgPreviewSrc = useMemo(() => {
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
-  }, [svgString]);
+  const svgPreviewSrc = useMemo(
+    () => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`,
+    [svgString]
+  );
 
   // Update icon config
   const updateIcon = useCallback(

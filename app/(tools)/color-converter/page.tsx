@@ -394,36 +394,34 @@ const HarmonyPalette = ({
   name,
   colors,
   onColorClick,
-}: HarmonyPaletteProps) => {
-  return (
-    <div className="flex flex-col gap-2">
-      <span className="text-muted-foreground text-xs">{name}</span>
-      <div className="flex gap-1">
-        {colors.map((hsl) => {
-          const hex = rgbToHex(hslToRgb(hsl));
-          return (
-            <Tooltip key={`${name}-${hsl.h}-${hsl.s}-${hsl.l}`}>
-              <TooltipTrigger
-                render={
-                  <button
-                    aria-label={`Use color ${hex}`}
-                    className="h-10 flex-1 cursor-pointer rounded border border-border transition-all hover:ring-2 hover:ring-ring hover:ring-offset-1"
-                    onClick={() => onColorClick(hex)}
-                    style={{ backgroundColor: hex }}
-                    tabIndex={0}
-                    type="button"
-                  />
-                }
-              />
-              <TooltipContent>
-                <span className="font-mono text-xs">{hex}</span>
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
-      </div>
+}: HarmonyPaletteProps) => (
+  <div className="flex flex-col gap-2">
+    <span className="text-muted-foreground text-xs">{name}</span>
+    <div className="flex gap-1">
+      {colors.map((hsl) => {
+        const hex = rgbToHex(hslToRgb(hsl));
+        return (
+          <Tooltip key={`${name}-${hsl.h}-${hsl.s}-${hsl.l}`}>
+            <TooltipTrigger
+              render={
+                <button
+                  aria-label={`Use color ${hex}`}
+                  className="h-10 flex-1 cursor-pointer rounded border border-border transition-all hover:ring-2 hover:ring-ring hover:ring-offset-1"
+                  onClick={() => onColorClick(hex)}
+                  style={{ backgroundColor: hex }}
+                  tabIndex={0}
+                  type="button"
+                />
+              }
+            />
+            <TooltipContent>
+              <span className="font-mono text-xs">{hex}</span>
+            </TooltipContent>
+          </Tooltip>
+        );
+      })}
     </div>
-  );
-};
+  </div>
+);
 
 export default ColorConverterPage;

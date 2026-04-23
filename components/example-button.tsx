@@ -15,17 +15,15 @@ export const ExampleButton = ({
   onClick,
   ariaLabel,
   className,
-}: ExampleButtonProps) => {
-  return (
-    <Button
-      aria-label={ariaLabel ?? `Load ${label} example`}
-      className={cn("cursor-pointer justify-start", className)}
-      onClick={onClick}
-      size="sm"
-      tabIndex={0}
-      variant="outline"
-    >
-      {label}
-    </Button>
-  );
-};
+}: ExampleButtonProps) => (
+  <Button
+    aria-label={ariaLabel ?? `Load ${label} example`}
+    className={cn("cursor-pointer justify-start", className)}
+    onClick={onClick}
+    size="sm"
+    tabIndex={0}
+    variant="outline"
+  >
+    {label}
+  </Button>
+);

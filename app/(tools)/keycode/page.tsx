@@ -511,27 +511,25 @@ interface ModifierKeyProps {
   symbol: string;
 }
 
-const ModifierKey = ({ symbol, label, active }: ModifierKeyProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <div
-            aria-label={`${label}: ${active ? "pressed" : "not pressed"}`}
-            className={`flex h-7 w-7 items-center justify-center rounded border text-sm transition-all ${
-              active
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-muted/50 text-muted-foreground"
-            }`}
-            role="img"
-          />
-        }
-      >
-        {symbol}
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
-  );
-};
+const ModifierKey = ({ symbol, label, active }: ModifierKeyProps) => (
+  <Tooltip>
+    <TooltipTrigger
+      render={
+        <div
+          aria-label={`${label}: ${active ? "pressed" : "not pressed"}`}
+          className={`flex h-7 w-7 items-center justify-center rounded border text-sm transition-all ${
+            active
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border bg-muted/50 text-muted-foreground"
+          }`}
+          role="img"
+        />
+      }
+    >
+      {symbol}
+    </TooltipTrigger>
+    <TooltipContent>{label}</TooltipContent>
+  </Tooltip>
+);
 
 export default KeycodePage;

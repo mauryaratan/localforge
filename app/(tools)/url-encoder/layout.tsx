@@ -30,8 +30,7 @@ export const metadata: Metadata = {
   },
 };
 
-const URLEncoderLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const URLEncoderLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default URLEncoderLayout;

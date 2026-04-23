@@ -33,8 +33,7 @@ export const metadata: Metadata = {
   },
 };
 
-const HtmlPreviewLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const HtmlPreviewLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default HtmlPreviewLayout;

@@ -29,8 +29,6 @@ export const metadata: Metadata = {
   },
 };
 
-const Base64Layout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const Base64Layout = ({ children }: { children: React.ReactNode }) => children;
 
 export default Base64Layout;

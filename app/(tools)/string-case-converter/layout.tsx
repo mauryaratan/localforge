@@ -37,8 +37,6 @@ const StringCaseConverterLayout = ({
   children,
 }: {
   children: React.ReactNode;
-}) => {
-  return children;
-};
+}) => children;
 
 export default StringCaseConverterLayout;

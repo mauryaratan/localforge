@@ -34,8 +34,7 @@ export const metadata: Metadata = {
   },
 };
 
-const AsciiArtLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const AsciiArtLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default AsciiArtLayout;

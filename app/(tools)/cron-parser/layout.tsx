@@ -30,8 +30,7 @@ export const metadata: Metadata = {
   },
 };
 
-const CronParserLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const CronParserLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default CronParserLayout;

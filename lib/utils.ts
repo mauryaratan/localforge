@@ -86,9 +86,8 @@ export const getStorageValue = (key: string, fallback = ""): string => {
  * Safely write to localStorage with error handling.
  * Handles quota exceeded and private browsing errors.
  */
-export const setStorageValue = (key: string, value: string): boolean => {
-  return writeStorageValue(key, value);
-};
+export const setStorageValue = (key: string, value: string): boolean =>
+  writeStorageValue(key, value);
 
 /**
  * Debounce localStorage writes so typing-heavy tools avoid synchronous writes

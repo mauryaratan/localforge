@@ -36,8 +36,7 @@ export const metadata: Metadata = {
   },
 };
 
-const HTMLEntitiesLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const HTMLEntitiesLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default HTMLEntitiesLayout;

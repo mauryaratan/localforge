@@ -90,14 +90,10 @@ const HtmlPreviewPage = () => {
   }, [input, viewport, isHydrated]);
 
   // Calculate stats
-  const stats = useMemo(() => {
-    return getHtmlStats(input);
-  }, [input]);
+  const stats = useMemo(() => getHtmlStats(input), [input]);
 
   // Validate HTML
-  const validation = useMemo(() => {
-    return validateHtml(input);
-  }, [input]);
+  const validation = useMemo(() => validateHtml(input), [input]);
 
   // Generate preview HTML - always use light mode
   const previewHtml = useMemo(() => {

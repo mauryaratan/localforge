@@ -74,14 +74,10 @@ const MarkdownPreviewPage = () => {
   }, [input, isHydrated]);
 
   // Calculate stats
-  const stats = useMemo(() => {
-    return getMarkdownStats(input);
-  }, [input]);
+  const stats = useMemo(() => getMarkdownStats(input), [input]);
 
   // Extract table of contents
-  const toc = useMemo(() => {
-    return extractTableOfContents(input);
-  }, [input]);
+  const toc = useMemo(() => extractTableOfContents(input), [input]);
 
   const handleCopy = useCallback(async (text: string) => {
     if (!text) {
@@ -406,15 +402,13 @@ interface SyntaxRowProps {
   syntax: string;
 }
 
-const SyntaxRow = ({ label, syntax }: SyntaxRowProps) => {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="w-12 shrink-0">{label}</span>
-      <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-        {syntax}
-      </code>
-    </div>
-  );
-};
+const SyntaxRow = ({ label, syntax }: SyntaxRowProps) => (
+  <div className="flex items-center gap-2">
+    <span className="w-12 shrink-0">{label}</span>
+    <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+      {syntax}
+    </code>
+  </div>
+);
 
 export default MarkdownPreviewPage;

@@ -86,7 +86,7 @@ export const decodeBase64 = (
     const decoded = new TextDecoder("utf-8").decode(bytes);
 
     return { success: true, data: decoded };
-  } catch (_error) {
+  } catch {
     return {
       success: false,
       data: "",

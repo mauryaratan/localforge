@@ -1058,32 +1058,30 @@ interface CurrentTimeCardProps {
   value: number | null;
 }
 
-const CurrentTimeCard = ({ label, value, onCopy }: CurrentTimeCardProps) => {
-  return (
-    <button
-      aria-label={`Copy ${label} timestamp`}
-      className="group relative flex cursor-pointer flex-col gap-1 rounded-lg border border-border/50 bg-background/60 p-3 text-left transition-colors hover:border-primary/30"
-      disabled={value === null}
-      onClick={onCopy}
-      tabIndex={0}
-      type="button"
-    >
-      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-        {label}
-      </span>
-      <span className="break-all font-mono text-xs">
-        {value === null ? "—" : value}
-      </span>
-      <span className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
-        <HugeiconsIcon
-          className="text-muted-foreground"
-          icon={Copy01Icon}
-          size={12}
-        />
-      </span>
-    </button>
-  );
-};
+const CurrentTimeCard = ({ label, value, onCopy }: CurrentTimeCardProps) => (
+  <button
+    aria-label={`Copy ${label} timestamp`}
+    className="group relative flex cursor-pointer flex-col gap-1 rounded-lg border border-border/50 bg-background/60 p-3 text-left transition-colors hover:border-primary/30"
+    disabled={value === null}
+    onClick={onCopy}
+    tabIndex={0}
+    type="button"
+  >
+    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+      {label}
+    </span>
+    <span className="break-all font-mono text-xs">
+      {value === null ? "—" : value}
+    </span>
+    <span className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
+      <HugeiconsIcon
+        className="text-muted-foreground"
+        icon={Copy01Icon}
+        size={12}
+      />
+    </span>
+  </button>
+);
 
 interface DateOutputRowProps {
   label: string;
@@ -1091,29 +1089,25 @@ interface DateOutputRowProps {
   value: string;
 }
 
-const DateOutputRow = ({ label, value, onCopy }: DateOutputRowProps) => {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="w-20 shrink-0 text-muted-foreground text-xs">
-        {label}
-      </span>
-      <code className="flex-1 truncate rounded bg-muted/50 px-2 py-1.5 font-mono text-xs">
-        {value}
-      </code>
-      <Button
-        aria-label={`Copy ${label}`}
-        className="cursor-pointer"
-        disabled={!value}
-        onClick={onCopy}
-        size="icon-xs"
-        tabIndex={0}
-        variant="ghost"
-      >
-        <HugeiconsIcon icon={Copy01Icon} size={14} />
-      </Button>
-    </div>
-  );
-};
+const DateOutputRow = ({ label, value, onCopy }: DateOutputRowProps) => (
+  <div className="flex items-center gap-2">
+    <span className="w-20 shrink-0 text-muted-foreground text-xs">{label}</span>
+    <code className="flex-1 truncate rounded bg-muted/50 px-2 py-1.5 font-mono text-xs">
+      {value}
+    </code>
+    <Button
+      aria-label={`Copy ${label}`}
+      className="cursor-pointer"
+      disabled={!value}
+      onClick={onCopy}
+      size="icon-xs"
+      tabIndex={0}
+      variant="ghost"
+    >
+      <HugeiconsIcon icon={Copy01Icon} size={14} />
+    </Button>
+  </div>
+);
 
 interface FormatRowProps {
   label: string;
@@ -1121,43 +1115,39 @@ interface FormatRowProps {
   value: string;
 }
 
-const FormatRow = ({ label, value, onCopy }: FormatRowProps) => {
-  return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="w-24 shrink-0 text-muted-foreground">{label}</span>
-      <code className="flex-1 truncate rounded bg-muted/30 px-2 py-1 font-mono">
-        {value}
-      </code>
-      <Button
-        aria-label={`Copy ${label}`}
-        className="cursor-pointer"
-        disabled={!value}
-        onClick={onCopy}
-        size="icon-xs"
-        tabIndex={0}
-        variant="ghost"
-      >
-        <HugeiconsIcon icon={Copy01Icon} size={14} />
-      </Button>
-    </div>
-  );
-};
+const FormatRow = ({ label, value, onCopy }: FormatRowProps) => (
+  <div className="flex items-center gap-2 text-xs">
+    <span className="w-24 shrink-0 text-muted-foreground">{label}</span>
+    <code className="flex-1 truncate rounded bg-muted/30 px-2 py-1 font-mono">
+      {value}
+    </code>
+    <Button
+      aria-label={`Copy ${label}`}
+      className="cursor-pointer"
+      disabled={!value}
+      onClick={onCopy}
+      size="icon-xs"
+      tabIndex={0}
+      variant="ghost"
+    >
+      <HugeiconsIcon icon={Copy01Icon} size={14} />
+    </Button>
+  </div>
+);
 
 interface ReferenceGroupProps {
   children: React.ReactNode;
   label: string;
 }
 
-const ReferenceGroup = ({ label, children }: ReferenceGroupProps) => {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-        {label}
-      </span>
-      <div className="flex flex-col gap-1">{children}</div>
-    </div>
-  );
-};
+const ReferenceGroup = ({ label, children }: ReferenceGroupProps) => (
+  <div className="flex flex-col gap-1">
+    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+      {label}
+    </span>
+    <div className="flex flex-col gap-1">{children}</div>
+  </div>
+);
 
 interface ReferenceItemProps {
   label: string;
@@ -1165,22 +1155,20 @@ interface ReferenceItemProps {
   value: number;
 }
 
-const ReferenceItem = ({ label, value, onClick }: ReferenceItemProps) => {
-  return (
-    <button
-      aria-label={`Load ${label} timestamp`}
-      className="group flex w-full cursor-pointer items-center justify-between rounded px-2 py-1 text-xs transition-colors hover:bg-muted/50"
-      onClick={() => onClick(value)}
-      tabIndex={0}
-      type="button"
-    >
-      <span>{label}</span>
-      <code className="font-mono text-muted-foreground transition-colors group-hover:text-foreground">
-        {value}
-      </code>
-    </button>
-  );
-};
+const ReferenceItem = ({ label, value, onClick }: ReferenceItemProps) => (
+  <button
+    aria-label={`Load ${label} timestamp`}
+    className="group flex w-full cursor-pointer items-center justify-between rounded px-2 py-1 text-xs transition-colors hover:bg-muted/50"
+    onClick={() => onClick(value)}
+    tabIndex={0}
+    type="button"
+  >
+    <span>{label}</span>
+    <code className="font-mono text-muted-foreground transition-colors group-hover:text-foreground">
+      {value}
+    </code>
+  </button>
+);
 
 interface ConstantRowProps {
   label: string;
@@ -1188,17 +1176,14 @@ interface ConstantRowProps {
 }
 
 // Format number with commas (locale-independent to avoid hydration mismatch)
-const formatNumber = (n: number): string => {
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
+const formatNumber = (n: number): string =>
+  n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-const _ConstantRow = ({ label, value }: ConstantRowProps) => {
-  return (
-    <div className="flex items-center justify-between rounded px-2 py-1 transition-colors hover:bg-muted/30">
-      <span className="text-muted-foreground">{label}</span>
-      <code className="font-mono">{formatNumber(value)}</code>
-    </div>
-  );
-};
+const _ConstantRow = ({ label, value }: ConstantRowProps) => (
+  <div className="flex items-center justify-between rounded px-2 py-1 transition-colors hover:bg-muted/30">
+    <span className="text-muted-foreground">{label}</span>
+    <code className="font-mono">{formatNumber(value)}</code>
+  </div>
+);
 
 export default UnixTimeConverterPage;

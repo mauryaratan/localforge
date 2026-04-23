@@ -23,8 +23,7 @@ export const metadata: Metadata = {
   },
 };
 
-const JsonYamlLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const JsonYamlLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default JsonYamlLayout;

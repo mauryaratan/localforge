@@ -439,25 +439,23 @@ interface CopyRowProps {
   value: string;
 }
 
-const CopyRow = ({ label, value, copied, onCopy }: CopyRowProps) => {
-  return (
-    <button
-      aria-label={`Copy ${label}`}
-      className="flex cursor-pointer items-center justify-between gap-2 rounded px-1.5 py-0.5 transition-colors hover:bg-muted"
-      onClick={onCopy}
-      tabIndex={0}
-      type="button"
-    >
-      <span className="text-muted-foreground">{label}</span>
-      <span className="flex items-center gap-1 font-mono">
-        {value}
-        {copied && (
-          <HugeiconsIcon className="text-primary" icon={Tick01Icon} size={10} />
-        )}
-      </span>
-    </button>
-  );
-};
+const CopyRow = ({ label, value, copied, onCopy }: CopyRowProps) => (
+  <button
+    aria-label={`Copy ${label}`}
+    className="flex cursor-pointer items-center justify-between gap-2 rounded px-1.5 py-0.5 transition-colors hover:bg-muted"
+    onClick={onCopy}
+    tabIndex={0}
+    type="button"
+  >
+    <span className="text-muted-foreground">{label}</span>
+    <span className="flex items-center gap-1 font-mono">
+      {value}
+      {copied && (
+        <HugeiconsIcon className="text-primary" icon={Tick01Icon} size={10} />
+      )}
+    </span>
+  </button>
+);
 
 interface VirtualizedTableProps {
   copied: Record<string, boolean>;
@@ -587,28 +585,26 @@ interface CopyCellProps {
   value: string;
 }
 
-const CopyCell = ({ value, copied, onCopy, children }: CopyCellProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <button
-            aria-label={`Copy ${value}`}
-            className="flex cursor-pointer items-center gap-1 rounded px-1 py-0.5 font-mono transition-colors hover:bg-muted"
-            onClick={onCopy}
-            tabIndex={0}
-            type="button"
-          />
-        }
-      >
-        {children || value}
-        {copied && (
-          <HugeiconsIcon className="text-primary" icon={Tick01Icon} size={10} />
-        )}
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : `Copy ${value}`}</TooltipContent>
-    </Tooltip>
-  );
-};
+const CopyCell = ({ value, copied, onCopy, children }: CopyCellProps) => (
+  <Tooltip>
+    <TooltipTrigger
+      render={
+        <button
+          aria-label={`Copy ${value}`}
+          className="flex cursor-pointer items-center gap-1 rounded px-1 py-0.5 font-mono transition-colors hover:bg-muted"
+          onClick={onCopy}
+          tabIndex={0}
+          type="button"
+        />
+      }
+    >
+      {children || value}
+      {copied && (
+        <HugeiconsIcon className="text-primary" icon={Tick01Icon} size={10} />
+      )}
+    </TooltipTrigger>
+    <TooltipContent>{copied ? "Copied!" : `Copy ${value}`}</TooltipContent>
+  </Tooltip>
+);
 
 export default HTMLSymbolsPage;

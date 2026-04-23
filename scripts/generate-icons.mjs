@@ -57,8 +57,9 @@ const createSvg = (size) => {
 };
 
 // Create favicon SVG (smaller, simpler for clarity at small sizes)
-const createFaviconSvg = (size) => {
-  return `<svg width="${size}" height="${size}" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+const createFaviconSvg = (
+  size
+) => `<svg width="${size}" height="${size}" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Background -->
   <rect
     x="2"
@@ -89,7 +90,6 @@ const createFaviconSvg = (size) => {
   <!-- Privacy dot indicator -->
   <circle cx="24" cy="10" r="3" fill="#14b8a6"/>
 </svg>`;
-};
 
 async function generateIcons() {
   // PWA icon sizes

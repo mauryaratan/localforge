@@ -31,8 +31,6 @@ export const metadata: Metadata = {
   },
 };
 
-const KeycodeLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const KeycodeLayout = ({ children }: { children: React.ReactNode }) => children;
 
 export default KeycodeLayout;

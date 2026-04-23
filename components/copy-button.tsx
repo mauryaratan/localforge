@@ -23,25 +23,23 @@ export const CopyButton = ({
   label,
   onCopy,
   size = "icon-xs",
-}: CopyButtonProps) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            aria-label={label}
-            className="cursor-pointer"
-            disabled={disabled}
-            onClick={onCopy}
-            size={size}
-            tabIndex={0}
-            variant="ghost"
-          />
-        }
-      >
-        <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
-      </TooltipTrigger>
-      <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
-    </Tooltip>
-  );
-};
+}: CopyButtonProps) => (
+  <Tooltip>
+    <TooltipTrigger
+      render={
+        <Button
+          aria-label={label}
+          className="cursor-pointer"
+          disabled={disabled}
+          onClick={onCopy}
+          size={size}
+          tabIndex={0}
+          variant="ghost"
+        />
+      }
+    >
+      <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={14} />
+    </TooltipTrigger>
+    <TooltipContent>{copied ? "Copied!" : label}</TooltipContent>
+  </Tooltip>
+);

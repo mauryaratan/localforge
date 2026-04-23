@@ -585,20 +585,13 @@ interface TreeViewProps {
   onCopy: (text: string, label: string) => void;
 }
 
-const TreeView = ({ nodes, depth = 0, onCopy }: TreeViewProps) => {
-  return (
-    <div className="flex flex-col">
-      {nodes.map((node) => (
-        <TreeNodeItem
-          depth={depth}
-          key={node.path}
-          node={node}
-          onCopy={onCopy}
-        />
-      ))}
-    </div>
-  );
-};
+const TreeView = ({ nodes, depth = 0, onCopy }: TreeViewProps) => (
+  <div className="flex flex-col">
+    {nodes.map((node) => (
+      <TreeNodeItem depth={depth} key={node.path} node={node} onCopy={onCopy} />
+    ))}
+  </div>
+);
 
 interface TreeNodeItemProps {
   depth: number;

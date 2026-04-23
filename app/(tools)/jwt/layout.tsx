@@ -34,8 +34,6 @@ export const metadata: Metadata = {
   },
 };
 
-const JWTLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const JWTLayout = ({ children }: { children: React.ReactNode }) => children;
 
 export default JWTLayout;

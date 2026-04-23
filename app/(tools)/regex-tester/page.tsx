@@ -86,9 +86,10 @@ const RegexTesterPage = () => {
   }, [flags, isHydrated]);
 
   // Compute regex result
-  const result: RegexResult = useMemo(() => {
-    return testRegex(pattern, testString, flags);
-  }, [pattern, testString, flags]);
+  const result: RegexResult = useMemo(
+    () => testRegex(pattern, testString, flags),
+    [pattern, testString, flags]
+  );
 
   // Compute substitution result
   const substitutionResult = useMemo(() => {

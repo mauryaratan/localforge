@@ -31,8 +31,7 @@ export const metadata: Metadata = {
   },
 };
 
-const WordCounterLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const WordCounterLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default WordCounterLayout;

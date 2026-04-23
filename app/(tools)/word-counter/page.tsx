@@ -52,14 +52,13 @@ const WordCounterPage = () => {
   }, [input, isHydrated]);
 
   // Calculate stats
-  const stats = useMemo<WordCountStats>(() => {
-    return getWordCountStats(input);
-  }, [input]);
+  const stats = useMemo<WordCountStats>(
+    () => getWordCountStats(input),
+    [input]
+  );
 
   // Get top words
-  const topWords = useMemo(() => {
-    return getTopWords(input, 8);
-  }, [input]);
+  const topWords = useMemo(() => getTopWords(input, 8), [input]);
 
   const handleClearInput = useCallback(() => {
     setInput("");
@@ -322,31 +321,29 @@ interface StatCardProps {
   value: string;
 }
 
-const StatCard = ({ label, value, highlight, icon }: StatCardProps) => {
-  return (
-    <Card
-      className={
-        highlight
-          ? "border-primary/20 bg-primary/5 dark:bg-primary/10"
-          : undefined
-      }
-    >
-      <CardContent className="p-4">
-        <div className="flex flex-col gap-1">
-          <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-            {icon && <HugeiconsIcon icon={icon} size={12} />}
-            {label}
-          </span>
-          <span
-            className={`font-mono text-xl ${highlight ? "text-primary" : ""}`}
-          >
-            {value}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+const StatCard = ({ label, value, highlight, icon }: StatCardProps) => (
+  <Card
+    className={
+      highlight
+        ? "border-primary/20 bg-primary/5 dark:bg-primary/10"
+        : undefined
+    }
+  >
+    <CardContent className="p-4">
+      <div className="flex flex-col gap-1">
+        <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+          {icon && <HugeiconsIcon icon={icon} size={12} />}
+          {label}
+        </span>
+        <span
+          className={`font-mono text-xl ${highlight ? "text-primary" : ""}`}
+        >
+          {value}
+        </span>
+      </div>
+    </CardContent>
+  </Card>
+);
 
 // Detail Row Component
 interface DetailRowProps {
@@ -354,13 +351,11 @@ interface DetailRowProps {
   value: string;
 }
 
-const DetailRow = ({ label, value }: DetailRowProps) => {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-muted-foreground text-sm">{label}</span>
-      <span className="font-mono text-sm">{value}</span>
-    </div>
-  );
-};
+const DetailRow = ({ label, value }: DetailRowProps) => (
+  <div className="flex items-center justify-between">
+    <span className="text-muted-foreground text-sm">{label}</span>
+    <span className="font-mono text-sm">{value}</span>
+  </div>
+);
 
 export default WordCounterPage;

@@ -31,8 +31,7 @@ export const metadata: Metadata = {
   },
 };
 
-const RegexTesterLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const RegexTesterLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default RegexTesterLayout;

@@ -341,12 +341,10 @@ const HTMLEntitiesPage = () => {
   );
 };
 
-const CharCount = ({ text }: { text: string }) => {
-  return (
-    <p className="text-right text-[10px] text-muted-foreground">
-      {text.length} characters
-    </p>
-  );
-};
+const CharCount = ({ text }: { text: string }) => (
+  <p className="text-right text-[10px] text-muted-foreground">
+    {text.length} characters
+  </p>
+);
 
 export default HTMLEntitiesPage;

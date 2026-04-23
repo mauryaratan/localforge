@@ -22,12 +22,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UnixTimeConverterLayout = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  return children;
-};
+const UnixTimeConverterLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default UnixTimeConverterLayout;

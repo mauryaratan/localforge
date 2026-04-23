@@ -23,8 +23,6 @@ export const metadata: Metadata = {
   },
 };
 
-const JsonCsvLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const JsonCsvLayout = ({ children }: { children: React.ReactNode }) => children;
 
 export default JsonCsvLayout;

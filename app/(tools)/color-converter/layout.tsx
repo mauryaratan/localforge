@@ -32,8 +32,7 @@ export const metadata: Metadata = {
   },
 };
 
-const ColorConverterLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const ColorConverterLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default ColorConverterLayout;

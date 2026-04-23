@@ -24,13 +24,12 @@ const getTextContent = (children: React.ReactNode): string => {
 };
 
 // Helper to create URL-friendly slug
-const slugify = (text: string): string => {
-  return text
+const slugify = (text: string): string =>
+  text
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-};
 
 interface MarkdownRendererProps {
   content: string;

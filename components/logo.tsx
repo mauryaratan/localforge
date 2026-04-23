@@ -72,40 +72,38 @@ export const LogoIcon = ({
 }: {
   className?: string;
   size?: number;
-}) => {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      height={size}
-      viewBox="0 0 32 32"
-      width={size}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        className="fill-primary/10 stroke-primary"
-        height="24"
-        rx="4"
-        strokeWidth="1.5"
-        width="28"
-        x="2"
-        y="4"
-      />
-      <path
-        className="stroke-primary"
-        d="M8 10L12 16L8 22"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-      <path
-        className="stroke-primary"
-        d="M14 22H20"
-        strokeLinecap="round"
-        strokeWidth="2"
-      />
-      <circle className="fill-primary" cx="24" cy="10" r="3" />
-    </svg>
-  );
-};
+}) => (
+  <svg
+    aria-hidden="true"
+    className={className}
+    fill="none"
+    height={size}
+    viewBox="0 0 32 32"
+    width={size}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect
+      className="fill-primary/10 stroke-primary"
+      height="24"
+      rx="4"
+      strokeWidth="1.5"
+      width="28"
+      x="2"
+      y="4"
+    />
+    <path
+      className="stroke-primary"
+      d="M8 10L12 16L8 22"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+    />
+    <path
+      className="stroke-primary"
+      d="M14 22H20"
+      strokeLinecap="round"
+      strokeWidth="2"
+    />
+    <circle className="fill-primary" cx="24" cy="10" r="3" />
+  </svg>
+);

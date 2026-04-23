@@ -36,8 +36,7 @@ export const metadata: Metadata = {
   },
 };
 
-const HTMLSymbolsLayout = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+const HTMLSymbolsLayout = ({ children }: { children: React.ReactNode }) =>
+  children;
 
 export default HTMLSymbolsLayout;
