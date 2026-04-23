@@ -1,3 +1,5 @@
+import { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { navItems } from "@/lib/nav-items";
 import {
@@ -6,6 +8,9 @@ import {
   buildSitemap,
   siteConfig,
 } from "@/lib/site";
+
+const toolsDirectory = path.join(process.cwd(), "app", "(tools)");
+const LEADING_SLASH_REGEX = /^\//;
 
 describe("site metadata helpers", () => {
   it("builds a manifest with the shared site copy", () => {
@@ -41,5 +46,33 @@ describe("site metadata helpers", () => {
     expect(sitemap.at(-1)?.url).toBe(
       `https://example.com${navItems.at(-1)?.href}`
     );
+  });
+
+  it("keeps nav items in sync with tool route folders", () => {
+    const toolFolders = readdirSync(toolsDirectory, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+    const navRoutes = navItems
+      .map((item) => item.href.replace(LEADING_SLASH_REGEX, ""))
+      .sort();
+
+    expect(navRoutes).toEqual(toolFolders);
+  });
+
+  it("has a page and layout for every tool route", () => {
+    for (const item of navItems) {
+      const routeName = item.href.replace(LEADING_SLASH_REGEX, "");
+      const routeDirectory = path.join(toolsDirectory, routeName);
+
+      expect(
+        existsSync(path.join(routeDirectory, "page.tsx")),
+        `${item.href} is missing page.tsx`
+      ).toBe(true);
+      expect(
+        existsSync(path.join(routeDirectory, "layout.tsx")),
+        `${item.href} is missing layout.tsx`
+      ).toBe(true);
+    }
   });
 });

@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let flushScheduledStorageWrites: typeof import("@/lib/utils").flushScheduledStorageWrites;
+let getStorageValue: typeof import("@/lib/utils").getStorageValue;
 let scheduleStorageValue: typeof import("@/lib/utils").scheduleStorageValue;
+let setStorageValue: typeof import("@/lib/utils").setStorageValue;
 
 const createStorageMock = (): Storage => {
   const store = new Map<string, string>();
@@ -28,9 +30,12 @@ describe("scheduleStorageValue", () => {
     vi.resetModules();
     vi.stubGlobal("localStorage", createStorageMock());
 
-    ({ flushScheduledStorageWrites, scheduleStorageValue } = await import(
-      "@/lib/utils"
-    ));
+    ({
+      flushScheduledStorageWrites,
+      getStorageValue,
+      scheduleStorageValue,
+      setStorageValue,
+    } = await import("@/lib/utils"));
   });
 
   afterEach(() => {
@@ -66,5 +71,50 @@ describe("scheduleStorageValue", () => {
     flushScheduledStorageWrites();
 
     expect(localStorage.getItem("devtools:test")).toBe("pending");
+  });
+
+  it("flushes pending writes before page hide", () => {
+    scheduleStorageValue("devtools:test", "pending", 300);
+
+    window.dispatchEvent(new Event("pagehide"));
+
+    expect(localStorage.getItem("devtools:test")).toBe("pending");
+  });
+
+  it("flushes pending writes when the document becomes hidden", () => {
+    scheduleStorageValue("devtools:test", "pending", 300);
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    expect(localStorage.getItem("devtools:test")).toBe("pending");
+  });
+
+  it("reads fallback when localStorage is empty", () => {
+    expect(getStorageValue("devtools:missing", "fallback")).toBe("fallback");
+  });
+
+  it("writes and removes values immediately", () => {
+    expect(setStorageValue("devtools:test", "value")).toBe(true);
+    expect(localStorage.getItem("devtools:test")).toBe("value");
+
+    expect(setStorageValue("devtools:test", "")).toBe(true);
+    expect(localStorage.getItem("devtools:test")).toBeNull();
+  });
+
+  it("returns false when immediate storage writes fail", () => {
+    vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw new DOMException("quota exceeded", "QuotaExceededError");
+    });
+
+    expect(setStorageValue("devtools:test", "value")).toBe(false);
+  });
+
+  it("falls back when storage reads fail", () => {
+    vi.spyOn(localStorage, "getItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+
+    expect(getStorageValue("devtools:test", "fallback")).toBe("fallback");
   });
 });
