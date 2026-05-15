@@ -3,10 +3,29 @@ import {
   createPreviewDocument,
   formatHtml,
   getHtmlStats,
+  isViewportPreset,
   minifyHtml,
+  previewSandboxPermissions,
   validateHtml,
   viewportPresets,
 } from "@/lib/html-preview";
+
+describe("previewSandboxPermissions", () => {
+  it("should not allow same-origin access from user-authored preview scripts", () => {
+    expect(previewSandboxPermissions).toContain("allow-scripts");
+    expect(previewSandboxPermissions).not.toContain("allow-same-origin");
+  });
+});
+
+describe("isViewportPreset", () => {
+  it("should accept only supported viewport presets", () => {
+    expect(isViewportPreset("mobile")).toBe(true);
+    expect(isViewportPreset("tablet")).toBe(true);
+    expect(isViewportPreset("desktop")).toBe(true);
+    expect(isViewportPreset("wide")).toBe(false);
+    expect(isViewportPreset(null)).toBe(false);
+  });
+});
 
 describe("getHtmlStats", () => {
   it("should return zeros for empty input", () => {

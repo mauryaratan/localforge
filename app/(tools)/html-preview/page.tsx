@@ -45,7 +45,9 @@ import {
   exampleLabels,
   formatHtml,
   getHtmlStats,
+  isViewportPreset,
   minifyHtml,
+  previewSandboxPermissions,
   type ViewportPreset,
   validateHtml,
   viewportPresets,
@@ -63,7 +65,7 @@ const HtmlPreviewPage = () => {
   const [autoUpdate, setAutoUpdate] = useState(true);
   const [previewKey, setPreviewKey] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [renderedPreviewHtml, setRenderedPreviewHtml] = useState("");
   const fullscreenRef = useRef<HTMLDivElement>(null);
 
   // Load from localStorage on mount
@@ -74,8 +76,8 @@ const HtmlPreviewPage = () => {
     if (savedInput) {
       setInput(savedInput);
     }
-    if (savedViewport) {
-      setViewport(savedViewport as ViewportPreset);
+    if (isViewportPreset(savedViewport)) {
+      setViewport(savedViewport);
     }
     setIsHydrated(true);
   }, []);
@@ -103,29 +105,20 @@ const HtmlPreviewPage = () => {
     return createPreviewDocument(input, false);
   }, [input]);
 
+  // Update iframe content when auto-update is enabled.
+  useEffect(() => {
+    if (!autoUpdate) {
+      return;
+    }
+
+    setRenderedPreviewHtml(previewHtml);
+  }, [previewHtml, autoUpdate]);
+
   // Trigger manual preview update
   const handleRunPreview = useCallback(() => {
+    setRenderedPreviewHtml(previewHtml);
     setPreviewKey((prev) => prev + 1);
-  }, []);
-
-  // Update iframe content
-  useEffect(() => {
-    if (!(iframeRef.current && previewHtml)) {
-      return;
-    }
-
-    if (!autoUpdate && previewKey === 0) {
-      return;
-    }
-
-    const iframe = iframeRef.current;
-    const doc = iframe.contentDocument;
-    if (doc) {
-      doc.open();
-      doc.write(previewHtml);
-      doc.close();
-    }
-  }, [previewHtml, autoUpdate, previewKey]);
+  }, [previewHtml]);
 
   const handleCopy = useCallback(async (text: string) => {
     if (!text) {
@@ -142,11 +135,13 @@ const HtmlPreviewPage = () => {
 
   const handleClearInput = useCallback(() => {
     setInput("");
+    setRenderedPreviewHtml("");
     setPreviewKey(0);
   }, []);
 
   const handleLoadExample = useCallback((key: keyof typeof exampleHtml) => {
     setInput(exampleHtml[key]);
+    setRenderedPreviewHtml(createPreviewDocument(exampleHtml[key], false));
     setPreviewKey((prev) => prev + 1);
   }, []);
 
@@ -181,21 +176,33 @@ const HtmlPreviewPage = () => {
   }, [input]);
 
   const handleFullscreen = useCallback(() => {
-    if (!fullscreenRef.current) {
+    const previewElement = fullscreenRef.current;
+
+    if (!previewElement) {
       return;
     }
 
     if (isFullscreen) {
-      document.exitFullscreen?.().catch(() => {
+      if (!document.exitFullscreen) {
         setIsFullscreen(false);
+        return;
+      }
+
+      document.exitFullscreen().catch(() => {
+        setIsFullscreen(!!document.fullscreenElement);
       });
-      setIsFullscreen(false);
-    } else {
-      fullscreenRef.current.requestFullscreen?.().catch(() => {
-        setIsFullscreen(true);
-      });
-      setIsFullscreen(true);
+      return;
     }
+
+    if (!previewElement.requestFullscreen) {
+      setIsFullscreen(false);
+      return;
+    }
+
+    previewElement
+      .requestFullscreen()
+      .then(() => setIsFullscreen(true))
+      .catch(() => setIsFullscreen(false));
   }, [isFullscreen]);
 
   // Listen for fullscreen changes
@@ -331,8 +338,8 @@ const HtmlPreviewPage = () => {
               <iframe
                 className="h-full w-full border-0"
                 key={previewKey}
-                ref={iframeRef}
-                sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
+                sandbox={previewSandboxPermissions}
+                srcDoc={renderedPreviewHtml}
                 title="HTML Preview"
               />
             </div>
@@ -344,7 +351,14 @@ const HtmlPreviewPage = () => {
         </div>
       </div>
     ),
-    [viewport, currentViewport, input, previewKey, handleFullscreen]
+    [
+      viewport,
+      currentViewport,
+      input,
+      previewKey,
+      handleFullscreen,
+      renderedPreviewHtml,
+    ]
   );
 
   return (

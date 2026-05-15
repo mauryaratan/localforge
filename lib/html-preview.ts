@@ -17,6 +17,9 @@ export interface HtmlStats {
   links: number;
 }
 
+export const previewSandboxPermissions =
+  "allow-scripts allow-forms allow-modals allow-popups";
+
 /**
  * Get statistics about HTML content
  */
@@ -371,6 +374,11 @@ export const viewportPresets: Record<ViewportPreset, ViewportSize> = {
   tablet: { width: 768, height: 1024, label: "Tablet (768×1024)" },
   desktop: { width: 1280, height: 800, label: "Desktop (1280×800)" },
 };
+
+export const isViewportPreset = (
+  value: string | null
+): value is ViewportPreset =>
+  value === "mobile" || value === "tablet" || value === "desktop";
 
 /**
  * Example HTML snippets
