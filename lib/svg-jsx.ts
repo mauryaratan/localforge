@@ -238,6 +238,106 @@ export const validateSvg = (
   return { isValid: true };
 };
 
+const unsafePreviewElements = [
+  "script",
+  "foreignObject",
+  "iframe",
+  "object",
+  "embed",
+  "audio",
+  "video",
+  "canvas",
+];
+
+const urlAttributeNames = new Set([
+  "href",
+  "xlink:href",
+  "src",
+  "poster",
+  "formaction",
+]);
+
+const isUnsafeUrlValue = (value: string): boolean => {
+  const normalized = Array.from(value.trim())
+    .filter((char) => {
+      const codePoint = char.codePointAt(0) ?? 0;
+      return codePoint > 0x1f && codePoint !== 0x7f && !/\s/.test(char);
+    })
+    .join("");
+
+  if (!normalized) {
+    return false;
+  }
+
+  const lowerNormalized = normalized.toLowerCase();
+
+  if (normalized.startsWith("#")) {
+    return false;
+  }
+
+  if (lowerNormalized.startsWith("data:")) {
+    return !/^data:image\/(?:png|jpe?g|gif|webp);base64,/.test(lowerNormalized);
+  }
+
+  return /^(?:javascript|vbscript|https?|ftp):/.test(lowerNormalized);
+};
+
+const hasUnsafeStyleUrl = (value: string): boolean =>
+  /url\(\s*(?!['"]?#)/i.test(value);
+
+/**
+ * Sanitizes user-provided SVG before rendering a preview in the live DOM.
+ */
+export const sanitizeSvgForPreview = (input: string): string => {
+  if (
+    typeof DOMParser === "undefined" ||
+    typeof XMLSerializer === "undefined"
+  ) {
+    return "";
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(input.trim(), "image/svg+xml");
+
+  if (doc.querySelector("parsererror")) {
+    return "";
+  }
+
+  const svg = doc.querySelector("svg");
+  if (!svg) {
+    return "";
+  }
+
+  for (const elementName of unsafePreviewElements) {
+    for (const element of Array.from(svg.querySelectorAll(elementName))) {
+      element.remove();
+    }
+  }
+
+  for (const element of [svg, ...Array.from(svg.querySelectorAll("*"))]) {
+    for (const attribute of Array.from(element.attributes)) {
+      const name = attribute.name.toLowerCase();
+      const value = attribute.value;
+
+      if (name.startsWith("on")) {
+        element.removeAttribute(attribute.name);
+        continue;
+      }
+
+      if (urlAttributeNames.has(name) && isUnsafeUrlValue(value)) {
+        element.removeAttribute(attribute.name);
+        continue;
+      }
+
+      if (name === "style" && hasUnsafeStyleUrl(value)) {
+        element.removeAttribute(attribute.name);
+      }
+    }
+  }
+
+  return new XMLSerializer().serializeToString(svg);
+};
+
 /**
  * Converts SVG attribute string to JSX attributes
  */

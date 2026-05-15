@@ -27,6 +27,7 @@ import {
   exampleSvgs,
   formatBytes,
   type OutputFormat,
+  sanitizeSvgForPreview,
 } from "@/lib/svg-jsx";
 import { scheduleStorageValue } from "@/lib/utils";
 
@@ -91,6 +92,8 @@ const SvgToJsxPage = () => {
     singleQuotes,
     cleanupIds,
   ]);
+
+  const sanitizedPreview = useMemo(() => sanitizeSvgForPreview(input), [input]);
 
   const handleCopy = useCallback(async () => {
     if (!result?.output) {
@@ -257,7 +260,7 @@ const SvgToJsxPage = () => {
         </Card>
 
         {/* Preview */}
-        {result?.isValid && input.trim() && (
+        {result?.isValid && sanitizedPreview && (
           <Card>
             <CardHeader className="border-b">
               <div className="flex items-center justify-between">
@@ -323,8 +326,8 @@ const SvgToJsxPage = () => {
               >
                 <div
                   className="size-24 [&>svg]:h-full [&>svg]:w-full"
-                  // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - using user-provided SVG for preview
-                  dangerouslySetInnerHTML={{ __html: input }}
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized SVG preview markup
+                  dangerouslySetInnerHTML={{ __html: sanitizedPreview }}
                 />
               </div>
             </CardContent>

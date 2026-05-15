@@ -5,6 +5,7 @@ import {
   convertSvgToJsx,
   formatBytes,
   parseStyleToJsx,
+  sanitizeSvgForPreview,
   toCamelCase,
   validateSvg,
 } from "@/lib/svg-jsx";
@@ -300,6 +301,58 @@ describe("convertSvgToJsx", () => {
     const result = convertSvgToJsx(svgWithXlink);
     expect(result.output).toContain("xlinkHref=");
     expect(result.output).not.toContain("xlink:href=");
+  });
+});
+
+describe("sanitizeSvgForPreview", () => {
+  it("should preserve safe SVG markup", () => {
+    const result = sanitizeSvgForPreview(
+      '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="red" /></svg>'
+    );
+
+    expect(result).toContain("<svg");
+    expect(result).toContain("<circle");
+    expect(result).toContain('fill="red"');
+  });
+
+  it("should remove script elements and event handler attributes", () => {
+    const result = sanitizeSvgForPreview(
+      '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><script>alert(1)</script><circle onclick="alert(2)" r="10" /></svg>'
+    );
+
+    expect(result).not.toContain("<script");
+    expect(result).not.toContain("onload");
+    expect(result).not.toContain("onclick");
+    expect(result).toContain("<circle");
+  });
+
+  it("should remove unsafe URL-bearing attributes", () => {
+    const result = sanitizeSvgForPreview(
+      '<svg xmlns="http://www.w3.org/2000/svg"><a href="javascript:alert(1)"><rect /></a><image href="https://example.com/pixel.png" /></svg>'
+    );
+
+    expect(result).not.toContain("javascript:");
+    expect(result).not.toContain("https://example.com");
+    expect(result).toContain("<rect");
+    expect(result).toContain("<image");
+  });
+
+  it("should allow raster data images but remove SVG data images", () => {
+    const result = sanitizeSvgForPreview(
+      '<svg xmlns="http://www.w3.org/2000/svg"><image href="DATA:image/png;base64,iVBORw0KGgo=" /><image href="DATA:image/svg+xml;base64,PHN2ZyBvbmxvYWQ9YWxlcnQoMSk+" /></svg>'
+    );
+
+    expect(result).toContain("DATA:image/png;base64");
+    expect(result).not.toContain("DATA:image/svg+xml");
+  });
+
+  it("should remove style attributes with external URL references", () => {
+    const result = sanitizeSvgForPreview(
+      '<svg xmlns="http://www.w3.org/2000/svg"><rect style="fill: url(https://example.com/pattern.svg)" /></svg>'
+    );
+
+    expect(result).not.toContain("style=");
+    expect(result).toContain("<rect");
   });
 });
 
