@@ -407,10 +407,27 @@ describe("parseTimestampExpression", () => {
     expect(result.value).toBe(86_400);
   });
 
+  it("should parse time units in the requested timestamp unit", () => {
+    const result = parseTimestampExpression("1d", "milliseconds");
+    expect(result.success).toBe(true);
+    expect(result.value).toBe(86_400_000);
+  });
+
   it("should parse complex expressions", () => {
     const result = parseTimestampExpression("1000+1h");
     expect(result.success).toBe(true);
     expect(result.value).toBe(1000 + 3600);
+  });
+
+  it("should keep now expressions in the requested timestamp unit", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-01T00:00:00.000Z"));
+
+    const result = parseTimestampExpression("now+1d", "milliseconds");
+
+    vi.useRealTimers();
+    expect(result.success).toBe(true);
+    expect(result.value).toBe(1_704_153_600_000);
   });
 
   it("should handle now keyword", () => {
@@ -483,6 +500,17 @@ describe("parseInput", () => {
     const result = parseInput("now+1d", "auto");
     expect(result.success).toBe(true);
     expect(result.timestamp).toBeDefined();
+  });
+
+  it("should parse expressions in milliseconds when requested", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-01T00:00:00.000Z"));
+
+    const result = parseInput("now+1d", "auto", "milliseconds");
+
+    vi.useRealTimers();
+    expect(result.success).toBe(true);
+    expect(result.timestamp).toBe(1_704_153_600_000);
   });
 
   it("should return error for invalid input", () => {

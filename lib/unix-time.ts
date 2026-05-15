@@ -602,7 +602,7 @@ export const getDetailedRelativeTime = (date: Date): DetailedRelativeTime => {
  */
 export const parseTimestampExpression = (
   input: string,
-  _unit: TimestampUnit = "seconds"
+  unit: TimestampUnit = "seconds"
 ): { success: boolean; value?: number; error?: string } => {
   const trimmed = input.trim().toLowerCase();
 
@@ -613,20 +613,23 @@ export const parseTimestampExpression = (
   // Replace "now" with current timestamp
   let expression = trimmed.replace(
     /\bnow\b/g,
-    Math.floor(Date.now() / 1000).toString()
+    fromMilliseconds(Date.now(), unit).toString()
   );
 
   // Parse time unit suffixes (1d, 2h, 30m, etc.)
   // Must be done before math evaluation
   expression = expression.replace(/(\d+)([smhdw])\b/g, (_, num, suffix) => {
     const multipliers: Record<string, number> = {
-      s: 1,
-      m: 60,
-      h: 3600,
-      d: 86_400,
-      w: 604_800,
+      s: 1000,
+      m: 60_000,
+      h: 3_600_000,
+      d: 86_400_000,
+      w: 604_800_000,
     };
-    return (Number.parseInt(num, 10) * multipliers[suffix]).toString();
+    return fromMilliseconds(
+      Number.parseInt(num, 10) * multipliers[suffix],
+      unit
+    ).toString();
   });
 
   // Only allow numbers, operators, parentheses, and whitespace
