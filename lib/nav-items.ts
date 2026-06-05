@@ -8,6 +8,7 @@ import {
   CommandIcon,
   DocumentCodeIcon,
   DocumentValidationIcon,
+  FileZipIcon,
   FingerPrintIcon,
   GridTableIcon,
   Image01Icon,
@@ -126,6 +127,11 @@ export const navItems: NavItem[] = [
     title: "JSON / CSV",
     href: "/json-csv",
     icon: GridTableIcon,
+  },
+  {
+    title: "CSV File Splitter",
+    href: "/csv-file-splitter",
+    icon: FileZipIcon,
   },
   {
     title: "Color Converter",
