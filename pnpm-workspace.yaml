@@ -1,5 +1,11 @@
 packages:
   - .
+overrides:
+  electron-to-chromium: 1.5.367
+  enhanced-resolve: 5.22.2
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+allowBuilds:
+  msw: false
+  sharp: false
