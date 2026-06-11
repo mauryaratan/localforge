@@ -39,6 +39,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   CHARACTER_SET_LABELS,
   type CharacterSet,
@@ -89,10 +90,17 @@ const FILE_EXTENSION_REGEX = /\.[^.]+$/;
 const NEWLINE_REGEX = /\n/g;
 
 const AsciiArtPage = () => {
-  const [activeTab, setActiveTab] = useState<"text" | "image">("text");
+  const [activeTabStr, setActiveTabStr] = useToolStorage(
+    TAB_STORAGE_KEY,
+    "text"
+  );
+  const activeTab = (activeTabStr === "image" ? "image" : "text") as
+    | "text"
+    | "image";
+  const setActiveTab = setActiveTabStr;
 
   // Text mode state
-  const [textInput, setTextInput] = useState("HELLO");
+  const [textInput, setTextInput] = useToolStorage(TEXT_STORAGE_KEY, "HELLO");
   const [textOptions, setTextOptions] =
     useState<TextOptions>(DEFAULT_TEXT_OPTIONS);
   const [textOutput, setTextOutput] = useState("");
@@ -112,23 +120,13 @@ const AsciiArtPage = () => {
   } | null>(null);
 
   const [copied, setCopied] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const outputRef = useRef<HTMLPreElement>(null);
+  const imageOptionsHydrated = useRef(false);
 
-  // Load from localStorage
+  // Load imageOptions from localStorage
   useEffect(() => {
-    const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
-    if (savedTab === "text" || savedTab === "image") {
-      setActiveTab(savedTab);
-    }
-
-    const savedText = localStorage.getItem(TEXT_STORAGE_KEY);
-    if (savedText) {
-      setTextInput(savedText);
-    }
-
     const savedImageOptions = localStorage.getItem(IMAGE_STORAGE_KEY);
     if (savedImageOptions) {
       try {
@@ -138,31 +136,16 @@ const AsciiArtPage = () => {
         // Invalid JSON, ignore
       }
     }
-
-    setIsHydrated(true);
   }, []);
 
-  // Save to localStorage
+  // Save imageOptions to localStorage
   useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(TAB_STORAGE_KEY, activeTab);
-  }, [activeTab, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(TEXT_STORAGE_KEY, textInput);
-  }, [textInput, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) {
+    if (!imageOptionsHydrated.current) {
+      imageOptionsHydrated.current = true;
       return;
     }
     scheduleStorageValue(IMAGE_STORAGE_KEY, JSON.stringify(imageOptions));
-  }, [imageOptions, isHydrated]);
+  }, [imageOptions]);
 
   // Generate text ASCII art
   useEffect(() => {

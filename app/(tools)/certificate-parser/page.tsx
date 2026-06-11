@@ -19,13 +19,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type CertificateNamePart,
   type CertificateParseResult,
   certificateExample,
   parseCertificates,
 } from "@/lib/certificate-parser";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_CERT = "devtools:certificate-parser:input";
 
@@ -38,20 +38,8 @@ const formatName = (parts: CertificateNamePart[]) =>
   parts.map((part) => `${part.key}=${part.value}`).join(", ");
 
 const CertificateParserPage = () => {
-  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_CERT));
+  const [input, setInput] = useToolStorage(STORAGE_KEY_CERT);
   const [result, setResult] = useState<CertificateParseResult>(EMPTY_RESULT);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_CERT, input);
-  }, [input, isHydrated]);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,12 +63,12 @@ const CertificateParserPage = () => {
 
   const handleLoadExample = useCallback(() => {
     setInput(certificateExample);
-  }, []);
+  }, [setInput]);
 
   const handleClear = useCallback(() => {
     setInput("");
     setResult(EMPTY_RESULT);
-  }, []);
+  }, [setInput]);
 
   const handleCopy = useCallback(async () => {
     try {

@@ -2,7 +2,7 @@
 
 import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { StatusRegion } from "@/components/status-region";
@@ -18,13 +18,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type Base64Mode,
   calculateSizeInfo,
   decodeBase64,
   encodeBase64,
 } from "@/lib/base64";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
+import { getStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:base64:input";
 
@@ -37,10 +38,7 @@ const EXAMPLE_STRINGS = [
 ];
 
 const Base64Page = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [plainText, setPlainText] = useState(() =>
-    getStorageValue(STORAGE_KEY)
-  );
+  const [plainText, setPlainText] = useToolStorage(STORAGE_KEY);
   const [encodedText, setEncodedText] = useState(() => {
     const saved = getStorageValue(STORAGE_KEY);
     if (!saved) {
@@ -52,25 +50,14 @@ const Base64Page = () => {
   const [lastEdited, setLastEdited] = useState<"plain" | "encoded">("plain");
   const [mode, setMode] = useState<Base64Mode>("standard");
   const [error, setError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when plain text changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, plainText);
-  }, [plainText, isHydrated]);
+  const modeHydratedRef = useRef(false);
 
   // Re-encode/decode when mode changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally omitting plainText, encodedText, lastEdited to only trigger on mode change
   useEffect(() => {
-    if (!isHydrated) {
+    if (!modeHydratedRef.current) {
+      modeHydratedRef.current = true;
       return;
     }
 
@@ -91,7 +78,7 @@ const Base64Page = () => {
         setError(result.error || "Decoding failed");
       }
     }
-  }, [mode, isHydrated]);
+  }, [mode]);
 
   const handlePlainTextChange = (value: string) => {
     setPlainText(value);

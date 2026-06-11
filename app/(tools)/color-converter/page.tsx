@@ -13,6 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   exampleColors,
   formatCmyk,
@@ -33,30 +34,12 @@ import {
   parseColor,
   rgbToHex,
 } from "@/lib/color-converter";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:color-converter:input";
 
 const ColorConverterPage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [colorInput, setColorInput] = useState(() =>
-    getStorageValue(STORAGE_KEY)
-  );
+  const [colorInput, setColorInput] = useToolStorage(STORAGE_KEY);
   const [parsed, setParsed] = useState<ParsedColor | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, colorInput);
-  }, [colorInput, isHydrated]);
 
   // Parse color when input changes
   useEffect(() => {
@@ -84,17 +67,20 @@ const ColorConverterPage = () => {
   const handleClearInput = useCallback(() => {
     setColorInput("");
     setParsed(null);
-  }, []);
+  }, [setColorInput]);
 
-  const handleExampleClick = useCallback((value: string) => {
-    setColorInput(value);
-  }, []);
+  const handleExampleClick = useCallback(
+    (value: string) => {
+      setColorInput(value);
+    },
+    [setColorInput]
+  );
 
   const handleColorPickerChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setColorInput(e.target.value);
     },
-    []
+    [setColorInput]
   );
 
   const formats = parsed?.isValid ? parsed.formats : null;

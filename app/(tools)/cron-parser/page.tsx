@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   CRON_EXAMPLES,
   type CronExample,
@@ -21,30 +22,12 @@ import {
   type ParsedCron,
   parseCron,
 } from "@/lib/cron-parser";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:cron-parser:input";
 
 const CronParserPage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [cronInput, setCronInput] = useState(() =>
-    getStorageValue(STORAGE_KEY)
-  );
+  const [cronInput, setCronInput] = useToolStorage(STORAGE_KEY);
   const [parsed, setParsed] = useState<ParsedCron | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, cronInput);
-  }, [cronInput, isHydrated]);
 
   // Parse cron when input changes
   useEffect(() => {
@@ -72,11 +55,14 @@ const CronParserPage = () => {
   const handleClearInput = useCallback(() => {
     setCronInput("");
     setParsed(null);
-  }, []);
+  }, [setCronInput]);
 
-  const handleExampleClick = useCallback((example: CronExample) => {
-    setCronInput(example.expression);
-  }, []);
+  const handleExampleClick = useCallback(
+    (example: CronExample) => {
+      setCronInput(example.expression);
+    },
+    [setCronInput]
+  );
 
   return (
     <div className="flex gap-6">
