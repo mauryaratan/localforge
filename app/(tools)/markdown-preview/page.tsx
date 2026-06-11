@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ExampleButton } from "@/components/example-button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Dynamic import MarkdownRenderer to reduce initial bundle size
 // ReactMarkdown + remarkGfm add ~50KB gzipped to the bundle
@@ -59,6 +60,7 @@ const MarkdownPreviewPage = () => {
   const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_INPUT));
   const [isHydrated, setIsHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("split");
+  const isMobile = useIsMobile();
 
   // Mark as hydrated on mount
   useEffect(() => {
@@ -238,8 +240,10 @@ const MarkdownPreviewPage = () => {
               {/* Split View */}
               <TabsContent className="overflow-hidden" value="split">
                 <ResizablePanelGroup
-                  className="h-[500px] rounded-md"
-                  orientation="horizontal"
+                  className={
+                    isMobile ? "h-[70vh] rounded-md" : "h-[500px] rounded-md"
+                  }
+                  orientation={isMobile ? "vertical" : "horizontal"}
                 >
                   <ResizablePanel defaultSize={50} minSize={25}>
                     <Textarea
