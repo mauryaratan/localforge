@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || undefined,
   experimental: {
     // Optimize barrel file imports for faster dev boot, builds, and cold starts
     // @hugeicons has thousands of re-exports that cause 200-800ms import cost
