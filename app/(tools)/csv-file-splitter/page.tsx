@@ -7,7 +7,6 @@ import {
   ScissorIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import JSZip from "jszip";
 import {
   type ChangeEvent,
   type DragEvent,
@@ -330,6 +329,7 @@ const CsvFileSplitterPage = () => {
     setError(null);
 
     try {
+      const { default: JSZip } = await import("jszip");
       const zip = new JSZip();
       for (const chunk of splitResult.chunks) {
         zip.file(chunk.fileName, chunk.content);
