@@ -32,6 +32,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   DEFAULT_HEADER,
   DEFAULT_PAYLOAD,
@@ -48,7 +49,7 @@ import {
   validateJSON,
   verifyJWT,
 } from "@/lib/jwt";
-import { scheduleStorageValue, setStorageValue } from "@/lib/utils";
+import { setStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:jwt:input";
 const STORAGE_SECRET_KEY = "devtools:jwt:secret";
@@ -57,10 +58,9 @@ type VerificationStatus = "idle" | "valid" | "invalid" | "error";
 
 const JWTPage = () => {
   const [activeTab, setActiveTab] = useState<"decode" | "encode">("decode");
-  const [isHydrated, setIsHydrated] = useState(false);
 
   // Decoder state
-  const [token, setToken] = useState("");
+  const [token, setToken] = useToolStorage(STORAGE_KEY);
   const [decoded, setDecoded] = useState<JWTDecoded | null>(null);
   const [decodeError, setDecodeError] = useState<string | null>(null);
   const [secret, setSecret] = useState("");
@@ -84,13 +84,12 @@ const JWTPage = () => {
   const [headerError, setHeaderError] = useState<string | null>(null);
   const [payloadError, setPayloadError] = useState<string | null>(null);
 
-  // Load from localStorage on mount
+  // Decode the initially-loaded token if present, and clean up any
+  // persisted secret left by older versions of this tool.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally runs only on mount to decode the initially-loaded token
   useEffect(() => {
-    const savedToken = localStorage.getItem(STORAGE_KEY);
-
-    if (savedToken) {
-      setToken(savedToken);
-      const result = decodeJWT(savedToken);
+    if (token) {
+      const result = decodeJWT(token);
       if (result.success) {
         setDecoded(result.data);
         setDecodeError(null);
@@ -98,43 +97,35 @@ const JWTPage = () => {
         setDecodeError(result.error || "Invalid token");
       }
     }
-
     // Secrets are never persisted; remove any value stored by older versions.
     setStorageValue(STORAGE_SECRET_KEY, "");
-
-    setIsHydrated(true);
   }, []);
-
-  // Save token to localStorage
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, token);
-  }, [token, isHydrated]);
 
   // Handle token decode
-  const handleTokenChange = useCallback((value: string) => {
-    setToken(value);
-    verifyGenerationRef.current += 1;
-    setVerificationStatus("idle");
-    setVerificationError(null);
+  const handleTokenChange = useCallback(
+    (value: string) => {
+      setToken(value);
+      verifyGenerationRef.current += 1;
+      setVerificationStatus("idle");
+      setVerificationError(null);
 
-    if (!value.trim()) {
-      setDecoded(null);
-      setDecodeError(null);
-      return;
-    }
+      if (!value.trim()) {
+        setDecoded(null);
+        setDecodeError(null);
+        return;
+      }
 
-    const result = decodeJWT(value);
-    if (result.success) {
-      setDecoded(result.data);
-      setDecodeError(null);
-    } else {
-      setDecoded(null);
-      setDecodeError(result.error || "Invalid token");
-    }
-  }, []);
+      const result = decodeJWT(value);
+      if (result.success) {
+        setDecoded(result.data);
+        setDecodeError(null);
+      } else {
+        setDecoded(null);
+        setDecodeError(result.error || "Invalid token");
+      }
+    },
+    [setToken]
+  );
 
   // Handle signature verification
   const handleVerify = useCallback(async () => {
@@ -162,12 +153,17 @@ const JWTPage = () => {
     }
   }, [token, secret]);
 
-  // Auto-verify when secret changes and token exists
+  // Auto-verify when secret or token changes (skip the initial mount run)
+  const verifyHydratedRef = useRef(false);
   useEffect(() => {
-    if (isHydrated && token && secret) {
+    if (!verifyHydratedRef.current) {
+      verifyHydratedRef.current = true;
+      return;
+    }
+    if (token && secret) {
       handleVerify();
     }
-  }, [secret, isHydrated, token, handleVerify]);
+  }, [secret, token, handleVerify]);
 
   // Handle JWT encoding
   const handleEncode = useCallback(async () => {
@@ -209,12 +205,17 @@ const JWTPage = () => {
     }
   }, [headerInput, payloadInput, encodeSecret]);
 
-  // Auto-encode when inputs change
+  // Auto-encode when encodeSecret changes (skip the initial mount run)
+  const encodeHydratedRef = useRef(false);
   useEffect(() => {
-    if (isHydrated && encodeSecret) {
+    if (!encodeHydratedRef.current) {
+      encodeHydratedRef.current = true;
+      return;
+    }
+    if (encodeSecret) {
       handleEncode();
     }
-  }, [encodeSecret, isHydrated, handleEncode]);
+  }, [encodeSecret, handleEncode]);
 
   const handleCopy = async (text: string, label: string) => {
     if (!text) {

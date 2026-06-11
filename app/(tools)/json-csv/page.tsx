@@ -30,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCopiedState } from "@/hooks/use-copied-state";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type ConversionResult,
   csvToJson,
@@ -43,7 +44,6 @@ import {
   validateCsv,
   validateJson,
 } from "@/lib/json-csv";
-import { scheduleStorageValue } from "@/lib/utils";
 
 type ConversionMode = "json-to-csv" | "csv-to-json";
 
@@ -66,12 +66,15 @@ const getDelimiterLabel = (delimiter: string) => {
 };
 
 const JsonCsvPage = () => {
-  const [mode, setMode] = useState<ConversionMode>("json-to-csv");
-  const [input, setInput] = useState("");
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
+  const [modeStr, setModeStr] = useToolStorage(STORAGE_KEY_MODE, "json-to-csv");
+  const mode = (
+    modeStr === "csv-to-json" ? "csv-to-json" : "json-to-csv"
+  ) as ConversionMode;
+  const setMode = setModeStr;
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { copied, handleCopy } = useCopiedState();
-  const [isHydrated, setIsHydrated] = useState(false);
 
   // Options for JSON to CSV
   const [delimiter, setDelimiter] = useState(",");
@@ -90,29 +93,6 @@ const JsonCsvPage = () => {
   const [columnCount, setColumnCount] = useState<number | undefined>();
 
   const isJsonMode = mode === "json-to-csv";
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY_INPUT);
-    const savedMode = localStorage.getItem(STORAGE_KEY_MODE) as ConversionMode;
-
-    if (savedMode === "json-to-csv" || savedMode === "csv-to-json") {
-      setMode(savedMode);
-    }
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input/mode changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_MODE, mode);
-  }, [input, mode, isHydrated]);
 
   // Convert when input or options change. In CSV mode the delimiter is
   // auto-detected in the same pass unless the user picked one manually, so
@@ -166,7 +146,7 @@ const JsonCsvPage = () => {
     setError(null);
     setRowCount(undefined);
     setColumnCount(undefined);
-  }, []);
+  }, [setInput]);
 
   const handleModeChange = useCallback(
     (newMode: ConversionMode) => {
@@ -183,12 +163,15 @@ const JsonCsvPage = () => {
       }
       setMode(newMode);
     },
-    [mode, output]
+    [mode, output, setInput, setMode]
   );
 
-  const handleLoadExample = useCallback((example: string) => {
-    setInput(example);
-  }, []);
+  const handleLoadExample = useCallback(
+    (example: string) => {
+      setInput(example);
+    },
+    [setInput]
+  );
 
   const handleDownload = useCallback(() => {
     if (!output) {

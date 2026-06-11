@@ -20,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCopiedState } from "@/hooks/use-copied-state";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   exampleJson,
   exampleYaml,
@@ -30,7 +31,6 @@ import {
   validateYaml,
   yamlToJson,
 } from "@/lib/json-yaml";
-import { scheduleStorageValue } from "@/lib/utils";
 
 type ConversionMode = "json-to-yaml" | "yaml-to-json";
 
@@ -38,37 +38,20 @@ const STORAGE_KEY_INPUT = "devtools:json-yaml:input";
 const STORAGE_KEY_MODE = "devtools:json-yaml:mode";
 
 const JsonYamlPage = () => {
-  const [mode, setMode] = useState<ConversionMode>("json-to-yaml");
-  const [input, setInput] = useState("");
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
+  const [modeStr, setModeStr] = useToolStorage(
+    STORAGE_KEY_MODE,
+    "json-to-yaml"
+  );
+  const mode = (
+    modeStr === "yaml-to-json" ? "yaml-to-json" : "json-to-yaml"
+  ) as ConversionMode;
+  const setMode = setModeStr;
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { copied, handleCopy } = useCopiedState();
-  const [isHydrated, setIsHydrated] = useState(false);
 
   const isJsonMode = mode === "json-to-yaml";
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY_INPUT);
-    const savedMode = localStorage.getItem(STORAGE_KEY_MODE) as ConversionMode;
-
-    if (savedMode === "json-to-yaml" || savedMode === "yaml-to-json") {
-      setMode(savedMode);
-    }
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input/mode changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_MODE, mode);
-  }, [input, mode, isHydrated]);
 
   // Convert when input or mode changes
   useEffect(() => {
@@ -92,7 +75,7 @@ const JsonYamlPage = () => {
     setInput("");
     setOutput("");
     setError(null);
-  }, []);
+  }, [setInput]);
 
   const handleFormatJson = useCallback(() => {
     if (!isJsonMode) {
@@ -102,7 +85,7 @@ const JsonYamlPage = () => {
     if (result.success) {
       setInput(result.output);
     }
-  }, [input, isJsonMode]);
+  }, [input, isJsonMode, setInput]);
 
   const handleMinifyJson = useCallback(() => {
     if (!isJsonMode) {
@@ -112,7 +95,7 @@ const JsonYamlPage = () => {
     if (result.success) {
       setInput(result.output);
     }
-  }, [input, isJsonMode]);
+  }, [input, isJsonMode, setInput]);
 
   const handleModeChange = useCallback(
     (newMode: ConversionMode) => {
@@ -128,12 +111,15 @@ const JsonYamlPage = () => {
       }
       setMode(newMode);
     },
-    [mode, output]
+    [mode, output, setInput, setMode]
   );
 
-  const handleLoadExample = useCallback((example: string) => {
-    setInput(example);
-  }, []);
+  const handleLoadExample = useCallback(
+    (example: string) => {
+      setInput(example);
+    },
+    [setInput]
+  );
 
   let isValidInput: boolean | null = null;
 

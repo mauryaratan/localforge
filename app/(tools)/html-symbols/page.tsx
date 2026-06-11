@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCopiedState } from "@/hooks/use-copied-state";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   categories,
   filterByCategory,
@@ -28,7 +29,6 @@ import {
   type SymbolCategory,
   searchSymbols,
 } from "@/lib/html-symbols";
-import { scheduleStorageValue } from "@/lib/utils";
 
 type ViewMode = "grid" | "table";
 
@@ -44,41 +44,14 @@ const HTMLSymbolsPage = () => {
   const [symbols, setSymbols] = useState<HTMLSymbol[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [category, setCategory] = useState<SymbolCategory>("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [searchQuery, setSearchQuery] = useToolStorage(STORAGE_KEY, "");
+  const [viewModeStr, setViewModeStr] = useToolStorage(VIEW_MODE_KEY, "grid");
+  const viewMode = (viewModeStr === "table" ? "table" : "grid") as ViewMode;
+  const setViewMode = setViewModeStr;
+  const [categoryStr, setCategoryStr] = useToolStorage(CATEGORY_KEY, "all");
+  const category = categoryStr as SymbolCategory;
+  const setCategory = setCategoryStr;
   const { copied, handleCopy } = useCopiedState();
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load preferences from localStorage
-  useEffect(() => {
-    const savedSearch = localStorage.getItem(STORAGE_KEY);
-    const savedView = localStorage.getItem(VIEW_MODE_KEY) as ViewMode | null;
-    const savedCategory = localStorage.getItem(
-      CATEGORY_KEY
-    ) as SymbolCategory | null;
-
-    if (savedSearch) {
-      setSearchQuery(savedSearch);
-    }
-    if (savedView && (savedView === "grid" || savedView === "table")) {
-      setViewMode(savedView);
-    }
-    if (savedCategory) {
-      setCategory(savedCategory);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save preferences to localStorage
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, searchQuery);
-    scheduleStorageValue(VIEW_MODE_KEY, viewMode);
-    scheduleStorageValue(CATEGORY_KEY, category);
-  }, [searchQuery, viewMode, category, isHydrated]);
 
   // Fetch entities on mount
   useEffect(() => {
@@ -112,16 +85,22 @@ const HTMLSymbolsPage = () => {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
     },
-    []
+    [setSearchQuery]
   );
 
-  const handleCategoryChange = useCallback((cat: SymbolCategory) => {
-    setCategory(cat);
-  }, []);
+  const handleCategoryChange = useCallback(
+    (cat: SymbolCategory) => {
+      setCategory(cat);
+    },
+    [setCategory]
+  );
 
-  const handleViewModeChange = useCallback((mode: ViewMode) => {
-    setViewMode(mode);
-  }, []);
+  const handleViewModeChange = useCallback(
+    (mode: ViewMode) => {
+      setViewMode(mode);
+    },
+    [setViewMode]
+  );
 
   return (
     <div className="flex h-[calc(100dvh-6rem)] flex-col gap-4">

@@ -6,7 +6,7 @@ import {
   FileValidationIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { ExampleButton } from "@/components/example-button";
 import { Badge } from "@/components/ui/badge";
@@ -19,35 +19,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   schemaExamples,
   validateJsonAgainstSchema,
 } from "@/lib/json-schema-validator";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_DATA = "devtools:json-schema-validator:data";
 const STORAGE_KEY_SCHEMA = "devtools:json-schema-validator:schema";
 
 const JsonSchemaValidatorPage = () => {
-  const [dataInput, setDataInput] = useState(() =>
-    getStorageValue(STORAGE_KEY_DATA)
-  );
-  const [schemaInput, setSchemaInput] = useState(() =>
-    getStorageValue(STORAGE_KEY_SCHEMA)
-  );
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_DATA, dataInput);
-    scheduleStorageValue(STORAGE_KEY_SCHEMA, schemaInput);
-  }, [dataInput, isHydrated, schemaInput]);
+  const [dataInput, setDataInput] = useToolStorage(STORAGE_KEY_DATA);
+  const [schemaInput, setSchemaInput] = useToolStorage(STORAGE_KEY_SCHEMA);
 
   const result = useMemo(
     () => validateJsonAgainstSchema(dataInput, schemaInput),
@@ -59,12 +42,12 @@ const JsonSchemaValidatorPage = () => {
   const handleLoadExample = useCallback(() => {
     setDataInput(schemaExamples.data);
     setSchemaInput(schemaExamples.schema);
-  }, []);
+  }, [setDataInput, setSchemaInput]);
 
   const handleClear = useCallback(() => {
     setDataInput("");
     setSchemaInput("");
-  }, []);
+  }, [setDataInput, setSchemaInput]);
 
   const handleCopyIssues = useCallback(async () => {
     const text = result.valid
