@@ -39,24 +39,43 @@ describe("JsonCsvPage", () => {
     const csvToJsonButton = screen.getByText("CSV → JSON");
     fireEvent.click(csvToJsonButton);
 
-    // Type some semicolon CSV so auto-detect runs and sets delimiter to ";"
+    // Type comma CSV so auto-detect runs and sets delimiter to ","
     const input = screen.getByRole("textbox", { name: "CSV input" });
-    fireEvent.change(input, { target: { value: "a;b\n1;2" } });
-
-    // Simulate the user manually picking the Tab delimiter by calling the
-    // Select's onValueChange directly (driving shadcn/Base UI Select triggers
-    // in jsdom is unreliable; test the ref-guard at the output level instead).
-    // We confirm that after a second change event the output still reflects
-    // whatever delimiter the component used — the key property is that the
-    // conversion produced output at all, meaning the delimiter state is stable.
-    fireEvent.change(input, { target: { value: "a;b\n3;4" } });
+    fireEvent.change(input, { target: { value: "a,b\n1,2" } });
 
     const output = screen.getByRole("textbox", { name: "JSON output" });
-    const value = (output as HTMLTextAreaElement).value;
-    const parsed = JSON.parse(value);
-    // If auto-detect ran correctly (semicolon), we get proper keys
+    let parsed = JSON.parse((output as HTMLTextAreaElement).value);
     expect(parsed[0]).toHaveProperty("a");
     expect(parsed[0]).toHaveProperty("b");
+
+    // Manually select the Semicolon delimiter via the Select UI. The Base UI
+    // popup renders into a portal on document.body, which screen queries cover.
+    const trigger = screen.getByRole("combobox");
+    fireEvent.click(trigger);
+    const semicolonOption = screen.getByRole("option", {
+      name: "Semicolon (;)",
+    });
+    // Base UI commits the selection on a full pointer press sequence,
+    // so a bare click is not enough in jsdom.
+    fireEvent.pointerDown(semicolonOption);
+    fireEvent.mouseDown(semicolonOption);
+    fireEvent.pointerUp(semicolonOption);
+    fireEvent.mouseUp(semicolonOption);
+    fireEvent.click(semicolonOption);
+
+    // Intermediate state: the text is still comma CSV, so parsing it with the
+    // manually chosen semicolon delimiter yields a single column — proving
+    // the manual choice actually took effect (pre-fix code would auto-detect
+    // comma again and keep two columns).
+    parsed = JSON.parse((output as HTMLTextAreaElement).value);
+    expect(Object.keys(parsed[0])).toHaveLength(1);
+
+    // Now type semicolon CSV — the manual semicolon choice is honored.
+    fireEvent.change(input, { target: { value: "x;y\n3;4" } });
+
+    parsed = JSON.parse((output as HTMLTextAreaElement).value);
+    expect(parsed[0]).toHaveProperty("x");
+    expect(parsed[0]).toHaveProperty("y");
   });
 
   it("regression: invalid CSV + mode toggle preserves the input text", () => {
