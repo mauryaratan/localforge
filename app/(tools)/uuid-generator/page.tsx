@@ -7,7 +7,7 @@ import {
   Search01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,7 +58,8 @@ const UuidGeneratorPage = () => {
   const [generatedIds, setGeneratedIds] = useState<GeneratedId[]>([]);
   const [parseInput, setParseInput] = useState("");
   const [parsedResult, setParsedResult] = useState<ParsedId | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const settingsHydratedRef = useRef(false);
+  const generateHydratedRef = useRef(false);
 
   // Load settings from localStorage
   useEffect(() => {
@@ -74,17 +75,18 @@ const UuidGeneratorPage = () => {
         // Invalid JSON, use defaults
       }
     }
-    setIsHydrated(true);
+    settingsHydratedRef.current = true;
+    generateHydratedRef.current = true;
   }, []);
 
   // Save settings to localStorage
   useEffect(() => {
-    if (!isHydrated) {
+    if (!settingsHydratedRef.current) {
       return;
     }
     const settings: StoredSettings = { format, count, style, withHyphens };
     scheduleStorageValue(STORAGE_KEY, JSON.stringify(settings));
-  }, [format, count, style, withHyphens, isHydrated]);
+  }, [format, count, style, withHyphens]);
 
   const handleGenerate = useCallback(() => {
     const ids = generateIds(format, count, style);
@@ -93,11 +95,11 @@ const UuidGeneratorPage = () => {
 
   // Generate initial IDs
   useEffect(() => {
-    if (!isHydrated) {
+    if (!generateHydratedRef.current) {
       return;
     }
     handleGenerate();
-  }, [isHydrated, handleGenerate]);
+  }, [handleGenerate]);
 
   const handleFormatChange = (newFormat: IdFormat) => {
     setFormat(newFormat);

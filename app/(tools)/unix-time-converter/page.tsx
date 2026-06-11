@@ -41,6 +41,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   COMMON_TIMEZONES,
   formatInTimezone,
@@ -93,15 +94,30 @@ const UnixTimeConverterPage = () => {
   const [currentTime, setCurrentTime] = useState<CurrentTimestamps | null>(
     null
   );
-  const [input, setInput] = useState("");
-  const [inputFormat, setInputFormat] = useState<InputFormat>("auto");
-  const [unit, setUnit] = useState<TimestampUnit>("seconds");
-  const [timezone, setTimezone] = useState<TimezoneMode>("local");
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
+  const [inputFormatStr, setInputFormatStr] = useToolStorage(
+    STORAGE_KEY_FORMAT,
+    "auto"
+  );
+  const inputFormat = (
+    FORMAT_OPTIONS.some((o) => o.value === inputFormatStr)
+      ? inputFormatStr
+      : "auto"
+  ) as InputFormat;
+  const [unitStr, setUnitStr] = useToolStorage(STORAGE_KEY_UNIT, "seconds");
+  const unit = (
+    UNIT_OPTIONS.some((o) => o.value === unitStr) ? unitStr : "seconds"
+  ) as TimestampUnit;
+  const [timezoneStr, setTimezoneStr] = useToolStorage(
+    STORAGE_KEY_TIMEZONE,
+    "local"
+  );
+  const timezone = (timezoneStr === "utc" ? "utc" : "local") as TimezoneMode;
   const [extraTimezones, setExtraTimezones] = useState<string[]>([]);
   const [selectedTz, setSelectedTz] = useState<string>("");
-  const [isHydrated, setIsHydrated] = useState(false);
   const [allTimezones, setAllTimezones] = useState<string[]>([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const extraTzHydratedRef = useRef(false);
 
   // Load timezones and set initial time on mount (client-side only)
   useEffect(() => {
@@ -109,28 +125,9 @@ const UnixTimeConverterPage = () => {
     setCurrentTime(getCurrentTimestamps());
   }, []);
 
-  // Load from localStorage on mount
+  // Load extraTimezones from localStorage on mount
   useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY_INPUT);
-    const savedFormat = localStorage.getItem(STORAGE_KEY_FORMAT) as InputFormat;
-    const savedUnit = localStorage.getItem(STORAGE_KEY_UNIT) as TimestampUnit;
-    const savedTimezone = localStorage.getItem(
-      STORAGE_KEY_TIMEZONE
-    ) as TimezoneMode;
     const savedExtraTz = localStorage.getItem(STORAGE_KEY_EXTRA_TZ);
-
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    if (savedFormat && FORMAT_OPTIONS.some((o) => o.value === savedFormat)) {
-      setInputFormat(savedFormat);
-    }
-    if (savedUnit && UNIT_OPTIONS.some((o) => o.value === savedUnit)) {
-      setUnit(savedUnit);
-    }
-    if (savedTimezone === "local" || savedTimezone === "utc") {
-      setTimezone(savedTimezone);
-    }
     if (savedExtraTz) {
       try {
         const parsed = JSON.parse(savedExtraTz);
@@ -138,23 +135,19 @@ const UnixTimeConverterPage = () => {
           setExtraTimezones(parsed);
         }
       } catch {
-        // Invalid JSON
+        /* Invalid JSON */
       }
     }
-    setIsHydrated(true);
   }, []);
 
-  // Save to localStorage when values change (after hydration)
+  // Save extraTimezones to localStorage when it changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) {
+    if (!extraTzHydratedRef.current) {
+      extraTzHydratedRef.current = true;
       return;
     }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_FORMAT, inputFormat);
-    scheduleStorageValue(STORAGE_KEY_UNIT, unit);
-    scheduleStorageValue(STORAGE_KEY_TIMEZONE, timezone);
     scheduleStorageValue(STORAGE_KEY_EXTRA_TZ, JSON.stringify(extraTimezones));
-  }, [input, inputFormat, unit, timezone, extraTimezones, isHydrated]);
+  }, [extraTimezones]);
 
   // Update current time every second
   useEffect(() => {
@@ -191,22 +184,25 @@ const UnixTimeConverterPage = () => {
     } catch {
       // Clipboard API failed
     }
-  }, []);
+  }, [setInput]);
 
   const handleClear = useCallback(() => {
     setInput("");
-  }, []);
+  }, [setInput]);
 
   const handleUseNow = useCallback(() => {
     const now = currentTime ?? getCurrentTimestamps();
     setInput(now.seconds.toString());
-    setInputFormat("seconds");
-  }, [currentTime]);
+    setInputFormatStr("seconds");
+  }, [currentTime, setInput, setInputFormatStr]);
 
-  const handleLoadReference = useCallback((timestamp: number) => {
-    setInput(timestamp.toString());
-    setInputFormat("seconds");
-  }, []);
+  const handleLoadReference = useCallback(
+    (timestamp: number) => {
+      setInput(timestamp.toString());
+      setInputFormatStr("seconds");
+    },
+    [setInput, setInputFormatStr]
+  );
 
   const handleAddTimezone = useCallback(() => {
     if (selectedTz && !extraTimezones.includes(selectedTz)) {
@@ -374,7 +370,7 @@ const UnixTimeConverterPage = () => {
                 <Field>
                   <Select
                     onValueChange={(value) =>
-                      setInputFormat(value as InputFormat)
+                      setInputFormatStr(value ?? "auto")
                     }
                     value={inputFormat}
                   >
@@ -410,7 +406,7 @@ const UnixTimeConverterPage = () => {
                         aria-pressed={unit === opt.value}
                         className="cursor-pointer px-2"
                         key={opt.value}
-                        onClick={() => setUnit(opt.value)}
+                        onClick={() => setUnitStr(opt.value)}
                         pressed={unit === opt.value}
                         value={opt.value}
                       >
@@ -430,7 +426,7 @@ const UnixTimeConverterPage = () => {
                     <ToggleGroupItem
                       aria-pressed={timezone === "local"}
                       className="cursor-pointer px-2.5"
-                      onClick={() => setTimezone("local")}
+                      onClick={() => setTimezoneStr("local")}
                       pressed={timezone === "local"}
                       value="local"
                     >
@@ -439,7 +435,7 @@ const UnixTimeConverterPage = () => {
                     <ToggleGroupItem
                       aria-pressed={timezone === "utc"}
                       className="cursor-pointer px-2.5"
-                      onClick={() => setTimezone("utc")}
+                      onClick={() => setTimezoneStr("utc")}
                       pressed={timezone === "utc"}
                       value="utc"
                     >

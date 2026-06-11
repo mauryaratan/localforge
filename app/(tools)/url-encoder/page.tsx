@@ -2,7 +2,7 @@
 
 import { Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
@@ -11,38 +11,28 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useCopiedState } from "@/hooks/use-copied-state";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import { encodeURLComponent } from "@/lib/url-parser";
-import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:url-encoder:input";
 
 const URLEncoderPage = () => {
-  const [decodedText, setDecodedText] = useState("");
+  const [decodedText, setDecodedText] = useToolStorage(STORAGE_KEY);
   const [encodedText, setEncodedText] = useState("");
   const { copied, handleCopy } = useCopiedState();
   const [lastEdited, setLastEdited] = useState<"decoded" | "encoded">(
     "decoded"
   );
   const [error, setError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const encodedInitRef = useRef(false);
 
-  // Load from localStorage on mount
+  // Initialize encodedText from storage-loaded decodedText on first non-empty value
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setDecodedText(saved);
-      setEncodedText(encodeURLComponent(saved));
+    if (!encodedInitRef.current && decodedText) {
+      encodedInitRef.current = true;
+      setEncodedText(encodeURLComponent(decodedText));
     }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when decoded text changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, decodedText);
-  }, [decodedText, isHydrated]);
+  }, [decodedText]);
 
   const handleDecodedChange = (value: string) => {
     setDecodedText(value);

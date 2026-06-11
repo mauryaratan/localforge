@@ -6,7 +6,7 @@ import {
   Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCopiedState } from "@/hooks/use-copied-state";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   CASE_INFO,
   type CaseType,
@@ -25,7 +26,6 @@ import {
   getCharacterCount,
   getWordCount,
 } from "@/lib/string-case";
-import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:string-case:input";
 
@@ -41,34 +41,19 @@ const EXAMPLE_INPUTS = [
 ];
 
 const StringCaseConverterPage = () => {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useToolStorage(STORAGE_KEY);
   const { copied, handleCopy } = useCopiedState();
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setInput(saved);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, input);
-  }, [input, isHydrated]);
 
   const handleClearInput = useCallback(() => {
     setInput("");
-  }, []);
+  }, [setInput]);
 
-  const handleExampleClick = useCallback((value: string) => {
-    setInput(value);
-  }, []);
+  const handleExampleClick = useCallback(
+    (value: string) => {
+      setInput(value);
+    },
+    [setInput]
+  );
 
   // Compute all conversions
   const conversions = useMemo(() => {

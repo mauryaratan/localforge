@@ -8,7 +8,7 @@ import {
   Time01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { ExampleButton } from "@/components/example-button";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { scheduleStorageValue } from "@/lib/utils";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   exampleTexts,
   formatTime,
@@ -31,25 +31,7 @@ import {
 const STORAGE_KEY = "devtools:word-counter:input";
 
 const WordCounterPage = () => {
-  const [input, setInput] = useState("");
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY);
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, input);
-  }, [input, isHydrated]);
+  const [input, setInput] = useToolStorage(STORAGE_KEY);
 
   // Calculate stats
   const stats = useMemo<WordCountStats>(
@@ -62,7 +44,7 @@ const WordCounterPage = () => {
 
   const handleClearInput = useCallback(() => {
     setInput("");
-  }, []);
+  }, [setInput]);
 
   const handleCopyStats = useCallback(async () => {
     const statsText = `Words: ${stats.words}
@@ -82,9 +64,12 @@ Speaking Time: ${formatTime(stats.speakingTimeSeconds)}`;
     }
   }, [stats]);
 
-  const handleLoadExample = useCallback((example: string) => {
-    setInput(example);
-  }, []);
+  const handleLoadExample = useCallback(
+    (example: string) => {
+      setInput(example);
+    },
+    [setInput]
+  );
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">

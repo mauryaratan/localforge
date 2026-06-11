@@ -14,8 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useCopiedState } from "@/hooks/use-copied-state";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import { buildURL, type ParsedURL, parseURL } from "@/lib/url-parser";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:url-parser:input";
 
@@ -30,31 +30,16 @@ interface EditableParsedURL extends Omit<ParsedURL, "searchParams"> {
 }
 
 const URLParserPage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [urlInput, setUrlInput] = useState(() => getStorageValue(STORAGE_KEY));
+  const [urlInput, setUrlInput] = useToolStorage(STORAGE_KEY);
   const [parsed, setParsed] = useState<EditableParsedURL | null>(null);
   const { copied, handleCopy } = useCopiedState();
   const [showParams, setShowParams] = useState(true);
-  const [isHydrated, setIsHydrated] = useState(false);
   const searchParamIdCounterRef = useRef(0);
 
   const createSearchParamId = useCallback(
     () => `param-id-${searchParamIdCounterRef.current++}`,
     []
   );
-
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, urlInput);
-  }, [urlInput, isHydrated]);
 
   // Parse URL when input changes, preserving param ids by position so
   // inputs keep focus while editing
@@ -77,7 +62,7 @@ const URLParserPage = () => {
   const handleClearInput = useCallback(() => {
     setUrlInput("");
     setParsed(null);
-  }, []);
+  }, [setUrlInput]);
 
   const handleUpdateParam = useCallback(
     (index: number, field: "key" | "value", newValue: string) => {
@@ -92,7 +77,7 @@ const URLParserPage = () => {
       setParsed(updated);
       setUrlInput(buildURL(updated));
     },
-    [parsed]
+    [parsed, setUrlInput]
   );
 
   const handleRemoveParam = useCallback(
@@ -106,7 +91,7 @@ const URLParserPage = () => {
       setParsed(updated);
       setUrlInput(buildURL(updated));
     },
-    [parsed]
+    [parsed, setUrlInput]
   );
 
   const handleAddParam = useCallback(() => {
