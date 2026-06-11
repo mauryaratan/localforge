@@ -8,13 +8,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PatchDiff } from "@pierre/diffs/react";
-import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ExampleButton } from "@/components/example-button";
 import { Badge } from "@/components/ui/badge";
@@ -36,44 +30,27 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   createDiff,
   type DiffGranularity,
   diffExamples,
   normalizeForDiff,
 } from "@/lib/diff-viewer";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_LEFT = "devtools:diff-viewer:left";
 const STORAGE_KEY_RIGHT = "devtools:diff-viewer:right";
 
 const DiffViewerPage = () => {
-  const [leftText, setLeftText] = useState(() =>
-    getStorageValue(STORAGE_KEY_LEFT)
-  );
-  const [rightText, setRightText] = useState(() =>
-    getStorageValue(STORAGE_KEY_RIGHT)
-  );
+  const [leftText, setLeftText] = useToolStorage(STORAGE_KEY_LEFT);
+  const [rightText, setRightText] = useToolStorage(STORAGE_KEY_RIGHT);
   const [viewMode, setViewMode] = useState<"split" | "unified">("split");
   const [granularity, setGranularity] = useState<DiffGranularity>("lines");
   const [wrapLines, setWrapLines] = useState(true);
   const [ignoreTrailingWhitespace, setIgnoreTrailingWhitespace] =
     useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
   const deferredLeftText = useDeferredValue(leftText);
   const deferredRightText = useDeferredValue(rightText);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_LEFT, leftText);
-    scheduleStorageValue(STORAGE_KEY_RIGHT, rightText);
-  }, [isHydrated, leftText, rightText]);
 
   const diffResult = useMemo(() => {
     const original = normalizeForDiff(deferredLeftText, {
@@ -102,17 +79,17 @@ const DiffViewerPage = () => {
   const handleLoadExample = useCallback(() => {
     setLeftText(diffExamples.original);
     setRightText(diffExamples.modified);
-  }, []);
+  }, [setLeftText, setRightText]);
 
   const handleSwap = useCallback(() => {
     setLeftText(rightText);
     setRightText(leftText);
-  }, [leftText, rightText]);
+  }, [leftText, rightText, setLeftText, setRightText]);
 
   const handleClear = useCallback(() => {
     setLeftText("");
     setRightText("");
-  }, []);
+  }, [setLeftText, setRightText]);
 
   return (
     <div className="flex flex-col gap-6">

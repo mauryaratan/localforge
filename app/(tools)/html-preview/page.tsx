@@ -46,6 +46,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   createPreviewDocument,
   exampleHtml,
@@ -59,7 +60,6 @@ import {
   validateHtml,
   viewportPresets,
 } from "@/lib/html-preview";
-import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_INPUT = "devtools:html-preview:input";
 const STORAGE_KEY_VIEWPORT = "devtools:html-preview:viewport";
@@ -210,38 +210,21 @@ const PreviewPane = ({
 };
 
 const HtmlPreviewPage = () => {
-  const [input, setInput] = useState("");
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
   const [activeTab, setActiveTab] = useState<string>("split");
-  const [viewport, setViewport] = useState<ViewportPreset>("desktop");
+  const [viewportStr, setViewportStr] = useToolStorage(
+    STORAGE_KEY_VIEWPORT,
+    "desktop"
+  );
+  const viewport = isViewportPreset(viewportStr)
+    ? viewportStr
+    : ("desktop" as ViewportPreset);
+  const setViewport = setViewportStr;
   const [autoUpdate, setAutoUpdate] = useState(true);
   const [previewKey, setPreviewKey] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [renderedPreviewHtml, setRenderedPreviewHtml] = useState("");
   const fullscreenRef = useRef<HTMLDivElement>(null);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY_INPUT);
-    const savedViewport = localStorage.getItem(STORAGE_KEY_VIEWPORT);
-
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    if (isViewportPreset(savedViewport)) {
-      setViewport(savedViewport);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input/viewport changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_VIEWPORT, viewport);
-  }, [input, viewport, isHydrated]);
 
   // Calculate stats
   const stats = useMemo(() => getHtmlStats(input), [input]);
@@ -289,27 +272,30 @@ const HtmlPreviewPage = () => {
     setInput("");
     setRenderedPreviewHtml("");
     setPreviewKey(0);
-  }, []);
+  }, [setInput]);
 
-  const handleLoadExample = useCallback((key: keyof typeof exampleHtml) => {
-    setInput(exampleHtml[key]);
-    setRenderedPreviewHtml(createPreviewDocument(exampleHtml[key], false));
-    setPreviewKey((prev) => prev + 1);
-  }, []);
+  const handleLoadExample = useCallback(
+    (key: keyof typeof exampleHtml) => {
+      setInput(exampleHtml[key]);
+      setRenderedPreviewHtml(createPreviewDocument(exampleHtml[key], false));
+      setPreviewKey((prev) => prev + 1);
+    },
+    [setInput]
+  );
 
   const handleFormat = useCallback(() => {
     const formatted = formatHtml(input);
     if (formatted) {
       setInput(formatted);
     }
-  }, [input]);
+  }, [input, setInput]);
 
   const handleMinify = useCallback(() => {
     const minified = minifyHtml(input);
     if (minified) {
       setInput(minified);
     }
-  }, [input]);
+  }, [input, setInput]);
 
   const handleDownload = useCallback(() => {
     if (!input) {

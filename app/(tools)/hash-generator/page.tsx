@@ -9,13 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type AllHashesResult,
   generateAllHashes,
   getAlgorithmInfo,
   type HashAlgorithm,
 } from "@/lib/hash-generator";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:hash-generator:input";
 
@@ -36,7 +36,7 @@ const EXAMPLE_STRINGS = [
 ];
 
 const HashGeneratorPage = () => {
-  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY));
+  const [input, setInput] = useToolStorage(STORAGE_KEY);
   const [hashes, setHashes] = useState<AllHashesResult>({
     md5: "",
     sha1: "",
@@ -44,20 +44,9 @@ const HashGeneratorPage = () => {
     sha384: "",
     sha512: "",
   });
-  const [isHydrated, setIsHydrated] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
   const generationRef = useRef(0);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, input);
-  }, [input, isHydrated]);
+  const hashHydratedRef = useRef(false);
 
   const calculateHashes = useCallback(async (text: string) => {
     generationRef.current += 1;
@@ -95,11 +84,12 @@ const HashGeneratorPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!isHydrated) {
+    if (!hashHydratedRef.current) {
+      hashHydratedRef.current = true;
       return;
     }
     calculateHashes(input);
-  }, [input, isHydrated, calculateHashes]);
+  }, [input, calculateHashes]);
 
   const handleInputChange = (value: string) => {
     setInput(value);
