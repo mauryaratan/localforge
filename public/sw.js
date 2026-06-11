@@ -17,6 +17,11 @@ const SCOPE_PATH = new URL(self.registration.scope).pathname;
 const STATIC_PREFIX = `${SCOPE_PATH}_next/static/`;
 
 // ── Install ──────────────────────────────────────────────────────────────────
+
+// Matches <script src="..."> and <link ... href="..."> subresources under
+// /_next/static/ in a prerendered HTML document.
+const STATIC_ASSET_PATTERN = /(?:src|href)="([^"]*\/_next\/static\/[^"]+)"/g;
+
 async function precacheAllRoutes(cache) {
   // Always have the shell, even if the sitemap fetch fails
   await cache.add(SCOPE_PATH).catch(() => {
@@ -28,7 +33,7 @@ async function precacheAllRoutes(cache) {
       return;
     }
     const xml = await response.text();
-    const paths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    const routePaths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)]
       .map((match) => {
         try {
           return new URL(match[1]).pathname;
@@ -37,11 +42,36 @@ async function precacheAllRoutes(cache) {
         }
       })
       .filter((path) => path && path !== SCOPE_PATH);
-    // addAll rejects wholesale on one failure; add individually instead
+    // Cache each route's HTML and collect its /_next/static/ subresources so
+    // a never-visited page also has its JS chunks and CSS available offline.
+    // The Set dedupes chunks shared across routes; failures stay per-item so
+    // one uncachable route or asset cannot abort the rest.
+    const assetPaths = new Set();
     await Promise.all(
-      paths.map((path) =>
-        cache.add(path).catch(() => {
+      routePaths.map(async (routePath) => {
+        try {
+          const routeResponse = await fetch(routePath);
+          if (!routeResponse.ok) {
+            return;
+          }
+          await cache.put(routePath, routeResponse.clone());
+          const html = await routeResponse.text();
+          for (const match of html.matchAll(STATIC_ASSET_PATTERN)) {
+            try {
+              assetPaths.add(new URL(match[1], self.location.origin).pathname);
+            } catch {
+              // Unparseable URL — skip it
+            }
+          }
+        } catch {
           // One uncachable route must not abort the rest
+        }
+      })
+    );
+    await Promise.all(
+      [...assetPaths].map((assetPath) =>
+        cache.add(assetPath).catch(() => {
+          // One uncachable asset must not abort the rest
         })
       )
     );
