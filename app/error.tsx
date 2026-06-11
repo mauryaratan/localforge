@@ -1,6 +1,5 @@
 "use client";
 
-import type { ErrorInfo } from "next/error";
 import Link from "next/link";
 import { useEffect } from "react";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,11 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function RouteError({
   error,
   unstable_retry: unstableRetry,
-}: ErrorInfo) {
-  const errorDigest =
-    "digest" in error && typeof error.digest === "string"
-      ? error.digest
-      : undefined;
+}: {
+  error: Error & { digest?: string };
+  unstable_retry: () => void;
+}) {
+  const errorDigest = error.digest;
 
   useEffect(() => {
     console.error(error);

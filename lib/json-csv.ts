@@ -124,15 +124,29 @@ const escapeCsvValue = (value: unknown, delimiter: string): string => {
   return stringValue;
 };
 
+interface CsvCell {
+  quoted: boolean;
+  value: string;
+}
+
 /**
- * Parses CSV into rows while preserving quoted line breaks.
+ * Parses CSV into rows of cells while preserving quoted line breaks.
+ * Tracks whether each cell was quoted so callers can preserve
+ * significant whitespace inside quoted fields.
  */
-const parseCsvRows = (csvString: string, delimiter: string): string[][] => {
-  const rows: string[][] = [];
-  let row: string[] = [];
+const parseCsvCells = (csvString: string, delimiter: string): CsvCell[][] => {
+  const rows: CsvCell[][] = [];
+  let row: CsvCell[] = [];
   let current = "";
   let inQuotes = false;
+  let cellQuoted = false;
   let i = 0;
+
+  const pushCell = () => {
+    row.push({ value: current, quoted: cellQuoted });
+    current = "";
+    cellQuoted = false;
+  };
 
   while (i < csvString.length) {
     const char = csvString[i];
@@ -154,16 +168,15 @@ const parseCsvRows = (csvString: string, delimiter: string): string[][] => {
 
     if (char === '"') {
       inQuotes = true;
+      cellQuoted = true;
       i++;
     } else if (char === delimiter) {
-      row.push(current);
-      current = "";
+      pushCell();
       i++;
     } else if (char === "\r" || char === "\n") {
-      row.push(current);
+      pushCell();
       rows.push(row);
       row = [];
-      current = "";
       if (char === "\r" && nextChar === "\n") {
         i++;
       }
@@ -174,11 +187,29 @@ const parseCsvRows = (csvString: string, delimiter: string): string[][] => {
     }
   }
 
-  row.push(current);
+  pushCell();
   rows.push(row);
 
   return rows;
 };
+
+/**
+ * Whitespace inside quoted fields is significant; only trim unquoted values.
+ */
+const readCellValue = (cell: CsvCell | undefined): string => {
+  if (!cell) {
+    return "";
+  }
+  return cell.quoted ? cell.value : cell.value.trim();
+};
+
+/**
+ * Parses CSV into rows of string values.
+ */
+const parseCsvRows = (csvString: string, delimiter: string): string[][] =>
+  parseCsvCells(csvString, delimiter).map((row) =>
+    row.map((cell) => cell.value)
+  );
 
 /**
  * Converts JSON array of objects to CSV
@@ -287,7 +318,7 @@ export const csvToJson = (
   }
 
   try {
-    const rows = parseCsvRows(csvString.trim(), opts.delimiter);
+    const rows = parseCsvCells(csvString.trim(), opts.delimiter);
 
     if (rows.length === 0) {
       return { success: false, output: "", error: "CSV is empty" };
@@ -304,7 +335,7 @@ export const csvToJson = (
           error: "CSV must have at least a header row and one data row",
         };
       }
-      headers = rows[0];
+      headers = rows[0].map((cell) => cell.value);
       dataStartIndex = 1;
     } else {
       // Generate column names
@@ -316,8 +347,8 @@ export const csvToJson = (
     const result: Record<string, unknown>[] = [];
 
     for (let i = dataStartIndex; i < rows.length; i++) {
-      const values = rows[i];
-      if (values.every((value) => !value.trim())) {
+      const cells = rows[i];
+      if (cells.every((cell) => !cell.value.trim())) {
         continue; // Skip empty lines
       }
 
@@ -325,10 +356,8 @@ export const csvToJson = (
 
       for (let j = 0; j < headers.length; j++) {
         const header = headers[j].trim();
-        const value = values[j]?.trim() ?? "";
-
         // Try to parse as number or boolean
-        obj[header] = parseValue(value);
+        obj[header] = parseValue(readCellValue(cells[j]));
       }
 
       result.push(obj);

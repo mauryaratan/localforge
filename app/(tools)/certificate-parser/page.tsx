@@ -173,9 +173,13 @@ const CertificateParserPage = () => {
           </CardHeader>
           <CardContent className="flex flex-col gap-4 p-4">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={result.success ? "default" : "destructive"}>
-                {result.success ? "Parsed" : "Waiting"}
-              </Badge>
+              {input.trim() ? (
+                <Badge variant={result.success ? "default" : "destructive"}>
+                  {result.success ? "Parsed" : "Error"}
+                </Badge>
+              ) : (
+                <Badge variant="secondary">Waiting for input</Badge>
+              )}
               {firstCertificate && (
                 <Badge
                   variant={
@@ -188,7 +192,7 @@ const CertificateParserPage = () => {
                 </Badge>
               )}
             </div>
-            {result.error && (
+            {input.trim() !== "" && result.error && (
               <p className="text-muted-foreground text-xs">{result.error}</p>
             )}
             {firstCertificate && (

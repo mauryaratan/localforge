@@ -223,6 +223,24 @@ describe("csvToJson", () => {
     expect(result.columnCount).toBe(2);
   });
 
+  it("should preserve whitespace inside quoted fields", () => {
+    const csv = 'name,note\nfoo," padded "';
+    const result = csvToJson(csv);
+
+    expect(result.success).toBe(true);
+    const parsed = JSON.parse(result.output);
+    expect(parsed[0]).toEqual({ name: "foo", note: " padded " });
+  });
+
+  it("should trim whitespace around unquoted fields", () => {
+    const csv = "name,age\n  John  , 30";
+    const result = csvToJson(csv);
+
+    expect(result.success).toBe(true);
+    const parsed = JSON.parse(result.output);
+    expect(parsed[0]).toEqual({ name: "John", age: 30 });
+  });
+
   it("should handle CSV without header", () => {
     const csv = "John,30\nJane,25";
     const result = csvToJson(csv, { hasHeader: false });

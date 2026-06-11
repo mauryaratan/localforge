@@ -62,11 +62,15 @@ const STORAGE_KEY_UNIT = "devtools:unix-time:unit";
 const STORAGE_KEY_TIMEZONE = "devtools:unix-time:timezone";
 const STORAGE_KEY_EXTRA_TZ = "devtools:unix-time:extra-tz";
 
-const UNIT_OPTIONS: { value: TimestampUnit; label: string }[] = [
-  { value: "seconds", label: "Seconds" },
-  { value: "milliseconds", label: "Milliseconds" },
-  { value: "microseconds", label: "Microseconds" },
-  { value: "nanoseconds", label: "Nanoseconds" },
+const UNIT_OPTIONS: {
+  value: TimestampUnit;
+  label: string;
+  shortLabel: string;
+}[] = [
+  { value: "seconds", label: "Seconds", shortLabel: "s" },
+  { value: "milliseconds", label: "Milliseconds", shortLabel: "ms" },
+  { value: "microseconds", label: "Microseconds", shortLabel: "µs" },
+  { value: "nanoseconds", label: "Nanoseconds", shortLabel: "ns" },
 ];
 
 const FORMAT_OPTIONS: { value: InputFormat; label: string }[] = [
@@ -401,6 +405,7 @@ const UnixTimeConverterPage = () => {
                   <ToggleGroup size="sm" variant="outline">
                     {UNIT_OPTIONS.map((opt) => (
                       <ToggleGroupItem
+                        aria-label={opt.label}
                         aria-pressed={unit === opt.value}
                         className="cursor-pointer px-2"
                         key={opt.value}
@@ -408,7 +413,7 @@ const UnixTimeConverterPage = () => {
                         pressed={unit === opt.value}
                         value={opt.value}
                       >
-                        {opt.label.slice(0, 2)}
+                        {opt.shortLabel}
                       </ToggleGroupItem>
                     ))}
                   </ToggleGroup>
@@ -480,7 +485,7 @@ const UnixTimeConverterPage = () => {
                           second: "2-digit",
                           hour12: true,
                         }),
-                        "out-full"
+                        "Full date"
                       )
                     }
                     value={date.toLocaleString("en-US", {
@@ -497,12 +502,14 @@ const UnixTimeConverterPage = () => {
                   />
                   <DateOutputRow
                     label="ISO 8601"
-                    onCopy={() => handleCopy(date.toISOString(), "out-iso")}
+                    onCopy={() => handleCopy(date.toISOString(), "ISO 8601")}
                     value={date.toISOString()}
                   />
                   <DateOutputRow
                     label="Unix Time"
-                    onCopy={() => handleCopy(String(timestamp), "out-unix")}
+                    onCopy={() =>
+                      handleCopy(String(timestamp), "Unix timestamp")
+                    }
                     value={String(timestamp)}
                   />
                 </div>
@@ -556,7 +563,7 @@ const UnixTimeConverterPage = () => {
                             : date.getFullYear();
                         handleCopy(
                           `${String(m).padStart(2, "0")}/${String(d).padStart(2, "0")}/${y}`,
-                          "fmt-us"
+                          "US date"
                         );
                       }}
                       value={(() => {
@@ -592,7 +599,7 @@ const UnixTimeConverterPage = () => {
                             : date.getDate();
                         handleCopy(
                           `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
-                          "fmt-iso-date"
+                          "ISO date"
                         );
                       }}
                       value={(() => {
@@ -636,7 +643,7 @@ const UnixTimeConverterPage = () => {
                             : date.getMinutes();
                         handleCopy(
                           `${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}-${y} ${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`,
-                          "fmt-datetime"
+                          "Date time"
                         );
                       }}
                       value={(() => {
@@ -700,7 +707,7 @@ const UnixTimeConverterPage = () => {
                         const ampm = h < 12 ? "AM" : "PM";
                         handleCopy(
                           `${shortMonths[m]} ${d}, ${h12}:${String(min).padStart(2, "0")} ${ampm}`,
-                          "fmt-short"
+                          "Short date"
                         );
                       }}
                       value={(() => {
@@ -764,7 +771,7 @@ const UnixTimeConverterPage = () => {
                           timezone === "utc"
                             ? date.getUTCFullYear()
                             : date.getFullYear();
-                        handleCopy(`${months[m]} ${y}`, "fmt-month-year");
+                        handleCopy(`${months[m]} ${y}`, "Month year");
                       }}
                       value={(() => {
                         const months = [

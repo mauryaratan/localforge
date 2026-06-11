@@ -11,7 +11,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useCopiedState } from "@/hooks/use-copied-state";
-import { decodeURLComponent, encodeURLComponent } from "@/lib/url-parser";
+import { encodeURLComponent } from "@/lib/url-parser";
 import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:url-encoder:input";
@@ -23,6 +23,7 @@ const URLEncoderPage = () => {
   const [lastEdited, setLastEdited] = useState<"decoded" | "encoded">(
     "decoded"
   );
+  const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage on mount
@@ -47,17 +48,27 @@ const URLEncoderPage = () => {
     setDecodedText(value);
     setEncodedText(encodeURLComponent(value));
     setLastEdited("decoded");
+    setError(null);
   };
 
   const handleEncodedChange = (value: string) => {
     setEncodedText(value);
-    setDecodedText(decodeURLComponent(value));
     setLastEdited("encoded");
+
+    // The lib helper swallows decode failures, so detect them here to
+    // surface an error instead of silently passing input through
+    try {
+      setDecodedText(decodeURIComponent(value));
+      setError(null);
+    } catch {
+      setError("Invalid URL encoding");
+    }
   };
 
   const handleClear = () => {
     setDecodedText("");
     setEncodedText("");
+    setError(null);
   };
 
   return (
@@ -73,22 +84,27 @@ const URLEncoderPage = () => {
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <CardTitle>Transform</CardTitle>
-            {(decodedText || encodedText) && (
-              <Button
-                aria-label="Clear all"
-                onClick={handleClear}
-                size="xs"
-                tabIndex={0}
-                variant="ghost"
-              >
-                <HugeiconsIcon
-                  data-icon="inline-start"
-                  icon={Delete02Icon}
-                  size={14}
-                />
-                Clear
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {error && (
+                <span className="text-destructive text-xs">{error}</span>
+              )}
+              {(decodedText || encodedText) && (
+                <Button
+                  aria-label="Clear all"
+                  onClick={handleClear}
+                  size="xs"
+                  tabIndex={0}
+                  variant="ghost"
+                >
+                  <HugeiconsIcon
+                    data-icon="inline-start"
+                    icon={Delete02Icon}
+                    size={14}
+                  />
+                  Clear
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-4">
@@ -144,7 +160,11 @@ const URLEncoderPage = () => {
               </div>
               <Textarea
                 aria-label="Encoded text input"
-                className="min-h-[200px] resize-none font-mono text-xs"
+                className={`min-h-[200px] resize-none font-mono text-xs ${
+                  error && lastEdited === "encoded"
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }`}
                 id="encoded-input"
                 onChange={(e) => handleEncodedChange(e.target.value)}
                 placeholder="hello%20world%20%26%20special%3Dchars"
@@ -173,7 +193,11 @@ const URLEncoderPage = () => {
                   { char: "@", encoded: "%40" },
                 ].map(({ char, encoded }) => (
                   <button
-                    aria-label={`Insert ${char}`}
+                    aria-label={
+                      char === " "
+                        ? "Insert space character"
+                        : `Insert ${char} character`
+                    }
                     className="rounded-sm bg-muted/50 px-2 py-1 font-mono text-xs transition-colors hover:bg-muted"
                     key={encoded}
                     onClick={() => handleDecodedChange(decodedText + char)}

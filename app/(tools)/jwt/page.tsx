@@ -12,7 +12,7 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,7 +48,7 @@ import {
   validateJSON,
   verifyJWT,
 } from "@/lib/jwt";
-import { scheduleStorageValue } from "@/lib/utils";
+import { scheduleStorageValue, setStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:jwt:input";
 const STORAGE_SECRET_KEY = "devtools:jwt:secret";
@@ -69,6 +69,7 @@ const JWTPage = () => {
   const [verificationError, setVerificationError] = useState<string | null>(
     null
   );
+  const verifyGenerationRef = useRef(0);
 
   // Encoder state
   const [headerInput, setHeaderInput] = useState(
@@ -86,7 +87,6 @@ const JWTPage = () => {
   // Load from localStorage on mount
   useEffect(() => {
     const savedToken = localStorage.getItem(STORAGE_KEY);
-    const savedSecret = localStorage.getItem(STORAGE_SECRET_KEY);
 
     if (savedToken) {
       setToken(savedToken);
@@ -99,9 +99,8 @@ const JWTPage = () => {
       }
     }
 
-    if (savedSecret) {
-      setSecret(savedSecret);
-    }
+    // Secrets are never persisted; remove any value stored by older versions.
+    setStorageValue(STORAGE_SECRET_KEY, "");
 
     setIsHydrated(true);
   }, []);
@@ -114,17 +113,10 @@ const JWTPage = () => {
     scheduleStorageValue(STORAGE_KEY, token);
   }, [token, isHydrated]);
 
-  // Save secret to localStorage
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_SECRET_KEY, secret);
-  }, [secret, isHydrated]);
-
   // Handle token decode
   const handleTokenChange = useCallback((value: string) => {
     setToken(value);
+    verifyGenerationRef.current += 1;
     setVerificationStatus("idle");
     setVerificationError(null);
 
@@ -146,6 +138,9 @@ const JWTPage = () => {
 
   // Handle signature verification
   const handleVerify = useCallback(async () => {
+    verifyGenerationRef.current += 1;
+    const generation = verifyGenerationRef.current;
+
     if (!(token && secret)) {
       setVerificationStatus("error");
       setVerificationError("Token and secret are required");
@@ -153,6 +148,10 @@ const JWTPage = () => {
     }
 
     const result = await verifyJWT(token, secret);
+
+    if (generation !== verifyGenerationRef.current) {
+      return;
+    }
 
     if (result.success) {
       setVerificationStatus(result.data ? "valid" : "invalid");
@@ -234,6 +233,7 @@ const JWTPage = () => {
     setToken("");
     setDecoded(null);
     setDecodeError(null);
+    verifyGenerationRef.current += 1;
     setVerificationStatus("idle");
     setVerificationError(null);
   };
@@ -537,10 +537,11 @@ const JWTPage = () => {
                         id="secret-input"
                         onChange={(e) => {
                           setSecret(e.target.value);
+                          verifyGenerationRef.current += 1;
                           setVerificationStatus("idle");
                         }}
                         placeholder="Enter secret to verify signature..."
-                        type="text"
+                        type="password"
                         value={secret}
                       />
                       <Button
@@ -709,7 +710,7 @@ const JWTPage = () => {
                     id="encode-secret"
                     onChange={(e) => setEncodeSecret(e.target.value)}
                     placeholder="Enter secret key to sign the JWT..."
-                    type="text"
+                    type="password"
                     value={encodeSecret}
                   />
                   {encodeError && <FieldError>{encodeError}</FieldError>}

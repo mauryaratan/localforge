@@ -292,15 +292,30 @@ Speaking Time: ${formatTime(stats.speakingTimeSeconds)}`;
                 <h4 className="mb-2 font-medium text-xs">Reading Speed Info</h4>
                 <div className="flex flex-col gap-1.5 text-muted-foreground text-xs">
                   <div className="flex items-start gap-2">
-                    <span className="shrink-0 text-foreground">📖</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 text-foreground"
+                    >
+                      📖
+                    </span>
                     <span>Reading: ~265 words/min</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="shrink-0 text-foreground">🎤</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 text-foreground"
+                    >
+                      🎤
+                    </span>
                     <span>Speaking: ~150 words/min</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="shrink-0 text-foreground">📄</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 text-foreground"
+                    >
+                      📄
+                    </span>
                     <span>Page: ~275 words (double-spaced)</span>
                   </div>
                 </div>

@@ -149,7 +149,11 @@ const parseFieldValue = (
 
     // Handle step values (*/n or start-end/n)
     if (trimmed.includes("/")) {
-      const [range, stepStr] = trimmed.split("/");
+      const slashParts = trimmed.split("/");
+      if (slashParts.length > 2) {
+        return { values: [], error: `Invalid step expression: ${trimmed}` };
+      }
+      const [range, stepStr] = slashParts;
       const step = INTEGER_REGEX.test(stepStr)
         ? Number.parseInt(stepStr, 10)
         : Number.NaN;

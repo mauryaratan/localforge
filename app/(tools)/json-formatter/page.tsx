@@ -684,7 +684,7 @@ const TreeNodeItem = ({ node, depth, onCopy }: TreeNodeItemProps) => {
         <span className="text-xs">{getValueDisplay()}</span>
         <button
           aria-label="Copy path"
-          className="ml-auto cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
+          className="ml-auto cursor-pointer opacity-0 transition-opacity focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
           onClick={handleCopyPath}
           tabIndex={0}
           type="button"

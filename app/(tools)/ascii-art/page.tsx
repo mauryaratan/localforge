@@ -490,7 +490,10 @@ const AsciiArtPage = () => {
                       }
                       value={textOptions.font}
                     >
-                      <SelectTrigger className="cursor-pointer">
+                      <SelectTrigger
+                        aria-label="Font"
+                        className="cursor-pointer"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -747,7 +750,10 @@ const AsciiArtPage = () => {
                   }
                   value={imageOptions.characterSet}
                 >
-                  <SelectTrigger className="cursor-pointer">
+                  <SelectTrigger
+                    aria-label="Character set"
+                    className="cursor-pointer"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -801,7 +807,10 @@ const AsciiArtPage = () => {
                   }
                   value={imageOptions.colorMode}
                 >
-                  <SelectTrigger className="cursor-pointer">
+                  <SelectTrigger
+                    aria-label="Color mode"
+                    className="cursor-pointer"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

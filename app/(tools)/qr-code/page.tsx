@@ -331,7 +331,10 @@ const QRCodePage = () => {
                         }
                         value={contentType}
                       >
-                        <SelectTrigger className="cursor-pointer">
+                        <SelectTrigger
+                          aria-label="Content type"
+                          className="cursor-pointer"
+                        >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -422,7 +425,10 @@ const QRCodePage = () => {
                               }
                               value={wifiEncryption}
                             >
-                              <SelectTrigger className="cursor-pointer">
+                              <SelectTrigger
+                                aria-label="WiFi encryption type"
+                                className="cursor-pointer"
+                              >
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -519,6 +525,7 @@ const QRCodePage = () => {
                             value={options.foreground}
                           />
                           <Input
+                            aria-label="Foreground color hex value"
                             className="flex-1 font-mono text-xs uppercase"
                             maxLength={7}
                             onChange={(e) => {
@@ -550,6 +557,7 @@ const QRCodePage = () => {
                             value={options.background}
                           />
                           <Input
+                            aria-label="Background color hex value"
                             className="flex-1 font-mono text-xs uppercase"
                             maxLength={7}
                             onChange={(e) => {
@@ -580,7 +588,10 @@ const QRCodePage = () => {
                         }}
                         value={String(options.dotScale)}
                       >
-                        <SelectTrigger className="cursor-pointer">
+                        <SelectTrigger
+                          aria-label="Dot style"
+                          className="cursor-pointer"
+                        >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -636,7 +647,10 @@ const QRCodePage = () => {
                           }
                           value={options.errorCorrectionLevel}
                         >
-                          <SelectTrigger className="cursor-pointer">
+                          <SelectTrigger
+                            aria-label="Error correction level"
+                            className="cursor-pointer"
+                          >
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -773,6 +787,7 @@ const QRCodePage = () => {
                                 }
                               />
                               <Input
+                                aria-label="Corner outer color hex value"
                                 className="flex-1 font-mono text-xs uppercase"
                                 maxLength={7}
                                 onChange={(e) => {
@@ -811,6 +826,7 @@ const QRCodePage = () => {
                                 }
                               />
                               <Input
+                                aria-label="Corner inner color hex value"
                                 className="flex-1 font-mono text-xs uppercase"
                                 maxLength={7}
                                 onChange={(e) => {
@@ -912,7 +928,7 @@ const QRCodePage = () => {
                     )}
                     {/* QR Code renders here */}
                     <div
-                      className={`flex items-center justify-center ${!content || error ? "hidden" : ""}`}
+                      className={`flex max-h-full max-w-full items-center justify-center [&_canvas]:h-auto [&_canvas]:max-w-full [&_img]:h-auto [&_img]:max-w-full ${!content || error ? "hidden" : ""}`}
                       ref={qrContainerRef}
                     />
                   </div>

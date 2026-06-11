@@ -54,6 +54,8 @@ const JsonSchemaValidatorPage = () => {
     [dataInput, schemaInput]
   );
 
+  const hasInput = dataInput.trim() !== "" || schemaInput.trim() !== "";
+
   const handleLoadExample = useCallback(() => {
     setDataInput(schemaExamples.data);
     setSchemaInput(schemaExamples.schema);
@@ -176,10 +178,14 @@ const JsonSchemaValidatorPage = () => {
             </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 p-4">
-            <Badge variant={result.valid ? "default" : "destructive"}>
-              {result.valid ? "Valid" : "Invalid"}
-            </Badge>
-            {result.error && (
+            {hasInput ? (
+              <Badge variant={result.valid ? "default" : "destructive"}>
+                {result.valid ? "Valid" : "Invalid"}
+              </Badge>
+            ) : (
+              <Badge variant="secondary">Waiting for input</Badge>
+            )}
+            {hasInput && result.error && (
               <p className="text-muted-foreground text-xs">{result.error}</p>
             )}
             {result.valid && (

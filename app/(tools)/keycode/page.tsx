@@ -2,11 +2,19 @@
 
 import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useState } from "react";
+import {
+  type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
@@ -59,6 +67,19 @@ const KeycodePage = () => {
     );
   }, [history, isHydrated]);
 
+  const captureKeyEvent = useCallback((event: KeyboardEvent) => {
+    const info = keyboardEventToInfo(event, "keydown");
+    setCurrentKey(info);
+
+    // Don't add repeating keys to history
+    if (!event.repeat) {
+      setHistory((prev) => {
+        const newHistory = [info, ...prev].slice(0, MAX_HISTORY);
+        return newHistory;
+      });
+    }
+  }, []);
+
   // Global keydown listener - always active
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -67,7 +88,9 @@ const KeycodePage = () => {
         return;
       }
 
-      // Ignore if typing in an input/textarea
+      // Ignore if typing in an input/textarea. The touch-test input below
+      // feeds captureKeyEvent directly, so skipping here avoids double
+      // handling of its bubbled events.
       const target = event.target as HTMLElement;
       if (
         target.tagName === "INPUT" ||
@@ -77,23 +100,40 @@ const KeycodePage = () => {
         return;
       }
 
-      event.preventDefault();
-
-      const info = keyboardEventToInfo(event, "keydown");
-      setCurrentKey(info);
-
-      // Don't add repeating keys to history
-      if (!event.repeat) {
-        setHistory((prev) => {
-          const newHistory = [info, ...prev].slice(0, MAX_HISTORY);
-          return newHistory;
-        });
+      // Never block Tab so focus can move, and never block default behavior
+      // on interactive elements so buttons/links stay keyboard-operable.
+      const isInteractiveTarget = Boolean(
+        target.closest?.(
+          "button, a, input, textarea, select, [contenteditable], [role='button']"
+        )
+      );
+      if (event.key !== "Tab" && !isInteractiveTarget) {
+        event.preventDefault();
       }
+
+      captureKeyEvent(event);
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [captureKeyEvent]);
+
+  // Touch devices have no hardware keyboard; focusing this input summons the
+  // virtual keyboard. No preventDefault so typing and Tab keep working.
+  const handleTouchInputKeyDown = useCallback(
+    (event: ReactKeyboardEvent<HTMLInputElement>) => {
+      captureKeyEvent(event.nativeEvent);
+    },
+    [captureKeyEvent]
+  );
+
+  const handleTouchInputChange = useCallback(
+    (event: FormEvent<HTMLInputElement>) => {
+      // Keep the input empty so each keypress is shown fresh
+      event.currentTarget.value = "";
+    },
+    []
+  );
 
   const handleCopy = useCallback(async (text: string, label: string) => {
     if (!text) {
@@ -239,6 +279,23 @@ const KeycodePage = () => {
                 <span className="text-xs">Listening for keypresses...</span>
               </div>
             )}
+
+            {/* Touch device fallback */}
+            <div className="mt-6 flex flex-col gap-1.5 border-t pt-4">
+              <Label
+                className="text-muted-foreground"
+                htmlFor="touch-key-input"
+              >
+                Tap here to test keys on touch devices
+              </Label>
+              <Input
+                autoComplete="off"
+                id="touch-key-input"
+                onInput={handleTouchInputChange}
+                onKeyDown={handleTouchInputKeyDown}
+                placeholder="Focus and press keys"
+              />
+            </div>
           </CardContent>
         </Card>
 

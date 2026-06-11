@@ -181,6 +181,28 @@ describe("queryJsonPath", () => {
     expect((result.result as unknown[]).length).toBe(3);
   });
 
+  it("should apply segments after a wildcard to each element", () => {
+    const result = queryJsonPath(testJson, "$.products[*].name");
+    expect(result.success).toBe(true);
+    expect(result.result).toEqual(["Laptop", "Mouse", "Keyboard"]);
+    expect(result.matchCount).toBe(3);
+  });
+
+  it("should drop elements missing the key after a wildcard", () => {
+    const json = JSON.stringify({
+      items: [{ name: "A" }, { other: true }, { name: "B" }],
+    });
+    const result = queryJsonPath(json, "$.items[*].name");
+    expect(result.success).toBe(true);
+    expect(result.result).toEqual(["A", "B"]);
+  });
+
+  it("should apply segments after a filter to each match", () => {
+    const result = queryJsonPath(testJson, "$.products[?(@.price<100)].name");
+    expect(result.success).toBe(true);
+    expect(result.result).toEqual(["Mouse", "Keyboard"]);
+  });
+
   it("should perform recursive descent search", () => {
     const result = queryJsonPath(testJson, "$..name");
     expect(result.success).toBe(true);

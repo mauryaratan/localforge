@@ -394,7 +394,7 @@ const SymbolCard = ({ symbol, copied, onCopy }: SymbolCardProps) => {
       </CardContent>
 
       {/* Hover details */}
-      <div className="absolute inset-x-0 bottom-0 translate-y-full bg-card/95 p-2 opacity-0 shadow-lg backdrop-blur-sm transition-all group-hover:translate-y-0 group-hover:opacity-100">
+      <div className="absolute inset-x-0 bottom-0 translate-y-full bg-card/95 p-2 opacity-0 shadow-lg backdrop-blur-sm transition-all group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
         <div className="flex flex-col gap-1 text-[10px]">
           <CopyRow
             copied={copied[`entity-${symbol.entity}`]}

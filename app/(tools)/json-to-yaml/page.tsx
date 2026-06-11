@@ -120,11 +120,11 @@ const JsonYamlPage = () => {
         return;
       }
 
-      // Use the current output as the new input (reverse conversion)
+      // Use the current output as the new input (reverse conversion).
+      // When conversion failed (empty output), keep the existing input so
+      // toggling modes never wipes the user's text.
       if (output) {
         setInput(output);
-      } else {
-        setInput("");
       }
       setMode(newMode);
     },

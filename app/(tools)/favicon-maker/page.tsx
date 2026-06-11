@@ -19,6 +19,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -145,10 +146,14 @@ export default function FaviconMakerPage() {
     setError(null);
   }, [result, sourceImage]);
 
-  const handleCopy = useCallback((text: string, field: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
+  const handleCopy = useCallback(async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch {
+      toast.error("Failed to copy");
+    }
   }, []);
 
   const handleDownloadSingle = useCallback((favicon: GeneratedFavicon) => {
@@ -416,7 +421,7 @@ Generated with LocalForge Favicon Maker
                       {/* Download button on hover */}
                       <button
                         aria-label={`Download ${favicon.name}`}
-                        className="absolute top-2 right-2 cursor-pointer rounded-md bg-background/90 p-1.5 opacity-0 transition-opacity hover:bg-background group-hover:opacity-100"
+                        className="absolute top-2 right-2 cursor-pointer rounded-md bg-background/90 p-1.5 opacity-0 transition-opacity hover:bg-background focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                         onClick={() => handleDownloadSingle(favicon)}
                         type="button"
                       >

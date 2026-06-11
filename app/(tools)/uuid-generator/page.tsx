@@ -396,7 +396,7 @@ const UuidGeneratorPage = () => {
                     )}
                     <Button
                       aria-label="Copy ID"
-                      className="cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
+                      className="cursor-pointer opacity-0 transition-opacity focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                       onClick={() => handleCopy(id.value)}
                       size="icon-xs"
                       tabIndex={0}
