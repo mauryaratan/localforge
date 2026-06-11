@@ -7,6 +7,7 @@
     "start": "next start",
     "lint": "ultracite check",
     "format": "ultracite fix",
+    "typecheck": "tsc --noEmit",
     "test": "vitest"
   },
   "dependencies": {
