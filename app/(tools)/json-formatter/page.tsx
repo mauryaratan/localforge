@@ -28,6 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   buildJsonTree,
   exampleJson,
@@ -42,36 +43,16 @@ import {
   validateJson,
 } from "@/lib/json-formatter";
 
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
-
 const STORAGE_KEY_INPUT = "devtools:json-formatter:input";
 const STORAGE_KEY_PATH = "devtools:json-formatter:path";
 
 const JsonFormatterPage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_INPUT));
-  const [pathQuery, setPathQuery] = useState(() =>
-    getStorageValue(STORAGE_KEY_PATH)
-  );
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
+  const [pathQuery, setPathQuery] = useToolStorage(STORAGE_KEY_PATH);
   const [pathResult, setPathResult] = useState<string>("");
   const [pathError, setPathError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
   const [indentSize, setIndentSize] = useState(2);
   const [activeTab, setActiveTab] = useState<string>("formatted");
-
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input/path changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_PATH, pathQuery);
-  }, [input, pathQuery, isHydrated]);
 
   // Validation result
   const validation = useMemo(() => {
@@ -156,36 +137,42 @@ const JsonFormatterPage = () => {
     setPathQuery("");
     setPathResult("");
     setPathError(null);
-  }, []);
+  }, [setInput, setPathQuery]);
 
   const handleFormat = useCallback(() => {
     const result = formatJson(input, indentSize);
     if (result.success) {
       setInput(result.output);
     }
-  }, [input, indentSize]);
+  }, [input, indentSize, setInput]);
 
   const handleMinify = useCallback(() => {
     const result = minifyJson(input);
     if (result.success) {
       setInput(result.output);
     }
-  }, [input]);
+  }, [input, setInput]);
 
   const handleSortKeys = useCallback(() => {
     const result = sortJsonKeys(input);
     if (result.success) {
       setInput(result.output);
     }
-  }, [input]);
+  }, [input, setInput]);
 
-  const handleLoadExample = useCallback((example: string) => {
-    setInput(example);
-  }, []);
+  const handleLoadExample = useCallback(
+    (example: string) => {
+      setInput(example);
+    },
+    [setInput]
+  );
 
-  const handleLoadPath = useCallback((path: string) => {
-    setPathQuery(path);
-  }, []);
+  const handleLoadPath = useCallback(
+    (path: string) => {
+      setPathQuery(path);
+    },
+    [setPathQuery]
+  );
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
