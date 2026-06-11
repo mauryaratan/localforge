@@ -7,6 +7,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { toast } from "sonner";
@@ -41,7 +42,7 @@ const MAX_HISTORY = 20;
 const KeycodePage = () => {
   const [currentKey, setCurrentKey] = useState<KeyEventInfo | null>(null);
   const [history, setHistory] = useState<KeyEventInfo[]>([]);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const isHydratedRef = useRef(false);
 
   // Load history from localStorage
   useEffect(() => {
@@ -53,19 +54,19 @@ const KeycodePage = () => {
         // Ignore parse errors
       }
     }
-    setIsHydrated(true);
+    isHydratedRef.current = true;
   }, []);
 
   // Save history to localStorage
   useEffect(() => {
-    if (!isHydrated) {
+    if (!isHydratedRef.current) {
       return;
     }
     scheduleStorageValue(
       STORAGE_KEY_HISTORY,
       history.length > 0 ? JSON.stringify(history) : ""
     );
-  }, [history, isHydrated]);
+  }, [history]);
 
   const captureKeyEvent = useCallback((event: KeyboardEvent) => {
     const info = keyboardEventToInfo(event, "keydown");

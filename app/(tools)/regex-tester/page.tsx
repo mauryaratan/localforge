@@ -6,7 +6,7 @@ import {
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   EXAMPLE_PATTERNS,
   type ExamplePattern,
@@ -31,59 +32,17 @@ import {
   substituteRegex,
   testRegex,
 } from "@/lib/regex-tester";
-import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_PATTERN = "devtools:regex-tester:pattern";
 const STORAGE_KEY_TEST = "devtools:regex-tester:test";
 const STORAGE_KEY_FLAGS = "devtools:regex-tester:flags";
 
 const RegexTesterPage = () => {
-  const [pattern, setPattern] = useState("");
-  const [testString, setTestString] = useState("");
-  const [flags, setFlags] = useState("g");
+  const [pattern, setPattern] = useToolStorage(STORAGE_KEY_PATTERN);
+  const [testString, setTestString] = useToolStorage(STORAGE_KEY_TEST);
+  const [flags, setFlags] = useToolStorage(STORAGE_KEY_FLAGS, "g");
   const [replacement, setReplacement] = useState("");
   const [mode, setMode] = useState<"match" | "replace">("match");
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedPattern = localStorage.getItem(STORAGE_KEY_PATTERN);
-    const savedTest = localStorage.getItem(STORAGE_KEY_TEST);
-    const savedFlags = localStorage.getItem(STORAGE_KEY_FLAGS);
-
-    if (savedPattern) {
-      setPattern(savedPattern);
-    }
-    if (savedTest) {
-      setTestString(savedTest);
-    }
-    if (savedFlags) {
-      setFlags(savedFlags);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when values change (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_PATTERN, pattern);
-  }, [pattern, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_TEST, testString);
-  }, [testString, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_FLAGS, flags);
-  }, [flags, isHydrated]);
 
   // Compute regex result
   const result: RegexResult = useMemo(
@@ -116,24 +75,29 @@ const RegexTesterPage = () => {
     setPattern("");
     setTestString("");
     setReplacement("");
-  }, []);
+  }, [setPattern, setTestString]);
 
-  const handleToggleFlag = useCallback((flag: string) => {
-    setFlags((prev) => {
-      if (prev.includes(flag)) {
-        return prev.replace(flag, "");
+  const handleToggleFlag = useCallback(
+    (flag: string) => {
+      if (flags.includes(flag)) {
+        setFlags(flags.replace(flag, ""));
+      } else {
+        setFlags(flags + flag);
       }
-      return prev + flag;
-    });
-  }, []);
+    },
+    [flags, setFlags]
+  );
 
-  const handleLoadExample = useCallback((example: ExamplePattern) => {
-    setPattern(example.pattern);
-    setTestString(example.testString);
-    if (example.flags) {
-      setFlags(example.flags);
-    }
-  }, []);
+  const handleLoadExample = useCallback(
+    (example: ExamplePattern) => {
+      setPattern(example.pattern);
+      setTestString(example.testString);
+      if (example.flags) {
+        setFlags(example.flags);
+      }
+    },
+    [setPattern, setTestString, setFlags]
+  );
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">

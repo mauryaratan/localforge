@@ -9,16 +9,11 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import dynamic from "next/dynamic";
-import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ExampleButton } from "@/components/example-button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 
 // Dynamic import MarkdownRenderer to reduce initial bundle size
 // ReactMarkdown + remarkGfm add ~50KB gzipped to the bundle
@@ -57,30 +52,14 @@ import {
   getMarkdownStats,
   type TocItem,
 } from "@/lib/markdown-preview";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_INPUT = "devtools:markdown-preview:input";
 
 const MarkdownPreviewPage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_INPUT));
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
   const [activeTab, setActiveTab] = useState<string>("split");
   const isMobile = useIsMobile();
   const deferredInput = useDeferredValue(input);
-
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-  }, [input, isHydrated]);
 
   // Calculate stats (deferred so typing stays responsive)
   const stats = useMemo(() => getMarkdownStats(deferredInput), [deferredInput]);
@@ -106,11 +85,14 @@ const MarkdownPreviewPage = () => {
 
   const handleClearInput = useCallback(() => {
     setInput("");
-  }, []);
+  }, [setInput]);
 
-  const handleLoadExample = useCallback((key: keyof typeof exampleMarkdown) => {
-    setInput(exampleMarkdown[key]);
-  }, []);
+  const handleLoadExample = useCallback(
+    (key: keyof typeof exampleMarkdown) => {
+      setInput(exampleMarkdown[key]);
+    },
+    [setInput]
+  );
 
   const handleDownload = useCallback(() => {
     if (!input) {

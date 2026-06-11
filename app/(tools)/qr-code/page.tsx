@@ -34,6 +34,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   COLOR_PRESETS,
   CONTENT_TYPE_LABELS,
@@ -50,7 +51,6 @@ import {
   type QRContentType,
   type QRGenerateOptions,
 } from "@/lib/qr-code";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const QRCodeReader = dynamic(
   () =>
@@ -80,13 +80,11 @@ const EXAMPLE_CONTENT = [
 ];
 
 const QRCodePage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [content, setContent] = useState(() => getStorageValue(STORAGE_KEY));
+  const [content, setContent] = useToolStorage(STORAGE_KEY);
   const [contentType, setContentType] = useState<QRContentType>("text");
   const [options, setOptions] = useState<QRGenerateOptions>(DEFAULT_OPTIONS);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [activeTab, setActiveTab] = useState("generate");
 
@@ -104,22 +102,9 @@ const QRCodePage = () => {
   // QR code container ref
   const qrContainerRef = useRef<HTMLDivElement>(null);
 
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when content changes
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, content);
-  }, [content, isHydrated]);
-
   // Generate QR code when inputs change
   useEffect(() => {
-    if (!(isHydrated && content.trim() && qrContainerRef.current)) {
+    if (!(content.trim() && qrContainerRef.current)) {
       if (qrContainerRef.current) {
         qrContainerRef.current.innerHTML = "";
       }
@@ -157,15 +142,7 @@ const QRCodePage = () => {
 
     const debounce = setTimeout(generateQR, 250);
     return () => clearTimeout(debounce);
-  }, [
-    content,
-    contentType,
-    options,
-    wifiPassword,
-    wifiEncryption,
-    wifiHidden,
-    isHydrated,
-  ]);
+  }, [content, contentType, options, wifiPassword, wifiEncryption, wifiHidden]);
 
   const handleDownload = useCallback(async () => {
     if (!qrContainerRef.current) {
@@ -190,7 +167,7 @@ const QRCodePage = () => {
     if (qrContainerRef.current) {
       qrContainerRef.current.innerHTML = "";
     }
-  }, []);
+  }, [setContent]);
 
   const handleLogoUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,7 +212,7 @@ const QRCodePage = () => {
       setContent(value);
       setContentType(type);
     },
-    []
+    [setContent]
   );
 
   const updateOption = useCallback(
