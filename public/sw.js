@@ -9,7 +9,7 @@
 // stale caches.
 
 const CACHE_PREFIX = "localforge-";
-const CACHE = `${CACHE_PREFIX}v2`;
+const CACHE = `${CACHE_PREFIX}v3`;
 
 // Derive paths from the registration scope so the worker also functions
 // when the app is deployed under a base path (e.g. /devtools/).
@@ -17,16 +17,42 @@ const SCOPE_PATH = new URL(self.registration.scope).pathname;
 const STATIC_PREFIX = `${SCOPE_PATH}_next/static/`;
 
 // ── Install ──────────────────────────────────────────────────────────────────
+async function precacheAllRoutes(cache) {
+  // Always have the shell, even if the sitemap fetch fails
+  await cache.add(SCOPE_PATH).catch(() => {
+    // Shell precache failure must not abort installation
+  });
+  try {
+    const response = await fetch(`${SCOPE_PATH}sitemap.xml`);
+    if (!response.ok) {
+      return;
+    }
+    const xml = await response.text();
+    const paths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)]
+      .map((match) => {
+        try {
+          return new URL(match[1]).pathname;
+        } catch {
+          return null;
+        }
+      })
+      .filter((path) => path && path !== SCOPE_PATH);
+    // addAll rejects wholesale on one failure; add individually instead
+    await Promise.all(
+      paths.map((path) =>
+        cache.add(path).catch(() => {
+          // One uncachable route must not abort the rest
+        })
+      )
+    );
+  } catch {
+    // Offline-at-install or parse failure: runtime caching still works
+  }
+}
+
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches
-      .open(CACHE)
-      .then((cache) => cache.add(SCOPE_PATH))
-      .catch(() => {
-        // Pre-caching failure must not abort installation
-      })
-  );
+  event.waitUntil(caches.open(CACHE).then(precacheAllRoutes));
 });
 
 // ── Activate ─────────────────────────────────────────────────────────────────
