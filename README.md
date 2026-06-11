@@ -25,7 +25,7 @@ Privacy-first developer utilities that run entirely in your browser. Your data n
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22.13+ (required by pnpm 10)
 - pnpm 10+
 
 ### Installation
