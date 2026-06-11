@@ -1,6 +1,10 @@
 "use client";
 
-import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import {
+  Copy01Icon,
+  Delete02Icon,
+  Share01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -18,6 +22,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { buildShareUrl, readUrlState } from "@/hooks/use-tool-state-url";
 import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type Base64Mode,
@@ -52,6 +57,56 @@ const Base64Page = () => {
   const [error, setError] = useState<string | null>(null);
 
   const modeHydratedRef = useRef(false);
+
+  // Read URL state once on mount (constraint 3): URL state wins over localStorage.
+  // history.replaceState is called inside readUrlState to strip ?state= after read.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally empty — read once on mount only; setters are stable
+  useEffect(() => {
+    const urlState = readUrlState<{
+      plainText: string;
+      encodedText: string;
+      mode: Base64Mode;
+      lastEdited: "plain" | "encoded";
+    }>();
+    if (!urlState) {
+      return;
+    }
+
+    if (urlState.plainText !== undefined) {
+      setPlainText(urlState.plainText);
+    }
+    if (urlState.encodedText !== undefined) {
+      setEncodedText(urlState.encodedText);
+    }
+    if (urlState.mode !== undefined) {
+      setMode(urlState.mode);
+      // modeHydratedRef must be true so the mode-change effect doesn't
+      // re-encode on top of the URL-supplied values
+      modeHydratedRef.current = true;
+    }
+    if (urlState.lastEdited !== undefined) {
+      setLastEdited(urlState.lastEdited);
+    }
+  }, []);
+
+  const handleShareLink = async () => {
+    const url = buildShareUrl({
+      plainText,
+      encodedText,
+      mode,
+      lastEdited,
+    });
+    if (url === null) {
+      toast.error("Content too large to share as a link");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied to clipboard");
+    } catch {
+      toast.error("Failed to copy share link");
+    }
+  };
 
   // Re-encode/decode when mode changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally omitting plainText, encodedText, lastEdited to only trigger on mode change
@@ -187,6 +242,22 @@ const Base64Page = () => {
                     <span className="text-destructive text-xs">{error}</span>
                   )}
                 </StatusRegion>
+                <Button
+                  aria-label="Copy share link"
+                  className="cursor-pointer"
+                  disabled={!(plainText || encodedText)}
+                  onClick={handleShareLink}
+                  size="xs"
+                  tabIndex={0}
+                  variant="ghost"
+                >
+                  <HugeiconsIcon
+                    data-icon="inline-start"
+                    icon={Share01Icon}
+                    size={14}
+                  />
+                  Share
+                </Button>
                 {(plainText || encodedText) && (
                   <Button
                     aria-label="Clear all"
