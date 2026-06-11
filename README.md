@@ -5,7 +5,7 @@ Privacy-first developer utilities that run entirely in your browser. Your data n
 ## Features
 
 - **100% Private** — No server uploads, no tracking. Everything runs locally in your browser
-- **Works Offline** — Install as a PWA and use anywhere, even without internet
+- **Works Offline** — Install as a PWA; previously visited tools keep working without internet
 - **Lightning Fast** — No network latency, instant results with WebAssembly-powered processing
 - **30+ Tools** — All the utilities developers need, in one place
 
