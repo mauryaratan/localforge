@@ -92,6 +92,8 @@ const HashGeneratorPage = () => {
   }, [input, calculateHashes]);
 
   const handleInputChange = (value: string) => {
+    // Fence off in-flight hash jobs immediately, before the effect re-runs
+    generationRef.current += 1;
     setInput(value);
   };
 
@@ -128,6 +130,7 @@ SHA-512: ${hashes.sha512}`;
   };
 
   const handleClear = () => {
+    generationRef.current += 1;
     setInput("");
     setHashes({
       md5: "",
@@ -139,6 +142,7 @@ SHA-512: ${hashes.sha512}`;
   };
 
   const handleExampleClick = (value: string) => {
+    generationRef.current += 1;
     setInput(value);
   };
 

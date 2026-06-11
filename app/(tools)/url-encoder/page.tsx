@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useRef, useState } from "react";
 import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { CopyButton } from "@/components/copy-button";
+import { StatusRegion } from "@/components/status-region";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -51,6 +52,9 @@ const URLEncoderPage = () => {
       setDecodedText(decodeURIComponent(value));
       setError(null);
     } catch {
+      // Clear the decoded pane so it never shows stale output that no
+      // longer matches the current encoded input
+      setDecodedText("");
       setError("Invalid URL encoding");
     }
   };
@@ -75,9 +79,11 @@ const URLEncoderPage = () => {
           <div className="flex items-center justify-between">
             <CardTitle>Transform</CardTitle>
             <div className="flex items-center gap-2">
-              {error && (
-                <span className="text-destructive text-xs">{error}</span>
-              )}
+              <StatusRegion tone="assertive">
+                {error && (
+                  <span className="text-destructive text-xs">{error}</span>
+                )}
+              </StatusRegion>
               {(decodedText || encodedText) && (
                 <Button
                   aria-label="Clear all"

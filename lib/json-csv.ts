@@ -348,7 +348,9 @@ export const csvToJson = (
 
     for (let i = dataStartIndex; i < rows.length; i++) {
       const cells = rows[i];
-      if (cells.every((cell) => !cell.value.trim())) {
+      // Quoted whitespace is significant, so judge emptiness on the
+      // quote-aware value rather than the raw trimmed text
+      if (cells.every((cell) => readCellValue(cell) === "")) {
         continue; // Skip empty lines
       }
 
@@ -356,8 +358,15 @@ export const csvToJson = (
 
       for (let j = 0; j < headers.length; j++) {
         const header = headers[j].trim();
-        // Try to parse as number or boolean
-        obj[header] = parseValue(readCellValue(cells[j]));
+        const cell = cells[j];
+        // Quoted cells skip number/boolean/null coercion (Number() would
+        // also strip whitespace from quoted numerics like " 42 "), but
+        // still JSON-parse array/object shapes so jsonToCsv output
+        // round-trips (it serializes nested arrays into quoted cells)
+        obj[header] =
+          cell?.quoted === true
+            ? parseJsonShape(cell.value)
+            : parseValue(readCellValue(cell));
       }
 
       result.push(obj);
@@ -373,6 +382,23 @@ export const csvToJson = (
     const error = e instanceof Error ? e.message : "Conversion failed";
     return { success: false, output: "", error };
   }
+};
+
+/**
+ * Parses JSON array/object shapes, returning the original string otherwise.
+ */
+const parseJsonShape = (value: string): unknown => {
+  if (
+    (value.startsWith("[") && value.endsWith("]")) ||
+    (value.startsWith("{") && value.endsWith("}"))
+  ) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      // Not valid JSON, return as string
+    }
+  }
+  return value;
 };
 
 /**
@@ -403,18 +429,7 @@ const parseValue = (value: string): unknown => {
   }
 
   // Try to parse as JSON (for arrays or objects)
-  if (
-    (value.startsWith("[") && value.endsWith("]")) ||
-    (value.startsWith("{") && value.endsWith("}"))
-  ) {
-    try {
-      return JSON.parse(value);
-    } catch {
-      // Not valid JSON, return as string
-    }
-  }
-
-  return value;
+  return parseJsonShape(value);
 };
 
 /**

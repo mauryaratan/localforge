@@ -203,6 +203,32 @@ describe("queryJsonPath", () => {
     expect(result.result).toEqual(["Mouse", "Keyboard"]);
   });
 
+  it("should flatten chained wildcard fan-outs", () => {
+    const json = JSON.stringify({
+      groups: [
+        { members: [{ name: "Ana" }, { name: "Ben" }] },
+        { members: [{ name: "Cas" }] },
+      ],
+    });
+    const result = queryJsonPath(json, "$.groups[*].members[*].name");
+    expect(result.success).toBe(true);
+    expect(result.result).toEqual(["Ana", "Ben", "Cas"]);
+    expect(result.matchCount).toBe(3);
+  });
+
+  it("should flatten a filter followed by a wildcard", () => {
+    const json = JSON.stringify({
+      teams: [
+        { active: true, tags: ["a", "b"] },
+        { active: false, tags: ["x"] },
+        { active: true, tags: ["c"] },
+      ],
+    });
+    const result = queryJsonPath(json, "$.teams[?(@.active==true)].tags[*]");
+    expect(result.success).toBe(true);
+    expect(result.result).toEqual(["a", "b", "c"]);
+  });
+
   it("should perform recursive descent search", () => {
     const result = queryJsonPath(testJson, "$..name");
     expect(result.success).toBe(true);

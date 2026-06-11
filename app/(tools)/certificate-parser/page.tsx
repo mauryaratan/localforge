@@ -37,6 +37,23 @@ const EMPTY_RESULT: CertificateParseResult = {
 const formatName = (parts: CertificateNamePart[]) =>
   parts.map((part) => `${part.key}=${part.value}`).join(", ");
 
+/**
+ * Parse-status badge for non-empty input. While the async parse of fresh
+ * input is still settling there is no error yet — show a neutral state
+ * instead of flashing a destructive "Error".
+ */
+const getParseBadge = (
+  result: CertificateParseResult
+): { variant: "default" | "destructive" | "secondary"; label: string } => {
+  if (result.success) {
+    return { variant: "default", label: "Parsed" };
+  }
+  if (result.error) {
+    return { variant: "destructive", label: "Error" };
+  }
+  return { variant: "secondary", label: "Parsing" };
+};
+
 const CertificateParserPage = () => {
   const [input, setInput] = useToolStorage(STORAGE_KEY_CERT);
   const [result, setResult] = useState<CertificateParseResult>(EMPTY_RESULT);
@@ -162,8 +179,8 @@ const CertificateParserPage = () => {
           <CardContent className="flex flex-col gap-4 p-4">
             <div className="flex flex-wrap items-center gap-2">
               {input.trim() ? (
-                <Badge variant={result.success ? "default" : "destructive"}>
-                  {result.success ? "Parsed" : "Error"}
+                <Badge variant={getParseBadge(result).variant}>
+                  {getParseBadge(result).label}
                 </Badge>
               ) : (
                 <Badge variant="secondary">Waiting for input</Badge>

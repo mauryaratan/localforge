@@ -46,6 +46,14 @@ describe("RegexTesterPage", () => {
       { timeout: 1000 }
     );
     expect(matchBadge).toBeTruthy();
+
+    // The rendered match output must show the matched text, not just the count
+    const matchedText = await screen.findAllByText(
+      "123",
+      {},
+      { timeout: 1000 }
+    );
+    expect(matchedText.length).toBeGreaterThan(0);
   });
 
   it("an invalid pattern surfaces the error badge", async () => {

@@ -108,7 +108,9 @@ const KeycodePage = () => {
           "button, a, input, textarea, select, [contenteditable], [role='button']"
         )
       );
-      if (event.key !== "Tab" && !isInteractiveTarget) {
+      // Alt-based browser shortcuts (Alt+Left back-navigation etc.) must
+      // also keep their default behavior; the key is still captured below.
+      if (!event.altKey && event.key !== "Tab" && !isInteractiveTarget) {
         event.preventDefault();
       }
 

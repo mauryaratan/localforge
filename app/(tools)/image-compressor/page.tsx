@@ -92,6 +92,8 @@ export default function ImageCompressorPage() {
   const imageAreaRef = useRef<HTMLDivElement>(null);
   const jobsRef = useRef(jobs);
   jobsRef.current = jobs;
+  // Latest compression run per job id; older async runs discard themselves
+  const jobGenerationsRef = useRef(new Map<string, number>());
 
   const selectedJob =
     jobs.find((j) => j.id === selectedJobId) ?? jobs[0] ?? null;
@@ -211,6 +213,12 @@ export default function ImageCompressorPage() {
 
   const compressJob = useCallback(
     async (job: ImageJob) => {
+      // Per-job generation: rapid settings changes start overlapping runs
+      // for the same job, and the slower (older) run must not overwrite
+      // the newer result when it finishes last.
+      const generation = (jobGenerationsRef.current.get(job.id) ?? 0) + 1;
+      jobGenerationsRef.current.set(job.id, generation);
+
       setJobs((prev) =>
         prev.map((j) =>
           j.id === job.id
@@ -234,6 +242,12 @@ export default function ImageCompressorPage() {
 
         const compressOpts = buildCompressOptions(job);
         const result = await compressImage(imageData, compressOpts);
+
+        // Stale run (newer run started, or job removed): discard silently
+        if (jobGenerationsRef.current.get(job.id) !== generation) {
+          return;
+        }
+
         const url = URL.createObjectURL(result.blob);
         const savings = ((job.size - result.blob.size) / job.size) * 100;
 
@@ -263,6 +277,9 @@ export default function ImageCompressorPage() {
           )
         );
       } catch (e) {
+        if (jobGenerationsRef.current.get(job.id) !== generation) {
+          return;
+        }
         console.error("Compression error:", e);
         setJobs((prev) =>
           prev.map((j) =>
@@ -422,6 +439,11 @@ export default function ImageCompressorPage() {
   }, [isDraggingSlider, handleSliderDrag]);
 
   const handleRemoveJob = useCallback((id: string) => {
+    // Invalidate any in-flight compression for the removed job
+    jobGenerationsRef.current.set(
+      id,
+      (jobGenerationsRef.current.get(id) ?? 0) + 1
+    );
     const current = jobsRef.current;
     const idx = current.findIndex((j) => j.id === id);
     const job = current[idx];

@@ -10,7 +10,10 @@ export const ServiceWorkerRegistration = () => {
     ) {
       return;
     }
-    navigator.serviceWorker.register("/sw.js").catch(() => {
+    // Honor a configured base path so the worker scope is correct on
+    // subdirectory deployments (NEXT_PUBLIC_* is inlined at build time)
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    navigator.serviceWorker.register(`${basePath}/sw.js`).catch(() => {
       // Registration failure must never break the app
     });
   }, []);

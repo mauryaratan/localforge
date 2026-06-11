@@ -1,11 +1,20 @@
 // LocalForge Service Worker
 // Strategy:
-//   - Navigations: network-first with cache fallback to "/" shell
-//   - /_next/static/: cache-first (content-hashed, immutable)
+//   - Navigations: network-first with cache fallback to the app shell
+//   - Hashed static assets: cache-first (content-hashed, immutable)
 //   - Other same-origin GETs: stale-while-revalidate
 //   - Cross-origin / non-GET: pass through, do not intercept
+//
+// Bump the version suffix whenever this file changes so activate() drops
+// stale caches.
 
-const CACHE = "localforge-v1";
+const CACHE_PREFIX = "localforge-";
+const CACHE = `${CACHE_PREFIX}v2`;
+
+// Derive paths from the registration scope so the worker also functions
+// when the app is deployed under a base path (e.g. /devtools/).
+const SCOPE_PATH = new URL(self.registration.scope).pathname;
+const STATIC_PREFIX = `${SCOPE_PATH}_next/static/`;
 
 // ── Install ──────────────────────────────────────────────────────────────────
 self.addEventListener("install", (event) => {
@@ -13,7 +22,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.add("/"))
+      .then((cache) => cache.add(SCOPE_PATH))
       .catch(() => {
         // Pre-caching failure must not abort installation
       })
@@ -27,7 +36,11 @@ self.addEventListener("activate", (event) => {
       .keys()
       .then((keys) =>
         Promise.all(
-          keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))
+          keys
+            // Only touch caches in our own namespace — a shared origin may
+            // host caches belonging to other applications
+            .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE)
+            .map((key) => caches.delete(key))
         )
       )
       .then(() => self.clients.claim())
@@ -57,13 +70,13 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Hashed static assets: cache-first (immutable)
-  if (url.pathname.startsWith("/_next/static/")) {
+  if (url.pathname.startsWith(STATIC_PREFIX)) {
     event.respondWith(cacheFirst(request));
     return;
   }
 
   // Everything else same-origin (icons, manifest, wasm, etc.): stale-while-revalidate
-  event.respondWith(staleWhileRevalidate(request));
+  event.respondWith(staleWhileRevalidate(event, request));
 });
 
 // ── Strategies ───────────────────────────────────────────────────────────────
@@ -79,12 +92,12 @@ async function networkFirstNavigate(request) {
     }
     return networkResponse;
   } catch (_err) {
-    // Network failed — try cache for this URL, then "/" as shell fallback
+    // Network failed — try cache for this URL, then the shell as fallback
     const cached = await caches.match(request);
     if (cached) {
       return cached;
     }
-    const shell = await caches.match("/");
+    const shell = await caches.match(SCOPE_PATH);
     if (shell) {
       return shell;
     }
@@ -116,7 +129,7 @@ async function cacheFirst(request) {
   }
 }
 
-async function staleWhileRevalidate(request) {
+async function staleWhileRevalidate(event, request) {
   try {
     const cache = await caches.open(CACHE);
     const cached = await cache.match(request);
@@ -131,6 +144,10 @@ async function staleWhileRevalidate(request) {
         return networkResponse;
       })
       .catch(() => null);
+
+    // Keep the worker alive until the background refresh lands, otherwise
+    // the runtime may kill it and leave the cache stale
+    event.waitUntil(networkFetch.then(() => undefined));
 
     if (cached) {
       return cached;

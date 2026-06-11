@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 const copyViaExecCommand = (text: string): boolean => {
   const textarea = document.createElement("textarea");
@@ -22,6 +22,9 @@ const copyViaExecCommand = (text: string): boolean => {
 
 export const useCopiedState = () => {
   const [copied, setCopied] = useState<Record<string, boolean>>({});
+  const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
+    new Map()
+  );
 
   const handleCopy = useCallback(async (text: string, key: string) => {
     if (!text) {
@@ -42,10 +45,21 @@ export const useCopiedState = () => {
       return;
     }
 
+    // Reset any pending timer for this key so a repeated copy keeps the
+    // indicator visible for the full duration
+    const pending = timeoutsRef.current.get(key);
+    if (pending !== undefined) {
+      clearTimeout(pending);
+    }
+
     setCopied((prev) => ({ ...prev, [key]: true }));
-    setTimeout(() => {
-      setCopied((prev) => ({ ...prev, [key]: false }));
-    }, 1500);
+    timeoutsRef.current.set(
+      key,
+      setTimeout(() => {
+        timeoutsRef.current.delete(key);
+        setCopied((prev) => ({ ...prev, [key]: false }));
+      }, 1500)
+    );
   }, []);
 
   return { copied, handleCopy };

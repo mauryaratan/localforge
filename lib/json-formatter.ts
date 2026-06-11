@@ -235,6 +235,22 @@ const evaluateSegments = (
 
   const [segment, ...rest] = segments;
 
+  // When this fan-out is followed by another fan-out segment, each branch
+  // returns an array; flatten so chained queries like
+  // $.groups[*].members[*].name yield one combined match set.
+  const fanOut = (elements: unknown[]): unknown => {
+    const mapped = elements
+      .map((element) => evaluateSegments(element, rest))
+      .filter((value) => value !== undefined);
+    const restFansOut = rest.some(
+      (next) => next.type === "wildcard" || next.type === "filter"
+    );
+    if (!restFansOut) {
+      return mapped;
+    }
+    return mapped.flatMap((value) => (Array.isArray(value) ? value : [value]));
+  };
+
   switch (segment.type) {
     case "key":
       if (
@@ -270,9 +286,7 @@ const evaluateSegments = (
       if (rest.length === 0) {
         return elements;
       }
-      return elements
-        .map((element) => evaluateSegments(element, rest))
-        .filter((value) => value !== undefined);
+      return fanOut(elements);
     }
 
     case "filter": {
@@ -285,9 +299,7 @@ const evaluateSegments = (
       if (rest.length === 0) {
         return matched;
       }
-      return matched
-        .map((element) => evaluateSegments(element, rest))
-        .filter((value) => value !== undefined);
+      return fanOut(matched);
     }
 
     default:

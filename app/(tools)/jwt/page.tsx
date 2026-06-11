@@ -70,6 +70,7 @@ const JWTPage = () => {
     null
   );
   const verifyGenerationRef = useRef(0);
+  const encodeGenerationRef = useRef(0);
 
   // Encoder state
   const [headerInput, setHeaderInput] = useState(
@@ -167,6 +168,7 @@ const JWTPage = () => {
 
   // Handle JWT encoding
   const handleEncode = useCallback(async () => {
+    const generation = ++encodeGenerationRef.current;
     const headerResult = validateJSON(headerInput);
     if (!headerResult.success) {
       setHeaderError(headerResult.error || "Invalid header JSON");
@@ -195,6 +197,11 @@ const JWTPage = () => {
       payloadResult.data as JWTPayload,
       encodeSecret
     );
+
+    // Discard stale results so an older encode can't overwrite newer input
+    if (generation !== encodeGenerationRef.current) {
+      return;
+    }
 
     if (result.success) {
       setEncodedToken(result.data);
