@@ -6,7 +6,7 @@ import {
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ import {
   REGEX_FLAGS,
   type RegexMatch,
   type RegexResult,
+  type SubstitutionResult,
   substituteRegex,
   testRegex,
 } from "@/lib/regex-tester";
@@ -37,6 +38,12 @@ const STORAGE_KEY_PATTERN = "devtools:regex-tester:pattern";
 const STORAGE_KEY_TEST = "devtools:regex-tester:test";
 const STORAGE_KEY_FLAGS = "devtools:regex-tester:flags";
 
+/** How long (ms) before a worker is terminated for catastrophic backtracking */
+const REGEX_TIMEOUT_MS = 2000;
+
+/** Debounce delay (ms) before posting to the worker after a keystroke */
+const REGEX_DEBOUNCE_MS = 150;
+
 const RegexTesterPage = () => {
   const [pattern, setPattern] = useToolStorage(STORAGE_KEY_PATTERN);
   const [testString, setTestString] = useToolStorage(STORAGE_KEY_TEST);
@@ -44,19 +51,117 @@ const RegexTesterPage = () => {
   const [replacement, setReplacement] = useState("");
   const [mode, setMode] = useState<"match" | "replace">("match");
 
-  // Compute regex result
-  const result: RegexResult = useMemo(
-    () => testRegex(pattern, testString, flags),
-    [pattern, testString, flags]
+  // Async worker state -------------------------------------------------------
+  const [result, setResult] = useState<RegexResult>(() =>
+    testRegex("", "", "g")
   );
+  const [substitutionResult, setSubstitutionResult] =
+    useState<SubstitutionResult | null>(null);
 
-  // Compute substitution result
-  const substitutionResult = useMemo(() => {
-    if (mode !== "replace") {
-      return null;
-    }
-    return substituteRegex(pattern, testString, replacement, flags);
-  }, [pattern, testString, replacement, flags, mode]);
+  // Worker and request-id tracking refs
+  const workerRef = useRef<Worker | null>(null);
+  const requestIdRef = useRef(0);
+
+  /**
+   * Evaluate the regex. When a Worker is available (real browser), posts a
+   * message and discards stale responses via an incrementing id.  A 2s
+   * timeout terminates a runaway worker and surfaces a timeout error.
+   *
+   * Falls back to synchronous evaluation in environments without Worker
+   * (jsdom, Node, old browsers), so the page behaves identically in tests.
+   */
+  useEffect(() => {
+    // Debounce keystrokes before doing any work
+    const debounceTimer = setTimeout(() => {
+      if (typeof Worker === "undefined") {
+        // --- Sync fallback (jsdom / tests / no-Worker environments) ---
+        const syncResult = testRegex(pattern, testString, flags);
+        setResult(syncResult);
+        if (mode === "replace") {
+          setSubstitutionResult(
+            substituteRegex(pattern, testString, replacement, flags)
+          );
+        } else {
+          setSubstitutionResult(null);
+        }
+        return;
+      }
+
+      // --- Worker path ---
+      // Lazily create the worker on first use (or after a terminate)
+      if (!workerRef.current) {
+        workerRef.current = new Worker(
+          new URL("./regex-worker.ts", import.meta.url)
+        );
+      }
+
+      const worker = workerRef.current;
+      requestIdRef.current += 1;
+      const currentId = requestIdRef.current;
+
+      // 2-second timeout guard: terminate the worker on catastrophic backtrack
+      const timeoutHandle = setTimeout(() => {
+        // Only act if this request is still the active one
+        if (requestIdRef.current !== currentId) {
+          return;
+        }
+
+        worker.terminate();
+        workerRef.current = null;
+
+        const timeoutResult: RegexResult = {
+          isValid: false,
+          error:
+            "Pattern timed out — likely catastrophic backtracking. Try a simpler pattern.",
+          matches: [],
+          matchCount: 0,
+          executionTime: REGEX_TIMEOUT_MS,
+        };
+        setResult(timeoutResult);
+        setSubstitutionResult(null);
+      }, REGEX_TIMEOUT_MS);
+
+      worker.onmessage = (
+        event: MessageEvent<{
+          id: number;
+          result: RegexResult;
+          substitution: SubstitutionResult | null;
+        }>
+      ) => {
+        // Discard stale responses
+        if (event.data.id !== currentId) {
+          return;
+        }
+
+        clearTimeout(timeoutHandle);
+        setResult(event.data.result);
+        setSubstitutionResult(
+          mode === "replace" ? event.data.substitution : null
+        );
+      };
+
+      worker.postMessage({
+        id: currentId,
+        pattern,
+        testString,
+        flags,
+        replacement: mode === "replace" ? replacement : null,
+      });
+    }, REGEX_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(debounceTimer);
+    };
+  }, [pattern, testString, flags, replacement, mode]);
+
+  // Terminate the worker when the component unmounts (leak prevention)
+  useEffect(
+    () => () => {
+      workerRef.current?.terminate();
+      workerRef.current = null;
+    },
+    []
+  );
 
   const handleCopy = useCallback(async (text: string, label: string) => {
     if (!text) {
