@@ -18,6 +18,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { StatusRegion } from "@/components/status-region";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,7 +50,6 @@ import {
   type QRContentType,
   type QRGenerateOptions,
 } from "@/lib/qr-code";
-
 import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const QRCodeReader = dynamic(
@@ -906,26 +906,28 @@ const QRCodePage = () => {
                     className="flex aspect-square w-full max-w-64 items-center justify-center rounded-lg border p-2"
                     style={{ backgroundColor: options.background }}
                   >
-                    {isGenerating ? (
-                      <div className="text-muted-foreground text-xs">
-                        Generating...
-                      </div>
-                    ) : error ? (
-                      <div className="text-center text-destructive text-xs">
-                        {error}
-                      </div>
-                    ) : content ? null : (
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <HugeiconsIcon
-                          icon={QrCodeIcon}
-                          size={48}
-                          strokeWidth={1}
-                        />
-                        <span className="text-xs">
-                          Enter content to generate
-                        </span>
-                      </div>
-                    )}
+                    <StatusRegion tone={error ? "assertive" : "polite"}>
+                      {isGenerating ? (
+                        <div className="text-muted-foreground text-xs">
+                          Generating...
+                        </div>
+                      ) : error ? (
+                        <div className="text-center text-destructive text-xs">
+                          {error}
+                        </div>
+                      ) : content ? null : (
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <HugeiconsIcon
+                            icon={QrCodeIcon}
+                            size={48}
+                            strokeWidth={1}
+                          />
+                          <span className="text-xs">
+                            Enter content to generate
+                          </span>
+                        </div>
+                      )}
+                    </StatusRegion>
                     {/* QR Code renders here */}
                     <div
                       className={`flex max-h-full max-w-full items-center justify-center [&_canvas]:h-auto [&_canvas]:max-w-full [&_img]:h-auto [&_img]:max-w-full ${!content || error ? "hidden" : ""}`}

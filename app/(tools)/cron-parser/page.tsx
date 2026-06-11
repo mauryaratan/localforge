@@ -9,6 +9,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { StatusRegion } from "@/components/status-region";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -131,11 +132,11 @@ const CronParserPage = () => {
               </Button>
             </div>
 
-            {parsed && !parsed.isValid && parsed.error && (
-              <Badge className="mt-3" variant="destructive">
-                {parsed.error}
-              </Badge>
-            )}
+            <StatusRegion className="mt-3" tone="assertive">
+              {parsed && !parsed.isValid && parsed.error && (
+                <Badge variant="destructive">{parsed.error}</Badge>
+              )}
+            </StatusRegion>
 
             {parsed?.isValid && (
               <Badge className="mt-3" variant="default">

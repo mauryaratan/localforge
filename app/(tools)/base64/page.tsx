@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
+import { StatusRegion } from "@/components/status-region";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -194,9 +195,11 @@ const Base64Page = () => {
             <div className="flex items-center justify-between">
               <CardTitle>Transform</CardTitle>
               <div className="flex items-center gap-2">
-                {error && (
-                  <span className="text-destructive text-xs">{error}</span>
-                )}
+                <StatusRegion tone="assertive">
+                  {error && (
+                    <span className="text-destructive text-xs">{error}</span>
+                  )}
+                </StatusRegion>
                 {(plainText || encodedText) && (
                   <Button
                     aria-label="Clear all"

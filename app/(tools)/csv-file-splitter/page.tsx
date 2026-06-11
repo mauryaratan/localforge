@@ -17,6 +17,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
+import { StatusRegion } from "@/components/status-region";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -477,11 +478,13 @@ const CsvFileSplitterPage = () => {
               </div>
             ) : null}
 
-            {error ? (
-              <p className="border border-destructive/30 bg-destructive/5 p-3 text-destructive text-xs">
-                {error}
-              </p>
-            ) : null}
+            <StatusRegion tone="assertive">
+              {error ? (
+                <p className="border border-destructive/30 bg-destructive/5 p-3 text-destructive text-xs">
+                  {error}
+                </p>
+              ) : null}
+            </StatusRegion>
           </CardContent>
         </Card>
       </div>

@@ -13,6 +13,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { StatusRegion } from "@/components/status-region";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -448,9 +449,11 @@ const UnixTimeConverterPage = () => {
                 </FieldSet>
               </div>
 
-              {parseResult?.success === false && (
-                <Badge variant="destructive">{parseResult.error}</Badge>
-              )}
+              <StatusRegion tone="assertive">
+                {parseResult?.success === false && (
+                  <Badge variant="destructive">{parseResult.error}</Badge>
+                )}
+              </StatusRegion>
             </FieldGroup>
           </CardContent>
         </Card>
