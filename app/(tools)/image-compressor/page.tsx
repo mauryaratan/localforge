@@ -405,6 +405,29 @@ export default function ImageCompressorPage() {
     return () => window.removeEventListener("paste", onPaste);
   }, [handleAddFiles]);
 
+  // OS "Open with" delivers files via the Launch Queue API (Chromium).
+  // This is a guarded no-op on every browser that doesn't implement it.
+  useEffect(() => {
+    const launchQueue = (
+      window as {
+        launchQueue?: {
+          setConsumer: (
+            cb: (params: { files: FileSystemFileHandle[] }) => void
+          ) => void;
+        };
+      }
+    ).launchQueue;
+    if (!launchQueue) {
+      return;
+    }
+    launchQueue.setConsumer(async (params) => {
+      const files = await Promise.all(params.files.map((h) => h.getFile()));
+      if (files.length) {
+        handleAddFiles(files);
+      }
+    });
+  }, [handleAddFiles]);
+
   const handleSliderDrag = useCallback((clientX: number) => {
     if (!imageContainerRef.current) {
       return;

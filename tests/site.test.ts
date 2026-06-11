@@ -21,6 +21,51 @@ describe("site metadata helpers", () => {
     expect(manifest.icons).toHaveLength(2);
   });
 
+  it("manifest shortcuts are present and every URL matches a navItems href", () => {
+    const manifest = buildManifest();
+    const navHrefs = new Set(navItems.map((item) => item.href));
+    const shortcuts = manifest.shortcuts ?? [];
+
+    expect(shortcuts.length).toBeGreaterThan(0);
+
+    for (const shortcut of shortcuts) {
+      expect(
+        navHrefs.has(shortcut.url),
+        `shortcut URL "${shortcut.url}" is not present in navItems`
+      ).toBe(true);
+    }
+  });
+
+  it("manifest shortcuts all carry icons", () => {
+    const manifest = buildManifest();
+    const shortcuts = manifest.shortcuts ?? [];
+
+    expect(shortcuts.length).toBeGreaterThan(0);
+
+    for (const shortcut of shortcuts) {
+      const icons = shortcut.icons ?? [];
+      expect(
+        icons.length,
+        `shortcut "${shortcut.name}" is missing icons`
+      ).toBeGreaterThan(0);
+    }
+  });
+
+  it("manifest file_handlers targets /image-compressor and accepts image/png and image/jpeg", () => {
+    const manifest = buildManifest();
+    const handlers = manifest.file_handlers ?? [];
+
+    expect(handlers.length).toBeGreaterThan(0);
+
+    const imageHandler = handlers.find((h) => h.action === "/image-compressor");
+    expect(
+      imageHandler,
+      "no file_handler with action /image-compressor found"
+    ).toBeDefined();
+    expect(imageHandler?.accept["image/png"]).toBeDefined();
+    expect(imageHandler?.accept["image/jpeg"]).toBeDefined();
+  });
+
   it("builds robots with the current sitemap URL", () => {
     const robots = buildRobots("https://example.com");
 
