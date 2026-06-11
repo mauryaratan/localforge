@@ -8,7 +8,13 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PatchDiff } from "@pierre/diffs/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { ExampleButton } from "@/components/example-button";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +60,8 @@ const DiffViewerPage = () => {
   const [ignoreTrailingWhitespace, setIgnoreTrailingWhitespace] =
     useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const deferredLeftText = useDeferredValue(leftText);
+  const deferredRightText = useDeferredValue(rightText);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -68,14 +76,19 @@ const DiffViewerPage = () => {
   }, [isHydrated, leftText, rightText]);
 
   const diffResult = useMemo(() => {
-    const original = normalizeForDiff(leftText, {
+    const original = normalizeForDiff(deferredLeftText, {
       trimTrailingWhitespace: ignoreTrailingWhitespace,
     });
-    const modified = normalizeForDiff(rightText, {
+    const modified = normalizeForDiff(deferredRightText, {
       trimTrailingWhitespace: ignoreTrailingWhitespace,
     });
     return createDiff(original, modified, granularity);
-  }, [granularity, ignoreTrailingWhitespace, leftText, rightText]);
+  }, [
+    granularity,
+    ignoreTrailingWhitespace,
+    deferredLeftText,
+    deferredRightText,
+  ]);
 
   const handleCopyPatch = useCallback(async () => {
     try {

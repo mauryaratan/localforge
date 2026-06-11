@@ -9,7 +9,13 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { ExampleButton } from "@/components/example-button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -61,6 +67,7 @@ const MarkdownPreviewPage = () => {
   const [isHydrated, setIsHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("split");
   const isMobile = useIsMobile();
+  const deferredInput = useDeferredValue(input);
 
   // Mark as hydrated on mount
   useEffect(() => {
@@ -75,11 +82,14 @@ const MarkdownPreviewPage = () => {
     scheduleStorageValue(STORAGE_KEY_INPUT, input);
   }, [input, isHydrated]);
 
-  // Calculate stats
-  const stats = useMemo(() => getMarkdownStats(input), [input]);
+  // Calculate stats (deferred so typing stays responsive)
+  const stats = useMemo(() => getMarkdownStats(deferredInput), [deferredInput]);
 
-  // Extract table of contents
-  const toc = useMemo(() => extractTableOfContents(input), [input]);
+  // Extract table of contents (deferred so typing stays responsive)
+  const toc = useMemo(
+    () => extractTableOfContents(deferredInput),
+    [deferredInput]
+  );
 
   const handleCopy = useCallback(async (text: string) => {
     if (!text) {
@@ -227,8 +237,8 @@ const MarkdownPreviewPage = () => {
               {/* Preview Only */}
               <TabsContent className="overflow-hidden" value="preview">
                 <div className="prose-preview h-[500px] overflow-auto rounded-md border bg-card p-4">
-                  {input.trim() ? (
-                    <MarkdownRenderer content={input} />
+                  {deferredInput.trim() ? (
+                    <MarkdownRenderer content={deferredInput} />
                   ) : (
                     <p className="text-muted-foreground text-sm italic">
                       Preview will appear here...
@@ -259,8 +269,8 @@ const MarkdownPreviewPage = () => {
                   <ResizablePanel defaultSize={50} minSize={25}>
                     <ScrollArea className="h-full">
                       <div className="prose-preview h-full rounded-md border-0 bg-card p-4">
-                        {input.trim() ? (
-                          <MarkdownRenderer content={input} />
+                        {deferredInput.trim() ? (
+                          <MarkdownRenderer content={deferredInput} />
                         ) : (
                           <p className="text-muted-foreground text-sm italic">
                             Preview will appear here...
