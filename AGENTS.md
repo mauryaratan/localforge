@@ -138,3 +138,4 @@ When adding a tool:
 - UI primitives live in `components/ui/`.
 - Tool routes already follow a shared card-based pattern; match it unless the tool needs a different layout.
 - Keep logic out of React components when it can live in `/lib`.
+- Put heavy browser/WASM processing in a route-local module worker; lazy-load it after user action and transfer `ArrayBuffer` inputs instead of copying or persisting them.

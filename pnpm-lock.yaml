@@ -15,6 +15,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.5.0
         version: 1.5.0(@types/react@19.2.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@firecrawl/pdf-inspector-wasm':
+        specifier: 1.14.2
+        version: 1.14.2
       '@hugeicons/core-free-icons':
         specifier: ^4.2.0
         version: 4.2.0
@@ -409,6 +412,9 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@firecrawl/pdf-inspector-wasm@1.14.2':
+    resolution: {integrity: sha512-13BJv1r0rrGr7pMU9Vm8jmYHkDir+BHnf/0Uk3Eu4jyqPuVJp/3v1A5US0Sj4QzyRmR8Bkro/6aBdEArHowcnw==}
 
   '@floating-ui/core@1.7.5':
     resolution: {integrity: sha512-1Ih4WTWyw0+lKyFMcBHGbb5U5FtuHJuujoyyr5zTaWS5EYMeT6Jb2AuDeftsCsEuchO+mM2ij5+q9crhydzLhQ==}
@@ -3801,6 +3807,8 @@ snapshots:
   '@exodus/bytes@1.15.1(@noble/hashes@1.8.0)':
     optionalDependencies:
       '@noble/hashes': 1.8.0
+
+  '@firecrawl/pdf-inspector-wasm@1.14.2': {}
 
   '@floating-ui/core@1.7.5':
     dependencies:

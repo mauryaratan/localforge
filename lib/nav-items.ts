@@ -20,6 +20,7 @@ import {
   NoteEditIcon,
   PaintBoardIcon,
   PaintBrush01Icon,
+  Pdf01Icon,
   PercentIcon,
   QrCodeIcon,
   ReactIcon,
@@ -147,6 +148,11 @@ export const navItems: NavItem[] = [
     title: "Markdown Preview",
     href: "/markdown-preview",
     icon: NoteEditIcon,
+  },
+  {
+    title: "PDF to Markdown",
+    href: "/pdf-to-markdown",
+    icon: Pdf01Icon,
   },
   {
     title: "QR Code",
