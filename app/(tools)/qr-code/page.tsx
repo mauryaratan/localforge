@@ -18,6 +18,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { StatusRegion } from "@/components/status-region";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +34,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   COLOR_PRESETS,
   CONTENT_TYPE_LABELS,
@@ -49,8 +51,6 @@ import {
   type QRContentType,
   type QRGenerateOptions,
 } from "@/lib/qr-code";
-
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const QRCodeReader = dynamic(
   () =>
@@ -80,13 +80,11 @@ const EXAMPLE_CONTENT = [
 ];
 
 const QRCodePage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [content, setContent] = useState(() => getStorageValue(STORAGE_KEY));
+  const [content, setContent] = useToolStorage(STORAGE_KEY);
   const [contentType, setContentType] = useState<QRContentType>("text");
   const [options, setOptions] = useState<QRGenerateOptions>(DEFAULT_OPTIONS);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [activeTab, setActiveTab] = useState("generate");
 
@@ -104,22 +102,9 @@ const QRCodePage = () => {
   // QR code container ref
   const qrContainerRef = useRef<HTMLDivElement>(null);
 
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when content changes
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, content);
-  }, [content, isHydrated]);
-
   // Generate QR code when inputs change
   useEffect(() => {
-    if (!(isHydrated && content.trim() && qrContainerRef.current)) {
+    if (!(content.trim() && qrContainerRef.current)) {
       if (qrContainerRef.current) {
         qrContainerRef.current.innerHTML = "";
       }
@@ -157,15 +142,7 @@ const QRCodePage = () => {
 
     const debounce = setTimeout(generateQR, 250);
     return () => clearTimeout(debounce);
-  }, [
-    content,
-    contentType,
-    options,
-    wifiPassword,
-    wifiEncryption,
-    wifiHidden,
-    isHydrated,
-  ]);
+  }, [content, contentType, options, wifiPassword, wifiEncryption, wifiHidden]);
 
   const handleDownload = useCallback(async () => {
     if (!qrContainerRef.current) {
@@ -190,7 +167,7 @@ const QRCodePage = () => {
     if (qrContainerRef.current) {
       qrContainerRef.current.innerHTML = "";
     }
-  }, []);
+  }, [setContent]);
 
   const handleLogoUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,7 +212,7 @@ const QRCodePage = () => {
       setContent(value);
       setContentType(type);
     },
-    []
+    [setContent]
   );
 
   const updateOption = useCallback(
@@ -331,7 +308,10 @@ const QRCodePage = () => {
                         }
                         value={contentType}
                       >
-                        <SelectTrigger className="cursor-pointer">
+                        <SelectTrigger
+                          aria-label="Content type"
+                          className="cursor-pointer"
+                        >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -422,7 +402,10 @@ const QRCodePage = () => {
                               }
                               value={wifiEncryption}
                             >
-                              <SelectTrigger className="cursor-pointer">
+                              <SelectTrigger
+                                aria-label="WiFi encryption type"
+                                className="cursor-pointer"
+                              >
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -519,6 +502,7 @@ const QRCodePage = () => {
                             value={options.foreground}
                           />
                           <Input
+                            aria-label="Foreground color hex value"
                             className="flex-1 font-mono text-xs uppercase"
                             maxLength={7}
                             onChange={(e) => {
@@ -550,6 +534,7 @@ const QRCodePage = () => {
                             value={options.background}
                           />
                           <Input
+                            aria-label="Background color hex value"
                             className="flex-1 font-mono text-xs uppercase"
                             maxLength={7}
                             onChange={(e) => {
@@ -580,7 +565,10 @@ const QRCodePage = () => {
                         }}
                         value={String(options.dotScale)}
                       >
-                        <SelectTrigger className="cursor-pointer">
+                        <SelectTrigger
+                          aria-label="Dot style"
+                          className="cursor-pointer"
+                        >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -636,7 +624,10 @@ const QRCodePage = () => {
                           }
                           value={options.errorCorrectionLevel}
                         >
-                          <SelectTrigger className="cursor-pointer">
+                          <SelectTrigger
+                            aria-label="Error correction level"
+                            className="cursor-pointer"
+                          >
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -773,6 +764,7 @@ const QRCodePage = () => {
                                 }
                               />
                               <Input
+                                aria-label="Corner outer color hex value"
                                 className="flex-1 font-mono text-xs uppercase"
                                 maxLength={7}
                                 onChange={(e) => {
@@ -811,6 +803,7 @@ const QRCodePage = () => {
                                 }
                               />
                               <Input
+                                aria-label="Corner inner color hex value"
                                 className="flex-1 font-mono text-xs uppercase"
                                 maxLength={7}
                                 onChange={(e) => {
@@ -890,29 +883,31 @@ const QRCodePage = () => {
                     className="flex aspect-square w-full max-w-64 items-center justify-center rounded-lg border p-2"
                     style={{ backgroundColor: options.background }}
                   >
-                    {isGenerating ? (
-                      <div className="text-muted-foreground text-xs">
-                        Generating...
-                      </div>
-                    ) : error ? (
-                      <div className="text-center text-destructive text-xs">
-                        {error}
-                      </div>
-                    ) : content ? null : (
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <HugeiconsIcon
-                          icon={QrCodeIcon}
-                          size={48}
-                          strokeWidth={1}
-                        />
-                        <span className="text-xs">
-                          Enter content to generate
-                        </span>
-                      </div>
-                    )}
+                    <StatusRegion tone={error ? "assertive" : "polite"}>
+                      {isGenerating ? (
+                        <div className="text-muted-foreground text-xs">
+                          Generating...
+                        </div>
+                      ) : error ? (
+                        <div className="text-center text-destructive text-xs">
+                          {error}
+                        </div>
+                      ) : content ? null : (
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <HugeiconsIcon
+                            icon={QrCodeIcon}
+                            size={48}
+                            strokeWidth={1}
+                          />
+                          <span className="text-xs">
+                            Enter content to generate
+                          </span>
+                        </div>
+                      )}
+                    </StatusRegion>
                     {/* QR Code renders here */}
                     <div
-                      className={`flex items-center justify-center ${!content || error ? "hidden" : ""}`}
+                      className={`flex max-h-full max-w-full items-center justify-center [&_canvas]:h-auto [&_canvas]:max-w-full [&_img]:h-auto [&_img]:max-w-full ${!content || error ? "hidden" : ""}`}
                       ref={qrContainerRef}
                     />
                   </div>

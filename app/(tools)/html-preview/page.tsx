@@ -13,7 +13,14 @@ import {
   TextWrapIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +46,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   createPreviewDocument,
   exampleHtml,
@@ -52,44 +60,171 @@ import {
   validateHtml,
   viewportPresets,
 } from "@/lib/html-preview";
-import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_INPUT = "devtools:html-preview:input";
 const STORAGE_KEY_VIEWPORT = "devtools:html-preview:viewport";
 
+interface PreviewPaneProps {
+  fullscreenRef: RefObject<HTMLDivElement | null>;
+  hasContent: boolean;
+  height?: string;
+  onFullscreen: () => void;
+  onViewportChange: (viewport: ViewportPreset) => void;
+  previewKey: number;
+  renderedPreviewHtml: string;
+  showViewportControls?: boolean;
+  viewport: ViewportPreset;
+}
+
+// Top-level component so its identity is stable across page renders.
+// Defining it inside the page (e.g. via useCallback) would create a new
+// component type on every keystroke, remounting the iframe and losing
+// its scroll position.
+const PreviewPane = ({
+  showViewportControls = true,
+  height = "500px",
+  viewport,
+  onViewportChange,
+  onFullscreen,
+  fullscreenRef,
+  hasContent,
+  previewKey,
+  renderedPreviewHtml,
+}: PreviewPaneProps) => {
+  const currentViewport = viewportPresets[viewport];
+
+  return (
+    <div className="flex h-full flex-col">
+      {showViewportControls && (
+        <div className="flex items-center justify-between border-b px-3 py-2">
+          <div className="flex items-center gap-2">
+            <ToggleGroup size="sm" variant="outline">
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <ToggleGroupItem
+                      aria-label="Mobile view"
+                      aria-pressed={viewport === "mobile"}
+                      className="cursor-pointer px-2"
+                      onClick={() => onViewportChange("mobile")}
+                      pressed={viewport === "mobile"}
+                      value="mobile"
+                    />
+                  }
+                >
+                  <HugeiconsIcon icon={SmartPhone01Icon} size={14} />
+                </TooltipTrigger>
+                <TooltipContent>{viewportPresets.mobile.label}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <ToggleGroupItem
+                      aria-label="Tablet view"
+                      aria-pressed={viewport === "tablet"}
+                      className="cursor-pointer px-2"
+                      onClick={() => onViewportChange("tablet")}
+                      pressed={viewport === "tablet"}
+                      value="tablet"
+                    />
+                  }
+                >
+                  <HugeiconsIcon icon={Tablet01Icon} size={14} />
+                </TooltipTrigger>
+                <TooltipContent>{viewportPresets.tablet.label}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <ToggleGroupItem
+                      aria-label="Desktop view"
+                      aria-pressed={viewport === "desktop"}
+                      className="cursor-pointer px-2"
+                      onClick={() => onViewportChange("desktop")}
+                      pressed={viewport === "desktop"}
+                      value="desktop"
+                    />
+                  }
+                >
+                  <HugeiconsIcon icon={LaptopIcon} size={14} />
+                </TooltipTrigger>
+                <TooltipContent>{viewportPresets.desktop.label}</TooltipContent>
+              </Tooltip>
+            </ToggleGroup>
+            <span className="text-muted-foreground text-xs">
+              {currentViewport.width}×{currentViewport.height}
+            </span>
+          </div>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  aria-label="Fullscreen"
+                  className="cursor-pointer"
+                  onClick={onFullscreen}
+                  size="icon-xs"
+                  tabIndex={0}
+                  variant="ghost"
+                />
+              }
+            >
+              <HugeiconsIcon icon={ArrowExpand01Icon} size={14} />
+            </TooltipTrigger>
+            <TooltipContent>Toggle fullscreen</TooltipContent>
+          </Tooltip>
+        </div>
+      )}
+      <div
+        className="flex flex-1 items-center justify-center overflow-auto bg-[repeating-conic-gradient(#8882_0_25%,transparent_0_50%)] bg-size-[16px_16px] p-4 dark:bg-[repeating-conic-gradient(#fff1_0_25%,transparent_0_50%)]"
+        ref={fullscreenRef}
+        style={{ minHeight: height }}
+      >
+        {hasContent ? (
+          <div
+            className="overflow-hidden rounded-md border bg-white shadow-lg transition-all duration-300"
+            style={{
+              width:
+                viewport === "desktop" ? "100%" : `${currentViewport.width}px`,
+              maxWidth: "100%",
+              height:
+                viewport === "desktop" ? "100%" : `${currentViewport.height}px`,
+              maxHeight: "100%",
+            }}
+          >
+            <iframe
+              className="h-full w-full border-0"
+              key={previewKey}
+              sandbox={previewSandboxPermissions}
+              srcDoc={renderedPreviewHtml}
+              title="HTML Preview"
+            />
+          </div>
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            Enter HTML code to see preview...
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const HtmlPreviewPage = () => {
-  const [input, setInput] = useState("");
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
   const [activeTab, setActiveTab] = useState<string>("split");
-  const [viewport, setViewport] = useState<ViewportPreset>("desktop");
+  const [viewportStr, setViewportStr] = useToolStorage(
+    STORAGE_KEY_VIEWPORT,
+    "desktop"
+  );
+  const viewport = isViewportPreset(viewportStr)
+    ? viewportStr
+    : ("desktop" as ViewportPreset);
+  const setViewport = setViewportStr;
   const [autoUpdate, setAutoUpdate] = useState(true);
   const [previewKey, setPreviewKey] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [renderedPreviewHtml, setRenderedPreviewHtml] = useState("");
   const fullscreenRef = useRef<HTMLDivElement>(null);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY_INPUT);
-    const savedViewport = localStorage.getItem(STORAGE_KEY_VIEWPORT);
-
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    if (isViewportPreset(savedViewport)) {
-      setViewport(savedViewport);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input/viewport changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_VIEWPORT, viewport);
-  }, [input, viewport, isHydrated]);
 
   // Calculate stats
   const stats = useMemo(() => getHtmlStats(input), [input]);
@@ -137,27 +272,30 @@ const HtmlPreviewPage = () => {
     setInput("");
     setRenderedPreviewHtml("");
     setPreviewKey(0);
-  }, []);
+  }, [setInput]);
 
-  const handleLoadExample = useCallback((key: keyof typeof exampleHtml) => {
-    setInput(exampleHtml[key]);
-    setRenderedPreviewHtml(createPreviewDocument(exampleHtml[key], false));
-    setPreviewKey((prev) => prev + 1);
-  }, []);
+  const handleLoadExample = useCallback(
+    (key: keyof typeof exampleHtml) => {
+      setInput(exampleHtml[key]);
+      setRenderedPreviewHtml(createPreviewDocument(exampleHtml[key], false));
+      setPreviewKey((prev) => prev + 1);
+    },
+    [setInput]
+  );
 
   const handleFormat = useCallback(() => {
     const formatted = formatHtml(input);
     if (formatted) {
       setInput(formatted);
     }
-  }, [input]);
+  }, [input, setInput]);
 
   const handleMinify = useCallback(() => {
     const minified = minifyHtml(input);
     if (minified) {
       setInput(minified);
     }
-  }, [input]);
+  }, [input, setInput]);
 
   const handleDownload = useCallback(() => {
     if (!input) {
@@ -216,150 +354,6 @@ const HtmlPreviewPage = () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
-
-  const currentViewport = viewportPresets[viewport];
-
-  // Preview component
-  const PreviewPane = useCallback(
-    ({
-      showViewportControls = true,
-      height = "500px",
-    }: {
-      showViewportControls?: boolean;
-      height?: string;
-    }) => (
-      <div className="flex h-full flex-col">
-        {showViewportControls && (
-          <div className="flex items-center justify-between border-b px-3 py-2">
-            <div className="flex items-center gap-2">
-              <ToggleGroup size="sm" variant="outline">
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <ToggleGroupItem
-                        aria-label="Mobile view"
-                        aria-pressed={viewport === "mobile"}
-                        className="cursor-pointer px-2"
-                        onClick={() => setViewport("mobile")}
-                        pressed={viewport === "mobile"}
-                        value="mobile"
-                      />
-                    }
-                  >
-                    <HugeiconsIcon icon={SmartPhone01Icon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {viewportPresets.mobile.label}
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <ToggleGroupItem
-                        aria-label="Tablet view"
-                        aria-pressed={viewport === "tablet"}
-                        className="cursor-pointer px-2"
-                        onClick={() => setViewport("tablet")}
-                        pressed={viewport === "tablet"}
-                        value="tablet"
-                      />
-                    }
-                  >
-                    <HugeiconsIcon icon={Tablet01Icon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {viewportPresets.tablet.label}
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <ToggleGroupItem
-                        aria-label="Desktop view"
-                        aria-pressed={viewport === "desktop"}
-                        className="cursor-pointer px-2"
-                        onClick={() => setViewport("desktop")}
-                        pressed={viewport === "desktop"}
-                        value="desktop"
-                      />
-                    }
-                  >
-                    <HugeiconsIcon icon={LaptopIcon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {viewportPresets.desktop.label}
-                  </TooltipContent>
-                </Tooltip>
-              </ToggleGroup>
-              <span className="text-muted-foreground text-xs">
-                {currentViewport.width}×{currentViewport.height}
-              </span>
-            </div>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    aria-label="Fullscreen"
-                    className="cursor-pointer"
-                    onClick={handleFullscreen}
-                    size="icon-xs"
-                    tabIndex={0}
-                    variant="ghost"
-                  />
-                }
-              >
-                <HugeiconsIcon icon={ArrowExpand01Icon} size={14} />
-              </TooltipTrigger>
-              <TooltipContent>Toggle fullscreen</TooltipContent>
-            </Tooltip>
-          </div>
-        )}
-        <div
-          className="flex flex-1 items-center justify-center overflow-auto bg-[repeating-conic-gradient(#8882_0_25%,transparent_0_50%)] bg-size-[16px_16px] p-4 dark:bg-[repeating-conic-gradient(#fff1_0_25%,transparent_0_50%)]"
-          ref={fullscreenRef}
-          style={{ minHeight: height }}
-        >
-          {input.trim() ? (
-            <div
-              className="overflow-hidden rounded-md border bg-white shadow-lg transition-all duration-300"
-              style={{
-                width:
-                  viewport === "desktop"
-                    ? "100%"
-                    : `${currentViewport.width}px`,
-                maxWidth: "100%",
-                height:
-                  viewport === "desktop"
-                    ? "100%"
-                    : `${currentViewport.height}px`,
-                maxHeight: "100%",
-              }}
-            >
-              <iframe
-                className="h-full w-full border-0"
-                key={previewKey}
-                sandbox={previewSandboxPermissions}
-                srcDoc={renderedPreviewHtml}
-                title="HTML Preview"
-              />
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-sm">
-              Enter HTML code to see preview...
-            </p>
-          )}
-        </div>
-      </div>
-    ),
-    [
-      viewport,
-      currentViewport,
-      input,
-      previewKey,
-      handleFullscreen,
-      renderedPreviewHtml,
-    ]
-  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -561,7 +555,17 @@ const HtmlPreviewPage = () => {
 
             {/* Preview Only */}
             <TabsContent className="m-0" value="preview">
-              <PreviewPane height="500px" showViewportControls />
+              <PreviewPane
+                fullscreenRef={fullscreenRef}
+                hasContent={!!input.trim()}
+                height="500px"
+                onFullscreen={handleFullscreen}
+                onViewportChange={setViewport}
+                previewKey={previewKey}
+                renderedPreviewHtml={renderedPreviewHtml}
+                showViewportControls
+                viewport={viewport}
+              />
             </TabsContent>
 
             {/* Split View */}
@@ -582,7 +586,17 @@ const HtmlPreviewPage = () => {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={50} minSize={25}>
-                  <PreviewPane height="500px" showViewportControls />
+                  <PreviewPane
+                    fullscreenRef={fullscreenRef}
+                    hasContent={!!input.trim()}
+                    height="500px"
+                    onFullscreen={handleFullscreen}
+                    onViewportChange={setViewport}
+                    previewKey={previewKey}
+                    renderedPreviewHtml={renderedPreviewHtml}
+                    showViewportControls
+                    viewport={viewport}
+                  />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </TabsContent>

@@ -313,6 +313,7 @@ const LogoMakerPage = () => {
                       </Button>
                       <Button
                         aria-label="Upload custom image"
+                        aria-pressed={config.icon.type === "image"}
                         className="flex-1 cursor-pointer gap-1.5"
                         onClick={() => fileInputRef.current?.click()}
                         size="sm"
@@ -473,6 +474,7 @@ const LogoMakerPage = () => {
                         value={config.icon.fillColor}
                       />
                       <Input
+                        aria-label="Icon fill color hex value"
                         className="flex-1 font-mono text-xs uppercase"
                         maxLength={7}
                         onChange={(e) => {
@@ -626,6 +628,7 @@ const LogoMakerPage = () => {
                         value={config.background.color}
                       />
                       <Input
+                        aria-label="Background color hex value"
                         className="flex-1 font-mono text-xs uppercase"
                         maxLength={7}
                         onChange={(e) => {
@@ -662,6 +665,7 @@ const LogoMakerPage = () => {
                             }
                           />
                           <Input
+                            aria-label="Gradient end color hex value"
                             className="flex-1 font-mono text-xs uppercase"
                             maxLength={7}
                             onChange={(e) => {
@@ -812,6 +816,7 @@ const LogoMakerPage = () => {
                               value={config.background.innerShadowColor}
                             />
                             <Input
+                              aria-label="Inner shadow color hex value"
                               className="flex-1 font-mono text-xs uppercase"
                               maxLength={7}
                               onChange={(e) => {
@@ -927,6 +932,7 @@ const LogoMakerPage = () => {
                           value={config.icon.borderColor}
                         />
                         <Input
+                          aria-label="Border color hex value"
                           className="flex-1 font-mono text-xs uppercase"
                           maxLength={7}
                           onChange={(e) => {
@@ -947,7 +953,7 @@ const LogoMakerPage = () => {
         </div>
 
         {/* Preview Section */}
-        <Card className="relative w-full shrink-0 lg:top-14 lg:w-72">
+        <Card className="w-full shrink-0 lg:sticky lg:top-4 lg:w-72">
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm">Preview</CardTitle>
@@ -1007,7 +1013,10 @@ const LogoMakerPage = () => {
                   onValueChange={(v) => v && setExportSize(Number(v))}
                   value={String(exportSize)}
                 >
-                  <SelectTrigger className="h-8 cursor-pointer text-xs">
+                  <SelectTrigger
+                    aria-label="PNG export size"
+                    className="h-8 cursor-pointer text-xs"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

@@ -5,6 +5,7 @@ import { Analytics } from "@/components/analytics";
 import { AppSidebar } from "@/components/app-sidebar";
 import { CommandMenu } from "@/components/command-menu";
 import { ModeToggle } from "@/components/mode-toggle";
+import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   SidebarInset,
@@ -127,6 +128,7 @@ export default function RootLayout({
           <Toaster position="bottom-right" />
         </ThemeProvider>
         <Analytics />
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );

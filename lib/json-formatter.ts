@@ -219,15 +219,37 @@ export const queryJsonPath = (
 };
 
 /**
- * Process a single path segment and return the result
+ * Recursively apply path segments. Wildcard and filter segments fan out:
+ * remaining segments are applied to each matched element.
  */
-const processSegment = (
+const evaluateSegments = (
   current: unknown,
-  segment: PathSegment
-): { value: unknown; shouldReturn: boolean } => {
-  if (current === null || current === undefined) {
-    return { value: undefined, shouldReturn: true };
+  segments: PathSegment[]
+): unknown => {
+  if (segments.length === 0) {
+    return current;
   }
+  if (current === null || current === undefined) {
+    return;
+  }
+
+  const [segment, ...rest] = segments;
+
+  // When this fan-out is followed by another fan-out segment, each branch
+  // returns an array; flatten so chained queries like
+  // $.groups[*].members[*].name yield one combined match set.
+  const fanOut = (elements: unknown[]): unknown => {
+    const mapped = elements
+      .map((element) => evaluateSegments(element, rest))
+      .filter((value) => value !== undefined);
+    const restFansOut = rest.some(
+      (next) => next.type === "wildcard" || next.type === "filter"
+    );
+    if (!restFansOut) {
+      return mapped;
+    }
+    return mapped.flatMap((value) => (Array.isArray(value) ? value : [value]));
+  };
 
   switch (segment.type) {
     case "key":
@@ -236,45 +258,52 @@ const processSegment = (
         current !== null &&
         !Array.isArray(current)
       ) {
-        return {
-          value: (current as Record<string, unknown>)[segment.value],
-          shouldReturn: false,
-        };
+        return evaluateSegments(
+          (current as Record<string, unknown>)[segment.value],
+          rest
+        );
       }
-      return { value: undefined, shouldReturn: true };
+      return;
 
     case "index":
       if (Array.isArray(current)) {
-        return {
-          value: current[Number.parseInt(segment.value, 10)],
-          shouldReturn: false,
-        };
+        return evaluateSegments(
+          current[Number.parseInt(segment.value, 10)],
+          rest
+        );
       }
-      return { value: undefined, shouldReturn: true };
+      return;
 
-    case "wildcard":
+    case "wildcard": {
+      let elements: unknown[];
       if (Array.isArray(current)) {
-        return { value: current, shouldReturn: true };
+        elements = current;
+      } else if (typeof current === "object" && current !== null) {
+        elements = Object.values(current as Record<string, unknown>);
+      } else {
+        return [];
       }
-      if (typeof current === "object" && current !== null) {
-        return {
-          value: Object.values(current as Record<string, unknown>),
-          shouldReturn: true,
-        };
+      if (rest.length === 0) {
+        return elements;
       }
-      return { value: [], shouldReturn: true };
+      return fanOut(elements);
+    }
 
-    case "filter":
-      if (Array.isArray(current)) {
-        return {
-          value: current.filter((item) => evaluateFilter(item, segment.value)),
-          shouldReturn: false,
-        };
+    case "filter": {
+      if (!Array.isArray(current)) {
+        return;
       }
-      return { value: undefined, shouldReturn: true };
+      const matched = current.filter((item) =>
+        evaluateFilter(item, segment.value)
+      );
+      if (rest.length === 0) {
+        return matched;
+      }
+      return fanOut(matched);
+    }
 
     default:
-      return { value: current, shouldReturn: false };
+      return evaluateSegments(current, rest);
   }
 };
 
@@ -305,17 +334,7 @@ const evaluateJsonPath = (data: unknown, path: string): unknown => {
 
   // Parse path segments
   const segments = parsePathSegments(normalizedPath);
-  let current: unknown = data;
-
-  for (const segment of segments) {
-    const result = processSegment(current, segment);
-    if (result.shouldReturn) {
-      return result.value;
-    }
-    current = result.value;
-  }
-
-  return current;
+  return evaluateSegments(data, segments);
 };
 
 /**

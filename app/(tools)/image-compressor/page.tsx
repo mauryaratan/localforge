@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -91,6 +92,8 @@ export default function ImageCompressorPage() {
   const imageAreaRef = useRef<HTMLDivElement>(null);
   const jobsRef = useRef(jobs);
   jobsRef.current = jobs;
+  // Latest compression run per job id; older async runs discard themselves
+  const jobGenerationsRef = useRef(new Map<string, number>());
 
   const selectedJob =
     jobs.find((j) => j.id === selectedJobId) ?? jobs[0] ?? null;
@@ -210,6 +213,12 @@ export default function ImageCompressorPage() {
 
   const compressJob = useCallback(
     async (job: ImageJob) => {
+      // Per-job generation: rapid settings changes start overlapping runs
+      // for the same job, and the slower (older) run must not overwrite
+      // the newer result when it finishes last.
+      const generation = (jobGenerationsRef.current.get(job.id) ?? 0) + 1;
+      jobGenerationsRef.current.set(job.id, generation);
+
       setJobs((prev) =>
         prev.map((j) =>
           j.id === job.id
@@ -233,8 +242,20 @@ export default function ImageCompressorPage() {
 
         const compressOpts = buildCompressOptions(job);
         const result = await compressImage(imageData, compressOpts);
+
+        // Stale run (newer run started, or job removed): discard silently
+        if (jobGenerationsRef.current.get(job.id) !== generation) {
+          return;
+        }
+
         const url = URL.createObjectURL(result.blob);
         const savings = ((job.size - result.blob.size) / job.size) * 100;
+
+        const staleUrl = jobsRef.current.find((j) => j.id === job.id)?.result
+          ?.url;
+        if (staleUrl) {
+          URL.revokeObjectURL(staleUrl);
+        }
 
         setJobs((prev) =>
           prev.map((j) =>
@@ -256,6 +277,9 @@ export default function ImageCompressorPage() {
           )
         );
       } catch (e) {
+        if (jobGenerationsRef.current.get(job.id) !== generation) {
+          return;
+        }
         console.error("Compression error:", e);
         setJobs((prev) =>
           prev.map((j) =>
@@ -273,8 +297,13 @@ export default function ImageCompressorPage() {
     [buildCompressOptions, buildResizeOptions]
   );
 
+  // Recompress existing jobs when settings change (compressJob identity
+  // tracks globalOptions). New jobs are compressed directly in handleAddFiles,
+  // so this must not depend on `jobs` — that would retrigger on completion.
   useEffect(() => {
-    const pendingJobs = jobs.filter((job) => job.status !== "compressing");
+    const pendingJobs = jobsRef.current.filter(
+      (job) => job.status !== "compressing"
+    );
     if (pendingJobs.length === 0) {
       return;
     }
@@ -286,12 +315,15 @@ export default function ImageCompressorPage() {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [compressJob, jobs]);
+  }, [compressJob]);
 
   const handleAddFiles = useCallback(
     async (files: FileList | File[]) => {
       const supported = Array.from(files).filter(isFileSupported);
       if (supported.length === 0) {
+        if (files.length > 0) {
+          toast.error("Unsupported file type. Only PNG and JPEG images work.");
+        }
         return;
       }
 
@@ -330,6 +362,9 @@ export default function ImageCompressorPage() {
           compressJob(newJob);
         } catch (err) {
           console.error("Failed to decode file:", file.name, err);
+          toast.error(
+            `Could not load "${file.name}". The file may be corrupted or use an unsupported encoding.`
+          );
         }
       }
     },
@@ -370,6 +405,29 @@ export default function ImageCompressorPage() {
     return () => window.removeEventListener("paste", onPaste);
   }, [handleAddFiles]);
 
+  // OS "Open with" delivers files via the Launch Queue API (Chromium).
+  // This is a guarded no-op on every browser that doesn't implement it.
+  useEffect(() => {
+    const launchQueue = (
+      window as {
+        launchQueue?: {
+          setConsumer: (
+            cb: (params: { files: FileSystemFileHandle[] }) => void
+          ) => void;
+        };
+      }
+    ).launchQueue;
+    if (!launchQueue) {
+      return;
+    }
+    launchQueue.setConsumer(async (params) => {
+      const files = await Promise.all(params.files.map((h) => h.getFile()));
+      if (files.length) {
+        handleAddFiles(files);
+      }
+    });
+  }, [handleAddFiles]);
+
   const handleSliderDrag = useCallback((clientX: number) => {
     if (!imageContainerRef.current) {
       return;
@@ -404,6 +462,11 @@ export default function ImageCompressorPage() {
   }, [isDraggingSlider, handleSliderDrag]);
 
   const handleRemoveJob = useCallback((id: string) => {
+    // Invalidate any in-flight compression for the removed job
+    jobGenerationsRef.current.set(
+      id,
+      (jobGenerationsRef.current.get(id) ?? 0) + 1
+    );
     const current = jobsRef.current;
     const idx = current.findIndex((j) => j.id === id);
     const job = current[idx];
@@ -482,7 +545,7 @@ export default function ImageCompressorPage() {
           className={`absolute inset-4 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
             isDragging
               ? "border-blue-500 bg-blue-500/10"
-              : "border-white/20 hover:border-white/40"
+              : "border-border hover:border-muted-foreground"
           }`}
           onClick={() => inputRef.current?.click()}
           onDragLeave={handleDragLeave}
@@ -491,14 +554,14 @@ export default function ImageCompressorPage() {
           type="button"
         >
           <HugeiconsIcon
-            className="mb-4 h-16 w-16 text-white/40"
+            className="mb-4 h-16 w-16 text-muted-foreground"
             icon={ImageUploadIcon}
           />
-          <p className="mb-2 text-lg text-white/80">
+          <p className="mb-2 text-foreground text-lg">
             Drop images here or click to upload
           </p>
-          <p className="text-sm text-white/50">Supports PNG and JPEG</p>
-          <p className="mt-2 text-white/40 text-xs">
+          <p className="text-muted-foreground text-sm">Supports PNG and JPEG</p>
+          <p className="mt-2 text-muted-foreground text-xs">
             You can also paste images from clipboard
           </p>
         </button>
@@ -627,7 +690,11 @@ export default function ImageCompressorPage() {
 
           {/* Horizontal comparison slider overlay - bottom center */}
           <div className="absolute bottom-8 left-1/2 z-10 w-full max-w-xs -translate-x-1/2 px-4">
+            <span className="sr-only" id="comparison-slider-label">
+              Before and after comparison position
+            </span>
             <Slider
+              aria-labelledby="comparison-slider-label"
               className="w-full"
               max={100}
               min={0}
@@ -678,8 +745,12 @@ export default function ImageCompressorPage() {
 
           {/* Quality: Smaller <-> Faster */}
           <div className="flex items-center gap-2">
+            <span className="sr-only" id="compression-quality-label">
+              Compression quality
+            </span>
             <span className="text-white/50">Smaller</span>
             <Slider
+              aria-labelledby="compression-quality-label"
               className="w-20"
               max={100}
               min={1}
@@ -726,6 +797,7 @@ export default function ImageCompressorPage() {
               <div className="flex items-center gap-1.5">
                 <span className="text-white/50">Size</span>
                 <Input
+                  aria-label="Resize width in pixels"
                   className="h-6 w-14 border-white/20 bg-transparent px-1.5 text-xs"
                   min={1}
                   onChange={(e) =>
@@ -736,6 +808,7 @@ export default function ImageCompressorPage() {
                 />
                 <span className="text-white/30">×</span>
                 <Input
+                  aria-label="Resize height in pixels"
                   className="h-6 w-14 border-white/20 bg-transparent px-1.5 text-xs"
                   min={1}
                   onChange={(e) =>
@@ -774,7 +847,10 @@ export default function ImageCompressorPage() {
                   }
                   value={globalOptions.resizeAlgorithm}
                 >
-                  <SelectTrigger className="h-7 w-[120px] cursor-pointer border-white/20 bg-transparent text-xs">
+                  <SelectTrigger
+                    aria-label="Resize quality algorithm"
+                    className="h-7 w-[120px] cursor-pointer border-white/20 bg-transparent text-xs"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -838,6 +914,11 @@ export default function ImageCompressorPage() {
             {isCompressing && (
               <span className="ml-2 text-white/50">Compressing...</span>
             )}
+            {job.status === "error" && (
+              <span className="ml-2 text-red-400" role="alert">
+                Compression failed: {job.error ?? "Unknown error"}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -900,9 +981,18 @@ export default function ImageCompressorPage() {
                     {Math.abs(j.result.savings).toFixed(0)}%
                   </div>
                 )}
+                {j.status === "error" && (
+                  <div
+                    className="absolute inset-x-0 bottom-0 bg-red-500/90 py-0.5 text-center font-medium text-[9px] text-white"
+                    title={j.error}
+                  >
+                    Error
+                  </div>
+                )}
               </button>
             ))}
             <button
+              aria-label="Add more images"
               className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded border-2 border-white/20 border-dashed text-lg text-white/40 transition-colors hover:border-white/40 hover:text-white/60"
               onClick={() => inputRef.current?.click()}
               type="button"
@@ -920,7 +1010,7 @@ export default function ImageCompressorPage() {
                 className="mx-auto mb-4 h-16 w-16 text-blue-400"
                 icon={ImageUploadIcon}
               />
-              <p className="text-lg">Drop images to compress</p>
+              <p className="text-lg text-white">Drop images to compress</p>
             </div>
           </div>
         )}

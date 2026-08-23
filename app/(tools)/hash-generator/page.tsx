@@ -2,20 +2,20 @@
 
 import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type AllHashesResult,
   generateAllHashes,
   getAlgorithmInfo,
   type HashAlgorithm,
 } from "@/lib/hash-generator";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:hash-generator:input";
 
@@ -36,7 +36,7 @@ const EXAMPLE_STRINGS = [
 ];
 
 const HashGeneratorPage = () => {
-  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY));
+  const [input, setInput] = useToolStorage(STORAGE_KEY);
   const [hashes, setHashes] = useState<AllHashesResult>({
     md5: "",
     sha1: "",
@@ -44,21 +44,14 @@ const HashGeneratorPage = () => {
     sha384: "",
     sha512: "",
   });
-  const [isHydrated, setIsHydrated] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, input);
-  }, [input, isHydrated]);
+  const generationRef = useRef(0);
+  const hashHydratedRef = useRef(false);
 
   const calculateHashes = useCallback(async (text: string) => {
+    generationRef.current += 1;
+    const generation = generationRef.current;
+
     if (!text) {
       setHashes({
         md5: "",
@@ -67,28 +60,40 @@ const HashGeneratorPage = () => {
         sha384: "",
         sha512: "",
       });
+      setIsCalculating(false);
       return;
     }
 
     setIsCalculating(true);
     try {
       const result = await generateAllHashes(text);
+      if (generation !== generationRef.current) {
+        return;
+      }
       setHashes(result);
     } catch {
+      if (generation !== generationRef.current) {
+        return;
+      }
       toast.error("Failed to generate hashes");
     } finally {
-      setIsCalculating(false);
+      if (generation === generationRef.current) {
+        setIsCalculating(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    if (!isHydrated) {
+    if (!hashHydratedRef.current) {
+      hashHydratedRef.current = true;
       return;
     }
     calculateHashes(input);
-  }, [input, isHydrated, calculateHashes]);
+  }, [input, calculateHashes]);
 
   const handleInputChange = (value: string) => {
+    // Fence off in-flight hash jobs immediately, before the effect re-runs
+    generationRef.current += 1;
     setInput(value);
   };
 
@@ -125,6 +130,7 @@ SHA-512: ${hashes.sha512}`;
   };
 
   const handleClear = () => {
+    generationRef.current += 1;
     setInput("");
     setHashes({
       md5: "",
@@ -136,6 +142,7 @@ SHA-512: ${hashes.sha512}`;
   };
 
   const handleExampleClick = (value: string) => {
+    generationRef.current += 1;
     setInput(value);
   };
 
@@ -241,7 +248,7 @@ SHA-512: ${hashes.sha512}`;
             </div>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="flex flex-col gap-4">
+            <div aria-live="polite" className="flex flex-col gap-4">
               {ALGORITHMS.map((algorithm) => {
                 const hash = getHashByAlgorithm(algorithm);
                 const info = getAlgorithmInfo(algorithm);

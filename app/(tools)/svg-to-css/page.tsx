@@ -2,7 +2,7 @@
 
 import { Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { CopyButton } from "@/components/copy-button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type CssOutputFormat,
   convertSvgToCss,
@@ -31,7 +32,6 @@ import {
   exampleSvgs,
   formatBytes,
 } from "@/lib/svg-css";
-import { scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:svg-to-css:input";
 
@@ -46,30 +46,12 @@ const cssFormatLabels: Record<CssOutputFormat, string> = {
 };
 
 const SvgToCssPage = () => {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useToolStorage(STORAGE_KEY);
   const [encoding, setEncoding] = useState<EncodingType>("url");
   const [outputFormat, setOutputFormat] =
     useState<CssOutputFormat>("backgroundImage");
   const [previewBg, setPreviewBg] = useState<PreviewBackground>("checkered");
   const [copied, setCopied] = useState<Record<string, boolean>>({});
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setInput(saved);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY, input);
-  }, [input, isHydrated]);
 
   // Convert SVG to CSS
   const result = useMemo(() => {
@@ -98,11 +80,14 @@ const SvgToCssPage = () => {
 
   const handleClearInput = useCallback(() => {
     setInput("");
-  }, []);
+  }, [setInput]);
 
-  const handleLoadExample = useCallback((key: keyof typeof exampleSvgs) => {
-    setInput(exampleSvgs[key]);
-  }, []);
+  const handleLoadExample = useCallback(
+    (key: keyof typeof exampleSvgs) => {
+      setInput(exampleSvgs[key]);
+    },
+    [setInput]
+  );
 
   const getPreviewBgClass = (bg: PreviewBackground): string => {
     switch (bg) {

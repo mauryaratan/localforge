@@ -5,9 +5,9 @@ Privacy-first developer utilities that run entirely in your browser. Your data n
 ## Features
 
 - **100% Private** — No server uploads, no tracking. Everything runs locally in your browser
-- **Works Offline** — Install as a PWA and use anywhere, even without internet
+- **Works Offline** — Install as a PWA; previously visited tools keep working without internet
 - **Lightning Fast** — No network latency, instant results with WebAssembly-powered processing
-- **20+ Tools** — All the utilities developers need, in one place
+- **30+ Tools** — All the utilities developers need, in one place
 
 ## Available Tools
 
@@ -25,14 +25,14 @@ Privacy-first developer utilities that run entirely in your browser. Your data n
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 22.13+ (required by pnpm 10)
 - pnpm 10+
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/localforge.git
+git clone https://github.com/mauryaratan/localforge.git
 cd localforge
 
 # Install dependencies

@@ -19,13 +19,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type CertificateNamePart,
   type CertificateParseResult,
   certificateExample,
   parseCertificates,
 } from "@/lib/certificate-parser";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_CERT = "devtools:certificate-parser:input";
 
@@ -37,21 +37,26 @@ const EMPTY_RESULT: CertificateParseResult = {
 const formatName = (parts: CertificateNamePart[]) =>
   parts.map((part) => `${part.key}=${part.value}`).join(", ");
 
+/**
+ * Parse-status badge for non-empty input. While the async parse of fresh
+ * input is still settling there is no error yet — show a neutral state
+ * instead of flashing a destructive "Error".
+ */
+const getParseBadge = (
+  result: CertificateParseResult
+): { variant: "default" | "destructive" | "secondary"; label: string } => {
+  if (result.success) {
+    return { variant: "default", label: "Parsed" };
+  }
+  if (result.error) {
+    return { variant: "destructive", label: "Error" };
+  }
+  return { variant: "secondary", label: "Parsing" };
+};
+
 const CertificateParserPage = () => {
-  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_CERT));
+  const [input, setInput] = useToolStorage(STORAGE_KEY_CERT);
   const [result, setResult] = useState<CertificateParseResult>(EMPTY_RESULT);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_CERT, input);
-  }, [input, isHydrated]);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,12 +80,12 @@ const CertificateParserPage = () => {
 
   const handleLoadExample = useCallback(() => {
     setInput(certificateExample);
-  }, []);
+  }, [setInput]);
 
   const handleClear = useCallback(() => {
     setInput("");
     setResult(EMPTY_RESULT);
-  }, []);
+  }, [setInput]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -173,9 +178,13 @@ const CertificateParserPage = () => {
           </CardHeader>
           <CardContent className="flex flex-col gap-4 p-4">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={result.success ? "default" : "destructive"}>
-                {result.success ? "Parsed" : "Waiting"}
-              </Badge>
+              {input.trim() ? (
+                <Badge variant={getParseBadge(result).variant}>
+                  {getParseBadge(result).label}
+                </Badge>
+              ) : (
+                <Badge variant="secondary">Waiting for input</Badge>
+              )}
               {firstCertificate && (
                 <Badge
                   variant={
@@ -188,7 +197,7 @@ const CertificateParserPage = () => {
                 </Badge>
               )}
             </div>
-            {result.error && (
+            {input.trim() !== "" && result.error && (
               <p className="text-muted-foreground text-xs">{result.error}</p>
             )}
             {firstCertificate && (

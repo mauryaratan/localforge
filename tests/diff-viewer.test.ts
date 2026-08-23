@@ -28,6 +28,26 @@ describe("createDiff", () => {
     expect(result.stats.deletions).toBeGreaterThan(0);
   });
 
+  it("omits line numbers for word-granularity segments", () => {
+    const result = createDiff("hello world", "hello there", "words");
+
+    for (const segment of result.segments) {
+      expect(segment.oldLineNumber).toBeNull();
+      expect(segment.newLineNumber).toBeNull();
+    }
+  });
+
+  it("numbers line-granularity segments per line", () => {
+    const result = createDiff("one\ntwo\n", "one\nthree\n");
+    const removed = result.segments.find((s) => s.type === "removed");
+    const added = result.segments.find((s) => s.type === "added");
+
+    expect(removed?.oldLineNumber).toBe(2);
+    expect(removed?.newLineNumber).toBeNull();
+    expect(added?.newLineNumber).toBe(2);
+    expect(added?.oldLineNumber).toBeNull();
+  });
+
   it("normalizes trailing whitespace when requested", () => {
     expect(
       normalizeForDiff("hello  \nworld\t", { trimTrailingWhitespace: true })

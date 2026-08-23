@@ -38,7 +38,30 @@ const countLineUnits = (value: string): number => {
   return normalized.length === 0 ? 1 : normalized.split("\n").length;
 };
 
-const createSegments = (changes: Change[]): DiffSegment[] => {
+const createSegments = (
+  changes: Change[],
+  granularity: DiffGranularity
+): DiffSegment[] => {
+  // Word-granularity changes are sub-line tokens, so per-segment line
+  // numbers are not meaningful
+  if (granularity === "words") {
+    return changes.map((change, changeIndex) => {
+      let type: DiffSegment["type"] = "unchanged";
+      if (change.added) {
+        type = "added";
+      } else if (change.removed) {
+        type = "removed";
+      }
+      return {
+        id: `${changeIndex}-0`,
+        newLineNumber: null,
+        oldLineNumber: null,
+        type,
+        value: change.value,
+      };
+    });
+  }
+
   const segments: DiffSegment[] = [];
   let oldLineNumber = 1;
   let newLineNumber = 1;
@@ -121,7 +144,7 @@ export const createDiff = (
   return {
     hasChanges: stats.additions > 0 || stats.deletions > 0,
     patch,
-    segments: createSegments(changes),
+    segments: createSegments(changes, granularity),
     stats,
   };
 };

@@ -14,48 +14,55 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useCopiedState } from "@/hooks/use-copied-state";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import { buildURL, type ParsedURL, parseURL } from "@/lib/url-parser";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:url-parser:input";
 
+interface EditableSearchParam {
+  id: string;
+  key: string;
+  value: string;
+}
+
+interface EditableParsedURL extends Omit<ParsedURL, "searchParams"> {
+  searchParams: EditableSearchParam[];
+}
+
 const URLParserPage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [urlInput, setUrlInput] = useState(() => getStorageValue(STORAGE_KEY));
-  const [parsed, setParsed] = useState<ParsedURL | null>(null);
+  const [urlInput, setUrlInput] = useToolStorage(STORAGE_KEY);
+  const [parsed, setParsed] = useState<EditableParsedURL | null>(null);
   const { copied, handleCopy } = useCopiedState();
   const [showParams, setShowParams] = useState(true);
-  const [isHydrated, setIsHydrated] = useState(false);
-  const searchParamKeysRef = useRef(new WeakMap<object, string>());
-  const searchParamKeyCountRef = useRef(0);
+  const searchParamIdCounterRef = useRef(0);
 
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+  const createSearchParamId = useCallback(
+    () => `param-id-${searchParamIdCounterRef.current++}`,
+    []
+  );
 
-  // Save to localStorage when input changes (after hydration)
+  // Parse URL when input changes, preserving param ids by position so
+  // inputs keep focus while editing
   useEffect(() => {
-    if (!isHydrated) {
+    if (!urlInput) {
+      setParsed(null);
       return;
     }
-    scheduleStorageValue(STORAGE_KEY, urlInput);
-  }, [urlInput, isHydrated]);
 
-  // Parse URL when input changes
-  useEffect(() => {
-    if (urlInput) {
-      const result = parseURL(urlInput);
-      setParsed(result);
-    } else {
-      setParsed(null);
-    }
-  }, [urlInput]);
+    const result = parseURL(urlInput);
+    setParsed((prev) => ({
+      ...result,
+      searchParams: result.searchParams.map((param, index) => ({
+        ...param,
+        id: prev?.searchParams[index]?.id ?? createSearchParamId(),
+      })),
+    }));
+  }, [urlInput, createSearchParamId]);
 
   const handleClearInput = useCallback(() => {
     setUrlInput("");
     setParsed(null);
-  }, []);
+  }, [setUrlInput]);
 
   const handleUpdateParam = useCallback(
     (index: number, field: "key" | "value", newValue: string) => {
@@ -70,7 +77,7 @@ const URLParserPage = () => {
       setParsed(updated);
       setUrlInput(buildURL(updated));
     },
-    [parsed]
+    [parsed, setUrlInput]
   );
 
   const handleRemoveParam = useCallback(
@@ -84,7 +91,7 @@ const URLParserPage = () => {
       setParsed(updated);
       setUrlInput(buildURL(updated));
     },
-    [parsed]
+    [parsed, setUrlInput]
   );
 
   const handleAddParam = useCallback(() => {
@@ -92,24 +99,13 @@ const URLParserPage = () => {
       return;
     }
 
-    const newParams = [...parsed.searchParams, { key: "", value: "" }];
+    const newParams = [
+      ...parsed.searchParams,
+      { id: createSearchParamId(), key: "", value: "" },
+    ];
     const updated = { ...parsed, searchParams: newParams };
     setParsed(updated);
-  }, [parsed]);
-
-  const getSearchParamKey = useCallback(
-    (param: ParsedURL["searchParams"][number]) => {
-      const existingKey = searchParamKeysRef.current.get(param);
-      if (existingKey) {
-        return existingKey;
-      }
-
-      const nextKey = `param-${searchParamKeyCountRef.current++}`;
-      searchParamKeysRef.current.set(param, nextKey);
-      return nextKey;
-    },
-    []
-  );
+  }, [parsed, createSearchParamId]);
 
   const urlComponents = parsed?.isValid
     ? [
@@ -255,7 +251,7 @@ const URLParserPage = () => {
                   {parsed.searchParams.map((param, index) => (
                     <div
                       className="flex items-center gap-2 rounded-sm bg-muted/50 p-2"
-                      key={getSearchParamKey(param)}
+                      key={param.id}
                     >
                       <Input
                         aria-label={`Parameter ${index + 1} key`}

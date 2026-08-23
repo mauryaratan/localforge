@@ -9,9 +9,11 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ExampleButton } from "@/components/example-button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 
 // Dynamic import MarkdownRenderer to reduce initial bundle size
 // ReactMarkdown + remarkGfm add ~50KB gzipped to the bundle
@@ -50,34 +52,23 @@ import {
   getMarkdownStats,
   type TocItem,
 } from "@/lib/markdown-preview";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY_INPUT = "devtools:markdown-preview:input";
 
 const MarkdownPreviewPage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_INPUT));
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
   const [activeTab, setActiveTab] = useState<string>("split");
+  const isMobile = useIsMobile();
+  const deferredInput = useDeferredValue(input);
 
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+  // Calculate stats (deferred so typing stays responsive)
+  const stats = useMemo(() => getMarkdownStats(deferredInput), [deferredInput]);
 
-  // Save to localStorage when input changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-  }, [input, isHydrated]);
-
-  // Calculate stats
-  const stats = useMemo(() => getMarkdownStats(input), [input]);
-
-  // Extract table of contents
-  const toc = useMemo(() => extractTableOfContents(input), [input]);
+  // Extract table of contents (deferred so typing stays responsive)
+  const toc = useMemo(
+    () => extractTableOfContents(deferredInput),
+    [deferredInput]
+  );
 
   const handleCopy = useCallback(async (text: string) => {
     if (!text) {
@@ -94,11 +85,14 @@ const MarkdownPreviewPage = () => {
 
   const handleClearInput = useCallback(() => {
     setInput("");
-  }, []);
+  }, [setInput]);
 
-  const handleLoadExample = useCallback((key: keyof typeof exampleMarkdown) => {
-    setInput(exampleMarkdown[key]);
-  }, []);
+  const handleLoadExample = useCallback(
+    (key: keyof typeof exampleMarkdown) => {
+      setInput(exampleMarkdown[key]);
+    },
+    [setInput]
+  );
 
   const handleDownload = useCallback(() => {
     if (!input) {
@@ -225,8 +219,8 @@ const MarkdownPreviewPage = () => {
               {/* Preview Only */}
               <TabsContent className="overflow-hidden" value="preview">
                 <div className="prose-preview h-[500px] overflow-auto rounded-md border bg-card p-4">
-                  {input.trim() ? (
-                    <MarkdownRenderer content={input} />
+                  {deferredInput.trim() ? (
+                    <MarkdownRenderer content={deferredInput} />
                   ) : (
                     <p className="text-muted-foreground text-sm italic">
                       Preview will appear here...
@@ -238,8 +232,10 @@ const MarkdownPreviewPage = () => {
               {/* Split View */}
               <TabsContent className="overflow-hidden" value="split">
                 <ResizablePanelGroup
-                  className="h-[500px] rounded-md"
-                  orientation="horizontal"
+                  className={
+                    isMobile ? "h-[70vh] rounded-md" : "h-[500px] rounded-md"
+                  }
+                  orientation={isMobile ? "vertical" : "horizontal"}
                 >
                   <ResizablePanel defaultSize={50} minSize={25}>
                     <Textarea
@@ -255,8 +251,8 @@ const MarkdownPreviewPage = () => {
                   <ResizablePanel defaultSize={50} minSize={25}>
                     <ScrollArea className="h-full">
                       <div className="prose-preview h-full rounded-md border-0 bg-card p-4">
-                        {input.trim() ? (
-                          <MarkdownRenderer content={input} />
+                        {deferredInput.trim() ? (
+                          <MarkdownRenderer content={deferredInput} />
                         ) : (
                           <p className="text-muted-foreground text-sm italic">
                             Preview will appear here...

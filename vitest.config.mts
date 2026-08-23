@@ -8,6 +8,7 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    setupFiles: ["tests/pages/setup.ts"],
   },
   assetsInclude: ["**/*.wasm"],
 });

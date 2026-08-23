@@ -25,7 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
+import { cn, getStorageValue, setStorageValue } from "@/lib/utils";
 
 const SIDEBAR_STORAGE_KEY = "sidebar_state";
 const SIDEBAR_WIDTH = "16rem";
@@ -73,11 +73,8 @@ function SidebarProvider({
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(() => {
-    if (typeof window === "undefined") {
-      return defaultOpen;
-    }
-    const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
-    return stored === null ? defaultOpen : stored === "true";
+    const stored = getStorageValue(SIDEBAR_STORAGE_KEY);
+    return stored === "" ? defaultOpen : stored === "true";
   });
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
@@ -89,8 +86,8 @@ function SidebarProvider({
         _setOpen(openState);
       }
 
-      // Persist to localStorage
-      localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
+      // Persist to localStorage (guarded against quota/SecurityError)
+      setStorageValue(SIDEBAR_STORAGE_KEY, String(openState));
     },
     [setOpenProp, open]
   );

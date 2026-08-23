@@ -8,7 +8,7 @@ import {
   FileEditIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
 import { ExampleButton } from "@/components/example-button";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +30,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCopiedState } from "@/hooks/use-copied-state";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
+  type ConversionResult,
   csvToJson,
   delimiterOptions,
   detectDelimiter,
@@ -42,7 +44,6 @@ import {
   validateCsv,
   validateJson,
 } from "@/lib/json-csv";
-import { scheduleStorageValue } from "@/lib/utils";
 
 type ConversionMode = "json-to-csv" | "csv-to-json";
 
@@ -65,12 +66,15 @@ const getDelimiterLabel = (delimiter: string) => {
 };
 
 const JsonCsvPage = () => {
-  const [mode, setMode] = useState<ConversionMode>("json-to-csv");
-  const [input, setInput] = useState("");
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
+  const [modeStr, setModeStr] = useToolStorage(STORAGE_KEY_MODE, "json-to-csv");
+  const mode = (
+    modeStr === "csv-to-json" ? "csv-to-json" : "json-to-csv"
+  ) as ConversionMode;
+  const setMode = setModeStr;
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { copied, handleCopy } = useCopiedState();
-  const [isHydrated, setIsHydrated] = useState(false);
 
   // Options for JSON to CSV
   const [delimiter, setDelimiter] = useState(",");
@@ -80,38 +84,22 @@ const JsonCsvPage = () => {
   // Options for CSV to JSON
   const [hasHeader, setHasHeader] = useState(true);
 
+  // Tracks whether the user manually picked a delimiter, so auto-detection
+  // never overwrites a manual choice. Reset on clear and mode toggle.
+  const userPickedDelimiterRef = useRef(false);
+
   // Stats
   const [rowCount, setRowCount] = useState<number | undefined>();
   const [columnCount, setColumnCount] = useState<number | undefined>();
 
   const isJsonMode = mode === "json-to-csv";
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY_INPUT);
-    const savedMode = localStorage.getItem(STORAGE_KEY_MODE) as ConversionMode;
-
-    if (savedMode === "json-to-csv" || savedMode === "csv-to-json") {
-      setMode(savedMode);
-    }
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input/mode changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_MODE, mode);
-  }, [input, mode, isHydrated]);
-
-  // Convert when input or options change
+  // Convert when input or options change. In CSV mode the delimiter is
+  // auto-detected in the same pass unless the user picked one manually, so
+  // a conversion never runs with a delimiter that is about to be replaced.
   useEffect(() => {
     if (!input.trim()) {
+      userPickedDelimiterRef.current = false;
       setOutput("");
       setError(null);
       setRowCount(undefined);
@@ -119,57 +107,46 @@ const JsonCsvPage = () => {
       return;
     }
 
+    let result: ConversionResult;
     if (isJsonMode) {
-      const result = jsonToCsv(input, {
+      result = jsonToCsv(input, {
         delimiter,
         includeHeader,
         flattenNested,
       });
-      if (result.success) {
-        setOutput(result.output);
-        setError(null);
-        setRowCount(result.rowCount);
-        setColumnCount(result.columnCount);
-      } else {
-        setOutput("");
-        setError(result.error || "Conversion failed");
-        setRowCount(undefined);
-        setColumnCount(undefined);
-      }
     } else {
-      const result = csvToJson(input, {
-        delimiter,
+      let csvDelimiter = delimiter;
+      if (!userPickedDelimiterRef.current) {
+        csvDelimiter = detectDelimiter(input);
+        setDelimiter(csvDelimiter);
+      }
+      result = csvToJson(input, {
+        delimiter: csvDelimiter,
         hasHeader,
       });
-      if (result.success) {
-        setOutput(result.output);
-        setError(null);
-        setRowCount(result.rowCount);
-        setColumnCount(result.columnCount);
-      } else {
-        setOutput("");
-        setError(result.error || "Conversion failed");
-        setRowCount(undefined);
-        setColumnCount(undefined);
-      }
+    }
+
+    if (result.success) {
+      setOutput(result.output);
+      setError(null);
+      setRowCount(result.rowCount);
+      setColumnCount(result.columnCount);
+    } else {
+      setOutput("");
+      setError(result.error || "Conversion failed");
+      setRowCount(undefined);
+      setColumnCount(undefined);
     }
   }, [input, isJsonMode, delimiter, includeHeader, flattenNested, hasHeader]);
 
-  // Auto-detect delimiter when CSV input changes
-  useEffect(() => {
-    if (!isJsonMode && input.trim()) {
-      const detected = detectDelimiter(input);
-      setDelimiter(detected);
-    }
-  }, [input, isJsonMode]);
-
   const handleClearInput = useCallback(() => {
+    userPickedDelimiterRef.current = false;
     setInput("");
     setOutput("");
     setError(null);
     setRowCount(undefined);
     setColumnCount(undefined);
-  }, []);
+  }, [setInput]);
 
   const handleModeChange = useCallback(
     (newMode: ConversionMode) => {
@@ -177,20 +154,24 @@ const JsonCsvPage = () => {
         return;
       }
 
-      // Use the current output as the new input (reverse conversion)
+      userPickedDelimiterRef.current = false;
+      // Use the current output as the new input (reverse conversion).
+      // When conversion failed (empty output), keep the existing input so
+      // toggling modes never wipes the user's text.
       if (output) {
         setInput(output);
-      } else {
-        setInput("");
       }
       setMode(newMode);
     },
-    [mode, output]
+    [mode, output, setInput, setMode]
   );
 
-  const handleLoadExample = useCallback((example: string) => {
-    setInput(example);
-  }, []);
+  const handleLoadExample = useCallback(
+    (example: string) => {
+      setInput(example);
+    },
+    [setInput]
+  );
 
   const handleDownload = useCallback(() => {
     if (!output) {
@@ -284,7 +265,13 @@ const JsonCsvPage = () => {
                   Delimiter
                 </FieldLabel>
                 <Select
-                  onValueChange={(v) => v && setDelimiter(v)}
+                  onValueChange={(v) => {
+                    if (!v) {
+                      return;
+                    }
+                    userPickedDelimiterRef.current = true;
+                    setDelimiter(v);
+                  }}
                   value={delimiter}
                 >
                   <SelectTrigger

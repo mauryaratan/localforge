@@ -13,6 +13,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { StatusRegion } from "@/components/status-region";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +41,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   COMMON_TIMEZONES,
   formatInTimezone,
@@ -62,11 +64,15 @@ const STORAGE_KEY_UNIT = "devtools:unix-time:unit";
 const STORAGE_KEY_TIMEZONE = "devtools:unix-time:timezone";
 const STORAGE_KEY_EXTRA_TZ = "devtools:unix-time:extra-tz";
 
-const UNIT_OPTIONS: { value: TimestampUnit; label: string }[] = [
-  { value: "seconds", label: "Seconds" },
-  { value: "milliseconds", label: "Milliseconds" },
-  { value: "microseconds", label: "Microseconds" },
-  { value: "nanoseconds", label: "Nanoseconds" },
+const UNIT_OPTIONS: {
+  value: TimestampUnit;
+  label: string;
+  shortLabel: string;
+}[] = [
+  { value: "seconds", label: "Seconds", shortLabel: "s" },
+  { value: "milliseconds", label: "Milliseconds", shortLabel: "ms" },
+  { value: "microseconds", label: "Microseconds", shortLabel: "µs" },
+  { value: "nanoseconds", label: "Nanoseconds", shortLabel: "ns" },
 ];
 
 const FORMAT_OPTIONS: { value: InputFormat; label: string }[] = [
@@ -88,15 +94,30 @@ const UnixTimeConverterPage = () => {
   const [currentTime, setCurrentTime] = useState<CurrentTimestamps | null>(
     null
   );
-  const [input, setInput] = useState("");
-  const [inputFormat, setInputFormat] = useState<InputFormat>("auto");
-  const [unit, setUnit] = useState<TimestampUnit>("seconds");
-  const [timezone, setTimezone] = useState<TimezoneMode>("local");
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
+  const [inputFormatStr, setInputFormatStr] = useToolStorage(
+    STORAGE_KEY_FORMAT,
+    "auto"
+  );
+  const inputFormat = (
+    FORMAT_OPTIONS.some((o) => o.value === inputFormatStr)
+      ? inputFormatStr
+      : "auto"
+  ) as InputFormat;
+  const [unitStr, setUnitStr] = useToolStorage(STORAGE_KEY_UNIT, "seconds");
+  const unit = (
+    UNIT_OPTIONS.some((o) => o.value === unitStr) ? unitStr : "seconds"
+  ) as TimestampUnit;
+  const [timezoneStr, setTimezoneStr] = useToolStorage(
+    STORAGE_KEY_TIMEZONE,
+    "local"
+  );
+  const timezone = (timezoneStr === "utc" ? "utc" : "local") as TimezoneMode;
   const [extraTimezones, setExtraTimezones] = useState<string[]>([]);
   const [selectedTz, setSelectedTz] = useState<string>("");
-  const [isHydrated, setIsHydrated] = useState(false);
   const [allTimezones, setAllTimezones] = useState<string[]>([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const extraTzHydratedRef = useRef(false);
 
   // Load timezones and set initial time on mount (client-side only)
   useEffect(() => {
@@ -104,28 +125,9 @@ const UnixTimeConverterPage = () => {
     setCurrentTime(getCurrentTimestamps());
   }, []);
 
-  // Load from localStorage on mount
+  // Load extraTimezones from localStorage on mount
   useEffect(() => {
-    const savedInput = localStorage.getItem(STORAGE_KEY_INPUT);
-    const savedFormat = localStorage.getItem(STORAGE_KEY_FORMAT) as InputFormat;
-    const savedUnit = localStorage.getItem(STORAGE_KEY_UNIT) as TimestampUnit;
-    const savedTimezone = localStorage.getItem(
-      STORAGE_KEY_TIMEZONE
-    ) as TimezoneMode;
     const savedExtraTz = localStorage.getItem(STORAGE_KEY_EXTRA_TZ);
-
-    if (savedInput) {
-      setInput(savedInput);
-    }
-    if (savedFormat && FORMAT_OPTIONS.some((o) => o.value === savedFormat)) {
-      setInputFormat(savedFormat);
-    }
-    if (savedUnit && UNIT_OPTIONS.some((o) => o.value === savedUnit)) {
-      setUnit(savedUnit);
-    }
-    if (savedTimezone === "local" || savedTimezone === "utc") {
-      setTimezone(savedTimezone);
-    }
     if (savedExtraTz) {
       try {
         const parsed = JSON.parse(savedExtraTz);
@@ -133,23 +135,19 @@ const UnixTimeConverterPage = () => {
           setExtraTimezones(parsed);
         }
       } catch {
-        // Invalid JSON
+        /* Invalid JSON */
       }
     }
-    setIsHydrated(true);
   }, []);
 
-  // Save to localStorage when values change (after hydration)
+  // Save extraTimezones to localStorage when it changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) {
+    if (!extraTzHydratedRef.current) {
+      extraTzHydratedRef.current = true;
       return;
     }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_FORMAT, inputFormat);
-    scheduleStorageValue(STORAGE_KEY_UNIT, unit);
-    scheduleStorageValue(STORAGE_KEY_TIMEZONE, timezone);
     scheduleStorageValue(STORAGE_KEY_EXTRA_TZ, JSON.stringify(extraTimezones));
-  }, [input, inputFormat, unit, timezone, extraTimezones, isHydrated]);
+  }, [extraTimezones]);
 
   // Update current time every second
   useEffect(() => {
@@ -186,22 +184,25 @@ const UnixTimeConverterPage = () => {
     } catch {
       // Clipboard API failed
     }
-  }, []);
+  }, [setInput]);
 
   const handleClear = useCallback(() => {
     setInput("");
-  }, []);
+  }, [setInput]);
 
   const handleUseNow = useCallback(() => {
     const now = currentTime ?? getCurrentTimestamps();
     setInput(now.seconds.toString());
-    setInputFormat("seconds");
-  }, [currentTime]);
+    setInputFormatStr("seconds");
+  }, [currentTime, setInput, setInputFormatStr]);
 
-  const handleLoadReference = useCallback((timestamp: number) => {
-    setInput(timestamp.toString());
-    setInputFormat("seconds");
-  }, []);
+  const handleLoadReference = useCallback(
+    (timestamp: number) => {
+      setInput(timestamp.toString());
+      setInputFormatStr("seconds");
+    },
+    [setInput, setInputFormatStr]
+  );
 
   const handleAddTimezone = useCallback(() => {
     if (selectedTz && !extraTimezones.includes(selectedTz)) {
@@ -369,7 +370,7 @@ const UnixTimeConverterPage = () => {
                 <Field>
                   <Select
                     onValueChange={(value) =>
-                      setInputFormat(value as InputFormat)
+                      setInputFormatStr(value ?? "auto")
                     }
                     value={inputFormat}
                   >
@@ -401,14 +402,15 @@ const UnixTimeConverterPage = () => {
                   <ToggleGroup size="sm" variant="outline">
                     {UNIT_OPTIONS.map((opt) => (
                       <ToggleGroupItem
+                        aria-label={opt.label}
                         aria-pressed={unit === opt.value}
                         className="cursor-pointer px-2"
                         key={opt.value}
-                        onClick={() => setUnit(opt.value)}
+                        onClick={() => setUnitStr(opt.value)}
                         pressed={unit === opt.value}
                         value={opt.value}
                       >
-                        {opt.label.slice(0, 2)}
+                        {opt.shortLabel}
                       </ToggleGroupItem>
                     ))}
                   </ToggleGroup>
@@ -424,7 +426,7 @@ const UnixTimeConverterPage = () => {
                     <ToggleGroupItem
                       aria-pressed={timezone === "local"}
                       className="cursor-pointer px-2.5"
-                      onClick={() => setTimezone("local")}
+                      onClick={() => setTimezoneStr("local")}
                       pressed={timezone === "local"}
                       value="local"
                     >
@@ -433,7 +435,7 @@ const UnixTimeConverterPage = () => {
                     <ToggleGroupItem
                       aria-pressed={timezone === "utc"}
                       className="cursor-pointer px-2.5"
-                      onClick={() => setTimezone("utc")}
+                      onClick={() => setTimezoneStr("utc")}
                       pressed={timezone === "utc"}
                       value="utc"
                     >
@@ -443,9 +445,11 @@ const UnixTimeConverterPage = () => {
                 </FieldSet>
               </div>
 
-              {parseResult?.success === false && (
-                <Badge variant="destructive">{parseResult.error}</Badge>
-              )}
+              <StatusRegion tone="assertive">
+                {parseResult?.success === false && (
+                  <Badge variant="destructive">{parseResult.error}</Badge>
+                )}
+              </StatusRegion>
             </FieldGroup>
           </CardContent>
         </Card>
@@ -480,7 +484,7 @@ const UnixTimeConverterPage = () => {
                           second: "2-digit",
                           hour12: true,
                         }),
-                        "out-full"
+                        "Full date"
                       )
                     }
                     value={date.toLocaleString("en-US", {
@@ -497,12 +501,14 @@ const UnixTimeConverterPage = () => {
                   />
                   <DateOutputRow
                     label="ISO 8601"
-                    onCopy={() => handleCopy(date.toISOString(), "out-iso")}
+                    onCopy={() => handleCopy(date.toISOString(), "ISO 8601")}
                     value={date.toISOString()}
                   />
                   <DateOutputRow
                     label="Unix Time"
-                    onCopy={() => handleCopy(String(timestamp), "out-unix")}
+                    onCopy={() =>
+                      handleCopy(String(timestamp), "Unix timestamp")
+                    }
                     value={String(timestamp)}
                   />
                 </div>
@@ -556,7 +562,7 @@ const UnixTimeConverterPage = () => {
                             : date.getFullYear();
                         handleCopy(
                           `${String(m).padStart(2, "0")}/${String(d).padStart(2, "0")}/${y}`,
-                          "fmt-us"
+                          "US date"
                         );
                       }}
                       value={(() => {
@@ -592,7 +598,7 @@ const UnixTimeConverterPage = () => {
                             : date.getDate();
                         handleCopy(
                           `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
-                          "fmt-iso-date"
+                          "ISO date"
                         );
                       }}
                       value={(() => {
@@ -636,7 +642,7 @@ const UnixTimeConverterPage = () => {
                             : date.getMinutes();
                         handleCopy(
                           `${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}-${y} ${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`,
-                          "fmt-datetime"
+                          "Date time"
                         );
                       }}
                       value={(() => {
@@ -700,7 +706,7 @@ const UnixTimeConverterPage = () => {
                         const ampm = h < 12 ? "AM" : "PM";
                         handleCopy(
                           `${shortMonths[m]} ${d}, ${h12}:${String(min).padStart(2, "0")} ${ampm}`,
-                          "fmt-short"
+                          "Short date"
                         );
                       }}
                       value={(() => {
@@ -764,7 +770,7 @@ const UnixTimeConverterPage = () => {
                           timezone === "utc"
                             ? date.getUTCFullYear()
                             : date.getFullYear();
-                        handleCopy(`${months[m]} ${y}`, "fmt-month-year");
+                        handleCopy(`${months[m]} ${y}`, "Month year");
                       }}
                       value={(() => {
                         const months = [

@@ -2,7 +2,7 @@
 
 import { Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ const HTMLEntitiesPage = () => {
   );
   const [encodingMode, setEncodingMode] = useState<EncodingMode>("named");
   const [encodeAll, setEncodeAll] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const isHydratedRef = useRef(false);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -64,12 +64,12 @@ const HTMLEntitiesPage = () => {
         setEncodedText(result.encoded);
       }
     }
-    setIsHydrated(true);
+    isHydratedRef.current = true;
   }, []);
 
   // Save to localStorage when decoded text changes (after hydration)
   useEffect(() => {
-    if (!isHydrated) {
+    if (!isHydratedRef.current) {
       return;
     }
     scheduleStorageValue(
@@ -82,7 +82,7 @@ const HTMLEntitiesPage = () => {
           })
         : ""
     );
-  }, [decodedText, encodingMode, encodeAll, isHydrated]);
+  }, [decodedText, encodingMode, encodeAll]);
 
   const handleDecodedChange = (value: string) => {
     setDecodedText(value);

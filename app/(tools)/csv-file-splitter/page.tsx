@@ -7,7 +7,6 @@ import {
   ScissorIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import JSZip from "jszip";
 import {
   type ChangeEvent,
   type DragEvent,
@@ -18,6 +17,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
+import { StatusRegion } from "@/components/status-region";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,7 @@ import {
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import { type CsvSplitResult, formatFileSize } from "@/lib/csv-file-splitter";
 import { cn, getStorageValue, scheduleStorageValue } from "@/lib/utils";
 
@@ -81,13 +82,14 @@ const CsvFileSplitterPage = () => {
   const [file, setFile] = useState<File | null>(null);
   const [fileText, setFileText] = useState("");
   const [splitResult, setSplitResult] = useState<CsvSplitResult | null>(null);
-  const [targetMb, setTargetMb] = useState(() =>
-    getStorageValue(STORAGE_KEY_TARGET_MB, DEFAULT_TARGET_MB)
+  const [targetMb, setTargetMb] = useToolStorage(
+    STORAGE_KEY_TARGET_MB,
+    DEFAULT_TARGET_MB
   );
   const [repeatHeader, setRepeatHeader] = useState(
     () => getStorageValue(STORAGE_KEY_REPEAT_HEADER, "true") !== "false"
   );
-  const [isHydrated, setIsHydrated] = useState(false);
+  const repeatHeaderHydratedRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [progress, setProgress] = useState<ProgressState>({
     label: "",
@@ -97,16 +99,12 @@ const CsvFileSplitterPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
+    if (!repeatHeaderHydratedRef.current) {
+      repeatHeaderHydratedRef.current = true;
       return;
     }
-    scheduleStorageValue(STORAGE_KEY_TARGET_MB, targetMb);
     scheduleStorageValue(STORAGE_KEY_REPEAT_HEADER, String(repeatHeader));
-  }, [isHydrated, repeatHeader, targetMb]);
+  }, [repeatHeader]);
 
   const targetBytes = useMemo(() => parseTargetBytes(targetMb), [targetMb]);
 
@@ -330,6 +328,7 @@ const CsvFileSplitterPage = () => {
     setError(null);
 
     try {
+      const { default: JSZip } = await import("jszip");
       const zip = new JSZip();
       for (const chunk of splitResult.chunks) {
         zip.file(chunk.fileName, chunk.content);
@@ -477,11 +476,13 @@ const CsvFileSplitterPage = () => {
               </div>
             ) : null}
 
-            {error ? (
-              <p className="border border-destructive/30 bg-destructive/5 p-3 text-destructive text-xs">
-                {error}
-              </p>
-            ) : null}
+            <StatusRegion tone="assertive">
+              {error ? (
+                <p className="border border-destructive/30 bg-destructive/5 p-3 text-destructive text-xs">
+                  {error}
+                </p>
+              ) : null}
+            </StatusRegion>
           </CardContent>
         </Card>
       </div>

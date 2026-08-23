@@ -3,6 +3,26 @@ import { navItems } from "@/lib/nav-items";
 
 const DEFAULT_SITE_URL = "https://localforge.app";
 
+// `file_handlers` and `shortcuts` are not yet part of Next.js's
+// MetadataRoute.Manifest type — extend it with an intersection rather than
+// casting to `any`.
+interface ManifestFileHandler {
+  accept: Record<string, string[]>;
+  action: string;
+}
+
+interface ManifestShortcut {
+  icons?: { sizes: string; src: string }[];
+  name: string;
+  short_name?: string;
+  url: string;
+}
+
+type ExtendedManifest = MetadataRoute.Manifest & {
+  shortcuts?: ManifestShortcut[];
+  file_handlers?: ManifestFileHandler[];
+};
+
 export const siteConfig = {
   name: "LocalForge",
   title: "LocalForge — Privacy-First Developer Utilities",
@@ -37,7 +57,7 @@ export const siteConfig = {
 export const getSiteUrl = () =>
   process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url;
 
-export const buildManifest = (): MetadataRoute.Manifest => ({
+export const buildManifest = (): ExtendedManifest => ({
   name: siteConfig.name,
   short_name: siteConfig.name,
   description: siteConfig.description,
@@ -59,6 +79,41 @@ export const buildManifest = (): MetadataRoute.Manifest => ({
       sizes: "512x512",
       type: "image/png",
       purpose: "any",
+    },
+  ],
+  shortcuts: [
+    {
+      name: "JSON Formatter",
+      short_name: "JSON",
+      url: "/json-formatter",
+      icons: [{ src: "/icon-192x192.png", sizes: "192x192" }],
+    },
+    {
+      name: "Base64",
+      short_name: "Base64",
+      url: "/base64",
+      icons: [{ src: "/icon-192x192.png", sizes: "192x192" }],
+    },
+    {
+      name: "Image Compressor",
+      short_name: "Compress",
+      url: "/image-compressor",
+      icons: [{ src: "/icon-192x192.png", sizes: "192x192" }],
+    },
+    {
+      name: "Regex Tester",
+      short_name: "Regex",
+      url: "/regex-tester",
+      icons: [{ src: "/icon-192x192.png", sizes: "192x192" }],
+    },
+  ],
+  file_handlers: [
+    {
+      action: "/image-compressor",
+      accept: {
+        "image/png": [".png"],
+        "image/jpeg": [".jpg", ".jpeg"],
+      },
     },
   ],
 });

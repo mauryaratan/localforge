@@ -1,10 +1,15 @@
 "use client";
 
-import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import {
+  Copy01Icon,
+  Delete02Icon,
+  Share01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AutoDirectionIndicator } from "@/components/auto-direction-indicator";
+import { StatusRegion } from "@/components/status-region";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -17,13 +22,15 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { buildShareUrl, readUrlState } from "@/hooks/use-tool-state-url";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   type Base64Mode,
   calculateSizeInfo,
   decodeBase64,
   encodeBase64,
 } from "@/lib/base64";
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
+import { getStorageValue } from "@/lib/utils";
 
 const STORAGE_KEY = "devtools:base64:input";
 
@@ -36,10 +43,7 @@ const EXAMPLE_STRINGS = [
 ];
 
 const Base64Page = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [plainText, setPlainText] = useState(() =>
-    getStorageValue(STORAGE_KEY)
-  );
+  const [plainText, setPlainText] = useToolStorage(STORAGE_KEY);
   const [encodedText, setEncodedText] = useState(() => {
     const saved = getStorageValue(STORAGE_KEY);
     if (!saved) {
@@ -51,25 +55,64 @@ const Base64Page = () => {
   const [lastEdited, setLastEdited] = useState<"plain" | "encoded">("plain");
   const [mode, setMode] = useState<Base64Mode>("standard");
   const [error, setError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+  const modeHydratedRef = useRef(false);
 
-  // Save to localStorage when plain text changes (after hydration)
+  // Read URL state once on mount (constraint 3): URL state wins over localStorage.
+  // history.replaceState is called inside readUrlState to strip ?state= after read.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally empty — read once on mount only; setters are stable
   useEffect(() => {
-    if (!isHydrated) {
+    const urlState = readUrlState<{
+      plainText: string;
+      encodedText: string;
+      mode: Base64Mode;
+      lastEdited: "plain" | "encoded";
+    }>();
+    if (!urlState) {
       return;
     }
-    scheduleStorageValue(STORAGE_KEY, plainText);
-  }, [plainText, isHydrated]);
+
+    if (urlState.plainText !== undefined) {
+      setPlainText(urlState.plainText);
+    }
+    if (urlState.encodedText !== undefined) {
+      setEncodedText(urlState.encodedText);
+    }
+    if (urlState.mode !== undefined) {
+      setMode(urlState.mode);
+      // modeHydratedRef must be true so the mode-change effect doesn't
+      // re-encode on top of the URL-supplied values
+      modeHydratedRef.current = true;
+    }
+    if (urlState.lastEdited !== undefined) {
+      setLastEdited(urlState.lastEdited);
+    }
+  }, []);
+
+  const handleShareLink = async () => {
+    const url = buildShareUrl({
+      plainText,
+      encodedText,
+      mode,
+      lastEdited,
+    });
+    if (url === null) {
+      toast.error("Content too large to share as a link");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied to clipboard");
+    } catch {
+      toast.error("Failed to copy share link");
+    }
+  };
 
   // Re-encode/decode when mode changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally omitting plainText, encodedText, lastEdited to only trigger on mode change
   useEffect(() => {
-    if (!isHydrated) {
+    if (!modeHydratedRef.current) {
+      modeHydratedRef.current = true;
       return;
     }
 
@@ -90,7 +133,7 @@ const Base64Page = () => {
         setError(result.error || "Decoding failed");
       }
     }
-  }, [mode, isHydrated]);
+  }, [mode]);
 
   const handlePlainTextChange = (value: string) => {
     setPlainText(value);
@@ -194,9 +237,27 @@ const Base64Page = () => {
             <div className="flex items-center justify-between">
               <CardTitle>Transform</CardTitle>
               <div className="flex items-center gap-2">
-                {error && (
-                  <span className="text-destructive text-xs">{error}</span>
-                )}
+                <StatusRegion tone="assertive">
+                  {error && (
+                    <span className="text-destructive text-xs">{error}</span>
+                  )}
+                </StatusRegion>
+                <Button
+                  aria-label="Copy share link"
+                  className="cursor-pointer"
+                  disabled={!(plainText || encodedText)}
+                  onClick={handleShareLink}
+                  size="xs"
+                  tabIndex={0}
+                  variant="ghost"
+                >
+                  <HugeiconsIcon
+                    data-icon="inline-start"
+                    icon={Share01Icon}
+                    size={14}
+                  />
+                  Share
+                </Button>
                 {(plainText || encodedText) && (
                   <Button
                     aria-label="Clear all"

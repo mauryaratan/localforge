@@ -28,6 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToolStorage } from "@/hooks/use-tool-storage";
 import {
   buildJsonTree,
   exampleJson,
@@ -42,36 +43,16 @@ import {
   validateJson,
 } from "@/lib/json-formatter";
 
-import { getStorageValue, scheduleStorageValue } from "@/lib/utils";
-
 const STORAGE_KEY_INPUT = "devtools:json-formatter:input";
 const STORAGE_KEY_PATH = "devtools:json-formatter:path";
 
 const JsonFormatterPage = () => {
-  // Use lazy state initialization - function runs only once on initial render
-  const [input, setInput] = useState(() => getStorageValue(STORAGE_KEY_INPUT));
-  const [pathQuery, setPathQuery] = useState(() =>
-    getStorageValue(STORAGE_KEY_PATH)
-  );
+  const [input, setInput] = useToolStorage(STORAGE_KEY_INPUT);
+  const [pathQuery, setPathQuery] = useToolStorage(STORAGE_KEY_PATH);
   const [pathResult, setPathResult] = useState<string>("");
   const [pathError, setPathError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
   const [indentSize, setIndentSize] = useState(2);
   const [activeTab, setActiveTab] = useState<string>("formatted");
-
-  // Mark as hydrated on mount
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Save to localStorage when input/path changes (after hydration)
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    scheduleStorageValue(STORAGE_KEY_INPUT, input);
-    scheduleStorageValue(STORAGE_KEY_PATH, pathQuery);
-  }, [input, pathQuery, isHydrated]);
 
   // Validation result
   const validation = useMemo(() => {
@@ -156,41 +137,47 @@ const JsonFormatterPage = () => {
     setPathQuery("");
     setPathResult("");
     setPathError(null);
-  }, []);
+  }, [setInput, setPathQuery]);
 
   const handleFormat = useCallback(() => {
     const result = formatJson(input, indentSize);
     if (result.success) {
       setInput(result.output);
     }
-  }, [input, indentSize]);
+  }, [input, indentSize, setInput]);
 
   const handleMinify = useCallback(() => {
     const result = minifyJson(input);
     if (result.success) {
       setInput(result.output);
     }
-  }, [input]);
+  }, [input, setInput]);
 
   const handleSortKeys = useCallback(() => {
     const result = sortJsonKeys(input);
     if (result.success) {
       setInput(result.output);
     }
-  }, [input]);
+  }, [input, setInput]);
 
-  const handleLoadExample = useCallback((example: string) => {
-    setInput(example);
-  }, []);
+  const handleLoadExample = useCallback(
+    (example: string) => {
+      setInput(example);
+    },
+    [setInput]
+  );
 
-  const handleLoadPath = useCallback((path: string) => {
-    setPathQuery(path);
-  }, []);
+  const handleLoadPath = useCallback(
+    (path: string) => {
+      setPathQuery(path);
+    },
+    [setPathQuery]
+  );
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
       {/* Main content */}
-      <div className="flex max-w-4xl flex-1 flex-col gap-6">
+      <div className="flex max-w-4xl flex-1 flex-col gap-6 xl:max-w-none">
         <div className="flex flex-col gap-1">
           <h1 className="font-medium text-lg">JSON Formatter & Validator</h1>
           <p className="text-muted-foreground text-xs">
@@ -198,130 +185,211 @@ const JsonFormatterPage = () => {
           </p>
         </div>
 
-        {/* Input Card */}
-        <Card>
-          <CardHeader className="border-b">
-            <div className="flex items-center justify-between">
-              <CardTitle>JSON Input</CardTitle>
-              <div className="flex items-center gap-1">
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        aria-label="Format JSON"
-                        className="cursor-pointer"
-                        disabled={!validation.isValid}
-                        onClick={handleFormat}
-                        size="icon-xs"
-                        tabIndex={0}
-                        variant="ghost"
-                      />
-                    }
+        {/* Input and output side by side on wide screens */}
+        <div className="grid items-start gap-6 xl:grid-cols-2">
+          {/* Input Card */}
+          <Card>
+            <CardHeader className="border-b">
+              <div className="flex items-center justify-between">
+                <CardTitle>JSON Input</CardTitle>
+                <div className="flex items-center gap-1">
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          aria-label="Format JSON"
+                          className="cursor-pointer"
+                          disabled={!validation.isValid}
+                          onClick={handleFormat}
+                          size="icon-xs"
+                          tabIndex={0}
+                          variant="ghost"
+                        />
+                      }
+                    >
+                      <HugeiconsIcon icon={TextWrapIcon} size={14} />
+                    </TooltipTrigger>
+                    <TooltipContent>Format (prettify)</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          aria-label="Minify JSON"
+                          className="cursor-pointer"
+                          disabled={!validation.isValid}
+                          onClick={handleMinify}
+                          size="icon-xs"
+                          tabIndex={0}
+                          variant="ghost"
+                        />
+                      }
+                    >
+                      <HugeiconsIcon icon={MinusSignIcon} size={14} />
+                    </TooltipTrigger>
+                    <TooltipContent>Minify</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          aria-label="Sort keys"
+                          className="cursor-pointer"
+                          disabled={!validation.isValid}
+                          onClick={handleSortKeys}
+                          size="icon-xs"
+                          tabIndex={0}
+                          variant="ghost"
+                        />
+                      }
+                    >
+                      <HugeiconsIcon icon={SortByDown02Icon} size={14} />
+                    </TooltipTrigger>
+                    <TooltipContent>Sort keys A-Z</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          aria-label="Clear input"
+                          className="cursor-pointer"
+                          disabled={!input}
+                          onClick={handleClearInput}
+                          size="icon-xs"
+                          tabIndex={0}
+                          variant="ghost"
+                        />
+                      }
+                    >
+                      <HugeiconsIcon icon={Delete02Icon} size={14} />
+                    </TooltipTrigger>
+                    <TooltipContent>Clear</TooltipContent>
+                  </Tooltip>
+                  <Button
+                    aria-label="Copy JSON"
+                    className="cursor-pointer"
+                    disabled={!input}
+                    onClick={() => handleCopy(input, "JSON")}
+                    size="icon-xs"
+                    tabIndex={0}
+                    variant="ghost"
                   >
-                    <HugeiconsIcon icon={TextWrapIcon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>Format (prettify)</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        aria-label="Minify JSON"
-                        className="cursor-pointer"
-                        disabled={!validation.isValid}
-                        onClick={handleMinify}
-                        size="icon-xs"
-                        tabIndex={0}
-                        variant="ghost"
-                      />
-                    }
-                  >
-                    <HugeiconsIcon icon={MinusSignIcon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>Minify</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        aria-label="Sort keys"
-                        className="cursor-pointer"
-                        disabled={!validation.isValid}
-                        onClick={handleSortKeys}
-                        size="icon-xs"
-                        tabIndex={0}
-                        variant="ghost"
-                      />
-                    }
-                  >
-                    <HugeiconsIcon icon={SortByDown02Icon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>Sort keys A-Z</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        aria-label="Clear input"
-                        className="cursor-pointer"
-                        disabled={!input}
-                        onClick={handleClearInput}
-                        size="icon-xs"
-                        tabIndex={0}
-                        variant="ghost"
-                      />
-                    }
-                  >
-                    <HugeiconsIcon icon={Delete02Icon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>Clear</TooltipContent>
-                </Tooltip>
-                <Button
-                  aria-label="Copy JSON"
-                  className="cursor-pointer"
-                  disabled={!input}
-                  onClick={() => handleCopy(input, "JSON")}
-                  size="icon-xs"
-                  tabIndex={0}
-                  variant="ghost"
-                >
-                  <HugeiconsIcon icon={Copy01Icon} size={14} />
-                </Button>
+                    <HugeiconsIcon icon={Copy01Icon} size={14} />
+                  </Button>
+                </div>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <Textarea
-              aria-label="JSON input"
-              className="!field-sizing-fixed h-[280px] max-h-[400px] min-h-[200px] resize-y font-mono text-xs leading-relaxed"
-              onChange={(e) => setInput(e.target.value)}
-              placeholder='{"key": "value"}'
-              spellCheck={false}
-              value={input}
-            />
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {validation.isValid === true && (
-                <>
-                  <Badge variant="default">Valid JSON</Badge>
-                  {stats && (
-                    <span className="text-muted-foreground text-xs">
-                      {stats.keyCount} keys · {stats.objectCount} objects ·{" "}
-                      {stats.arrayCount} arrays · depth {stats.maxDepth}
-                    </span>
-                  )}
-                </>
-              )}
-              {validation.isValid === false && validation.error && (
-                <Badge variant="destructive">
-                  {validation.errorPosition
-                    ? `Line ${validation.errorPosition.line}, Col ${validation.errorPosition.column}: `
-                    : ""}
-                  {validation.error}
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <Textarea
+                aria-label="JSON input"
+                className="!field-sizing-fixed h-[280px] max-h-[400px] min-h-[200px] resize-y font-mono text-xs leading-relaxed"
+                onChange={(e) => setInput(e.target.value)}
+                placeholder='{"key": "value"}'
+                spellCheck={false}
+                value={input}
+              />
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {validation.isValid === true && (
+                  <>
+                    <Badge variant="default">Valid JSON</Badge>
+                    {stats && (
+                      <span className="text-muted-foreground text-xs">
+                        {stats.keyCount} keys · {stats.objectCount} objects ·{" "}
+                        {stats.arrayCount} arrays · depth {stats.maxDepth}
+                      </span>
+                    )}
+                  </>
+                )}
+                {validation.isValid === false && validation.error && (
+                  <Badge variant="destructive">
+                    {validation.errorPosition
+                      ? `Line ${validation.errorPosition.line}, Col ${validation.errorPosition.column}: `
+                      : ""}
+                    {validation.error}
+                  </Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Output Tabs */}
+          <Card>
+            <Tabs
+              defaultValue="formatted"
+              onValueChange={(v) => setActiveTab(v as string)}
+              value={activeTab}
+            >
+              <CardHeader className="border-b">
+                <div className="flex items-center justify-between">
+                  <TabsList variant="line">
+                    <TabsTrigger value="formatted">Formatted</TabsTrigger>
+                    <TabsTrigger value="tree">Tree View</TabsTrigger>
+                  </TabsList>
+                  <div className="flex items-center gap-2">
+                    {activeTab === "formatted" && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground text-xs">
+                          Indent:
+                        </span>
+                        <ToggleGroup size="sm" variant="outline">
+                          {[2, 4].map((size) => (
+                            <ToggleGroupItem
+                              aria-label={`${size} spaces`}
+                              aria-pressed={indentSize === size}
+                              className="cursor-pointer px-2"
+                              key={size}
+                              onClick={() => setIndentSize(size)}
+                              pressed={indentSize === size}
+                              value={size.toString()}
+                            >
+                              {size}
+                            </ToggleGroupItem>
+                          ))}
+                        </ToggleGroup>
+                      </div>
+                    )}
+                    <Button
+                      aria-label="Copy formatted"
+                      className="cursor-pointer"
+                      disabled={!formattedOutput}
+                      onClick={() =>
+                        handleCopy(formattedOutput, "Formatted JSON")
+                      }
+                      size="icon-xs"
+                      tabIndex={0}
+                      variant="ghost"
+                    >
+                      <HugeiconsIcon icon={Copy01Icon} size={14} />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <TabsContent value="formatted">
+                  <Textarea
+                    aria-label="Formatted JSON output"
+                    className="!field-sizing-fixed h-[280px] max-h-[400px] min-h-[200px] resize-y bg-muted/30 font-mono text-xs leading-relaxed"
+                    placeholder="Formatted JSON will appear here"
+                    readOnly
+                    spellCheck={false}
+                    value={formattedOutput}
+                  />
+                </TabsContent>
+                <TabsContent value="tree">
+                  <ScrollArea className="h-[400px] rounded-sm bg-muted/30 p-3">
+                    {treeNodes.length > 0 ? (
+                      <TreeView nodes={treeNodes} onCopy={handleCopy} />
+                    ) : (
+                      <p className="text-muted-foreground text-xs">
+                        No data to display
+                      </p>
+                    )}
+                  </ScrollArea>
+                </TabsContent>
+              </CardContent>
+            </Tabs>
+          </Card>
+        </div>
 
         {/* JSONPath Filter */}
         <Card>
@@ -397,85 +465,6 @@ const JsonFormatterPage = () => {
             )}
           </CardContent>
         </Card>
-
-        {/* Output Tabs */}
-        {validation.isValid && (
-          <Card>
-            <Tabs
-              defaultValue="formatted"
-              onValueChange={(v) => setActiveTab(v as string)}
-              value={activeTab}
-            >
-              <CardHeader className="border-b">
-                <div className="flex items-center justify-between">
-                  <TabsList variant="line">
-                    <TabsTrigger value="formatted">Formatted</TabsTrigger>
-                    <TabsTrigger value="tree">Tree View</TabsTrigger>
-                  </TabsList>
-                  <div className="flex items-center gap-2">
-                    {activeTab === "formatted" && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground text-xs">
-                          Indent:
-                        </span>
-                        <ToggleGroup size="sm" variant="outline">
-                          {[2, 4].map((size) => (
-                            <ToggleGroupItem
-                              aria-label={`${size} spaces`}
-                              aria-pressed={indentSize === size}
-                              className="cursor-pointer px-2"
-                              key={size}
-                              onClick={() => setIndentSize(size)}
-                              pressed={indentSize === size}
-                              value={size.toString()}
-                            >
-                              {size}
-                            </ToggleGroupItem>
-                          ))}
-                        </ToggleGroup>
-                      </div>
-                    )}
-                    <Button
-                      aria-label="Copy formatted"
-                      className="cursor-pointer"
-                      disabled={!formattedOutput}
-                      onClick={() =>
-                        handleCopy(formattedOutput, "Formatted JSON")
-                      }
-                      size="icon-xs"
-                      tabIndex={0}
-                      variant="ghost"
-                    >
-                      <HugeiconsIcon icon={Copy01Icon} size={14} />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <TabsContent value="formatted">
-                  <Textarea
-                    aria-label="Formatted JSON output"
-                    className="!field-sizing-fixed h-[280px] max-h-[400px] min-h-[200px] resize-y bg-muted/30 font-mono text-xs leading-relaxed"
-                    readOnly
-                    spellCheck={false}
-                    value={formattedOutput}
-                  />
-                </TabsContent>
-                <TabsContent value="tree">
-                  <ScrollArea className="h-[400px] rounded-sm bg-muted/30 p-3">
-                    {treeNodes.length > 0 ? (
-                      <TreeView nodes={treeNodes} onCopy={handleCopy} />
-                    ) : (
-                      <p className="text-muted-foreground text-xs">
-                        No data to display
-                      </p>
-                    )}
-                  </ScrollArea>
-                </TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
-        )}
       </div>
 
       {/* Sidebar */}
@@ -684,7 +673,7 @@ const TreeNodeItem = ({ node, depth, onCopy }: TreeNodeItemProps) => {
         <span className="text-xs">{getValueDisplay()}</span>
         <button
           aria-label="Copy path"
-          className="ml-auto cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
+          className="ml-auto cursor-pointer opacity-0 transition-opacity focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
           onClick={handleCopyPath}
           tabIndex={0}
           type="button"

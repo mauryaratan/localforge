@@ -3,6 +3,7 @@ packages:
 overrides:
   electron-to-chromium: 1.5.367
   enhanced-resolve: 5.22.2
+  postcss: ">=8.5.10"
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver

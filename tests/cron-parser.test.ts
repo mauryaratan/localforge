@@ -111,6 +111,11 @@ describe("parseCron", () => {
       expect(result.isValid).toBe(true);
       expect(result.fields[0].valid).toBe(true);
     });
+
+    it("should reject step expressions with multiple slashes", () => {
+      const result = parseCron("*/2/3 * * * *");
+      expect(result.isValid).toBe(false);
+    });
   });
 
   describe("ranges", () => {

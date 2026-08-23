@@ -295,6 +295,8 @@ function getWorker(): Worker {
     const blob = new Blob([code], { type: "application/javascript" });
     const url = URL.createObjectURL(blob);
     worker = new Worker(url);
+    // The worker keeps its own reference to the script once spawned
+    URL.revokeObjectURL(url);
 
     worker.onmessage = (e) => {
       const { id, success, result, error } = e.data;
